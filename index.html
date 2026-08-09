@@ -55,18 +55,35 @@
 
             <!-- TAB CONTENT: SURVEY / INPUT -->
             <div id="tabSurvey" class="space-y-6">
+                <!-- Pilihan Project (Permintaan 1) -->
+                <div id="projectSelectionSection" class="bg-white p-6 rounded-2xl shadow-md space-y-4">
+                    <h3 class="text-xl font-bold text-iss-blue">Pilih Mode Project</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Project Sebelumnya</label>
+                            <select id="selectProject" onchange="handleSelectProject()" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                <option value="">-- Pilih Project Tersimpan --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Atau Buat Project Baru</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="newProjectName" placeholder="Nama Project Baru..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                                <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition whitespace-nowrap">Buat Baru</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Form Input / Edit Ruang -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <h3 id="formTitle" class="text-xl font-bold text-iss-blue mb-4">Input Data Ruang Baru</h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 id="formTitle" class="text-xl font-bold text-iss-blue">Input Data Ruang Baru</h3>
+                        <span id="activeProjectBadge" class="text-xs bg-blue-100 text-iss-blue font-semibold px-3 py-1 rounded-full">Project: Default</span>
+                    </div>
                     <form id="surveyForm" onsubmit="saveRoomData(event)" class="space-y-4">
                         <input type="hidden" id="editIndex" value="">
                         
-                        <!-- NAMA PROJECT -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Nama Project *</label>
-                            <input type="text" id="nama_project" required onchange="handleProjectChange()" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue" placeholder="Masukkan atau pilih nama project...">
-                        </div>
-
                         <!-- UTAMA (Selalu Tampil) -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
@@ -121,16 +138,17 @@
                     </form>
                 </div>
 
-                <!-- Tabel Data Tersimpan -->
-                <div class="bg-white p-6 rounded-2xl shadow-md overflow-x-auto">
-                    <div class="flex justify-between items-center mb-4">
+                <!-- Tabel Data Tersimpan & Tombol Download (Permintaan 2) -->
+                <div class="bg-white p-6 rounded-2xl shadow-md overflow-x-auto space-y-4">
+                    <div class="flex justify-between items-center">
                         <h3 class="text-xl font-bold text-iss-blue">Daftar Data Ruang Tersimpan</h3>
-                        <button onclick="downloadGoogleSpreadsheet()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition">Download Spreadsheet</button>
+                        <button onclick="downloadGoogleSpreadsheet()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition flex items-center gap-1">
+                            📊 Download Google Spreadsheet
+                        </button>
                     </div>
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="bg-blue-50 text-iss-blue border-b">
-                                <th class="p-3">Nama Project</th>
                                 <th class="p-3">Nama Gedung</th>
                                 <th class="p-3">Lantai</th>
                                 <th class="p-3">Nama Ruang</th>
@@ -150,67 +168,58 @@
             <!-- TAB CONTENT: ANALYTICS DASHBOARD -->
             <div id="tabDashboard" class="hidden space-y-6">
                 <div id="userDashboardView" class="space-y-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-md">
-                        <h3 class="text-xl font-bold text-iss-blue mb-4">Dashboard Analitik Ruang</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-md space-y-6">
+                        <h3 class="text-xl font-bold text-iss-blue">Dashboard Analitik Ruang</h3>
                         
-                        <!-- Filter Project & Wildcard Nama Ruang -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Filter Project</label>
-                                <select id="filterProject" onchange="renderAnalytics()" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                    <option value="">Semua Project</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Filter / Wildcard Nama Ruang</label>
-                                <input type="text" id="searchWildcard" oninput="renderAnalytics()" placeholder="Ketik nama ruang atau bagian kata (wildcard)..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
-                            </div>
-                        </div>
-
-                        <!-- Ringkasan Kartu -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <!-- Ringkasan Kartu (Permintaan 3) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
                                 <p class="text-sm text-gray-600">Total Luas Area Terukur</p>
                                 <h4 id="statTotalLuas" class="text-2xl font-bold text-iss-blue">0.00 m²</h4>
                             </div>
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
-                                <p class="text-sm text-gray-600">Jumlah Ruangan</p>
+                                <p class="text-sm text-gray-600">Jumlah Total Ruangan</p>
                                 <h4 id="statTotalRuang" class="text-2xl font-bold text-iss-blue">0 Ruang</h4>
                             </div>
                         </div>
 
-                        <!-- Rincian Sesuai Ketentuan Nomor 3 -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                            <div class="bg-gray-50 p-4 rounded-xl border">
-                                <h4 class="font-bold text-gray-700 mb-3">Total Luas per Gedung (dengan Persentase)</h4>
+                        <!-- Rincian Detail Sesuai Permintaan 3 -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-gray-50 p-4 rounded-xl border space-y-3">
+                                <h4 class="font-bold text-gray-700">Total Luas per Gedung (dengan Persentase)</h4>
                                 <div id="statPerGedung" class="space-y-2 text-sm"></div>
                             </div>
-                            <div class="bg-gray-50 p-4 rounded-xl border">
-                                <h4 class="font-bold text-gray-700 mb-3">Luas Ruangan Bernama Sama & Jumlahnya per Gedung</h4>
-                                <div id="statNamaRuangSama" class="space-y-2 text-sm"></div>
+                            <div class="bg-gray-50 p-4 rounded-xl border space-y-3">
+                                <h4 class="font-bold text-gray-700">Luas Ruangan Bernama Sama & Jumlahnya</h4>
+                                <div id="statNamaSama" class="space-y-2 text-sm"></div>
                             </div>
-                            <div class="bg-gray-50 p-4 rounded-xl border">
-                                <h4 class="font-bold text-gray-700 mb-3">Luas per Jenis Lantai per Gedung (dengan Persentase)</h4>
+                            <div class="bg-gray-50 p-4 rounded-xl border space-y-3">
+                                <h4 class="font-bold text-gray-700">Luas per Jenis Lantai per Gedung</h4>
                                 <div id="statPerPermukaanGedung" class="space-y-2 text-sm"></div>
                             </div>
                         </div>
 
-                        <!-- Visualisasi Grafik dengan Endpoint (Ketentuan Nomor 4) -->
-                        <div class="bg-gray-50 p-4 rounded-xl border">
-                            <h4 class="font-bold text-gray-700 mb-3">Visualisasi Grafik Luas per Gedung</h4>
-                            <div class="w-full h-64 relative">
-                                <canvas id="chartGedung"></canvas>
+                        <!-- Visualisasi Grafik dengan Endpoint (Permintaan 4) -->
+                        <div class="border-t pt-6 space-y-4">
+                            <h4 class="font-bold text-lg text-iss-blue">Visualisasi Grafik Analisis</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-gray-50 p-4 rounded-xl border">
+                                    <canvas id="chartGedung"></canvas>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl border">
+                                    <canvas id="chartPermukaan"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ADMIN DASHBOARD VIEW -->
+                <!-- ADMIN DASHBOARD VIEW (Permintaan 5) -->
                 <div id="adminDashboardView" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-2xl shadow-md">
-                        <h3 class="text-xl font-bold text-iss-blue mb-4">Dashboard Administrator (Semua User)</h3>
+                        <h3 class="text-xl font-bold text-iss-blue mb-4">Dashboard Administrator (Analisis per User)</h3>
                         <div id="adminContentContainer" class="space-y-6">
-                            <!-- Data user lain dirender secara dinamis di sini -->
+                            <!-- Data analitik user lain dirender secara dinamis di sini -->
                         </div>
                     </div>
                 </div>
@@ -224,7 +233,7 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbwo1qux80FXKobwTX727KuaBtcNoGnxoStbK6JaIBvt6VSrD2Brree4g5tFpD0IE-1V/exec";
         let currentUser = localStorage.getItem("survey_user") || null;
         let isAdmin = localStorage.getItem("survey_is_admin") === "true";
-        let chartInstance = null;
+        let currentProject = localStorage.getItem("survey_project") || "Default";
 
         window.onload = () => {
             if (currentUser) {
@@ -278,6 +287,7 @@
         function logout() {
             localStorage.removeItem("survey_user");
             localStorage.removeItem("survey_is_admin");
+            localStorage.removeItem("survey_project");
             location.reload();
         }
 
@@ -320,7 +330,6 @@
                 } else {
                     document.getElementById("userDashboardView").classList.remove("hidden");
                     document.getElementById("adminDashboardView").classList.add("hidden");
-                    updateProjectDropdown();
                     renderAnalytics();
                 }
             }
@@ -331,12 +340,104 @@
             extra.classList.toggle("hidden");
         }
 
+        // Pengelolaan Project (Permintaan 1)
+        function getAllProjects() {
+            let projects = JSON.parse(localStorage.getItem(`projects_${currentUser}`)) || { "Default": [] };
+            return projects;
+        }
+
+        function saveAllProjects(projects) {
+            localStorage.setItem(`projects_${currentUser}`, JSON.stringify(projects));
+        }
+
         function getLocalData() {
-            return JSON.parse(localStorage.getItem(`data_${currentUser}`)) || [];
+            let projects = getAllProjects();
+            return projects[currentProject] || [];
         }
 
         function saveLocalData(data) {
-            localStorage.setItem(`data_${currentUser}`, JSON.stringify(data));
+            let projects = getAllProjects();
+            projects[currentProject] = data;
+            saveAllProjects(projects);
+        }
+
+        function updateProjectDropdown() {
+            let projects = getAllProjects();
+            let select = document.getElementById("selectProject");
+            select.innerHTML = '<option value="">-- Pilih Project Tersimpan --</option>';
+            for (let p in projects) {
+                let opt = document.createElement("option");
+                opt.value = p;
+                opt.text = p + ` (${projects[p].length} item)`;
+                if (p === currentProject) opt.selected = true;
+                select.appendChild(opt);
+            }
+            document.getElementById("activeProjectBadge").innerText = "Project: " + currentProject;
+        }
+
+        function handleSelectProject() {
+            let val = document.getElementById("selectProject").value;
+            if (val) {
+                currentProject = val;
+                localStorage.setItem("survey_project", currentProject);
+                document.getElementById("activeProjectBadge").innerText = "Project: " + currentProject;
+                resetForm();
+                renderTable();
+            }
+        }
+
+        function createNewProject() {
+            let name = document.getElementById("newProjectName").value.trim();
+            if (!name) {
+                alert("Nama project baru tidak boleh kosong!");
+                return;
+            }
+            let projects = getAllProjects();
+            if (projects[name]) {
+                alert("Project dengan nama tersebut sudah ada!");
+                return;
+            }
+            projects[name] = [];
+            saveAllProjects(projects);
+            currentProject = name;
+            localStorage.setItem("survey_project", currentProject);
+            document.getElementById("newProjectName").value = "";
+            updateProjectDropdown();
+            resetForm();
+            renderTable();
+            alert("Project baru '" + name + "' berhasil dibuat (spreadsheet bersih).");
+        }
+
+        // Fitur Download Google Spreadsheet (Permintaan 2)
+        function downloadGoogleSpreadsheet() {
+            const rows = getPropagatedRows(getLocalData());
+            if (rows.length === 0) {
+                alert("Belum ada data untuk didownload.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Nama Gedung,Lantai,Nama Ruang,Luas (m2),Jenis Permukaan,Catatan\r\n";
+
+            rows.forEach(r => {
+                let row = [
+                    `"${r.gedung || '-'}"`,
+                    `"${r.lantai || '-'}"`,
+                    `"${r.nama_ruang || ''}"`,
+                    `"${r.luas_ruang || 0}"`,
+                    `"${r.jenis_permukaan || ''}"`,
+                    `"${r.catatan || '-'}"`
+                ];
+                csvContent += row.join(",") + "\r\n";
+            });
+
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Survey_${currentProject}_${currentUser}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         async function loadData() {
@@ -347,36 +448,16 @@
                         body: JSON.stringify({ action: "getData", username: currentUser })
                     });
                     let json = await res.json();
-                    if (json.status === "success") {
-                        saveLocalData(json.rows);
+                    if (json.status === "success" && json.rows) {
+                        let projects = getAllProjects();
+                        projects["Default"] = json.rows;
+                        saveAllProjects(projects);
                     }
                 } catch (e) {
                     console.log("Mengambil dari penyimpanan lokal (offline mode)");
                 }
             }
-            renderTable();
             updateProjectDropdown();
-        }
-
-        function updateProjectDropdown() {
-            const rows = getLocalData();
-            const projectSet = new Set();
-            rows.forEach(r => {
-                if (r.nama_project) projectSet.add(r.nama_project.trim());
-            });
-
-            const select = document.getElementById("filterProject");
-            if (!select) return;
-            const currentVal = select.value;
-            select.innerHTML = '<option value="">Semua Project</option>';
-            projectSet.forEach(p => {
-                select.innerHTML += `<option value="${p}">${p}</option>`;
-            });
-            select.value = currentVal;
-        }
-
-        function handleProjectChange() {
-            // Ketika nama project diisi/dipilih, data tabel bisa difilter atau disesuaikan jika diperlukan
             renderTable();
         }
 
@@ -403,7 +484,6 @@
             rows.forEach((r, index) => {
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3 font-semibold text-iss-blue">${r.nama_project || '-'}</td>
                         <td class="p-3">${r.gedung || '-'}</td>
                         <td class="p-3">${r.lantai || '-'}</td>
                         <td class="p-3 font-medium">${r.nama_ruang}</td>
@@ -424,7 +504,6 @@
             const editIndex = document.getElementById("editIndex").value;
             
             const newItem = {
-                nama_project: document.getElementById("nama_project").value.trim(),
                 gedung: document.getElementById("gedung").value,
                 lantai: document.getElementById("lantai").value,
                 nama_ruang: document.getElementById("nama_ruang").value,
@@ -443,7 +522,6 @@
             saveLocalData(rows);
             resetForm();
             renderTable();
-            updateProjectDropdown();
             syncOfflineData();
         }
 
@@ -452,7 +530,6 @@
             const r = rows[index];
 
             document.getElementById("editIndex").value = index;
-            document.getElementById("nama_project").value = r.nama_project || "";
             document.getElementById("gedung").value = r.gedung || "";
             document.getElementById("lantai").value = r.lantai || "";
             document.getElementById("nama_ruang").value = r.nama_ruang;
@@ -472,7 +549,6 @@
                 rows.splice(index, 1);
                 saveLocalData(rows);
                 renderTable();
-                updateProjectDropdown();
                 syncOfflineData();
             }
         }
@@ -497,87 +573,46 @@
             }
         }
 
-        // Fitur Download Data dalam format Google Spreadsheet (CSV/TSV kompatibel atau export excel format)
-        function downloadGoogleSpreadsheet() {
-            const rows = getLocalData();
-            if (rows.length === 0) {
-                alert("Tidak ada data untuk di-download.");
-                return;
-            }
-            let csvContent = "data:text/csv;charset=utf-8,Nama Project,Nama Gedung,Lantai,Nama Ruang,Luas Ruang (m2),Jenis Permukaan,Catatan\r\n";
-            rows.forEach(r => {
-                let row = [
-                    `"${r.nama_project || ''}"`,
-                    `"${r.gedung || ''}"`,
-                    `"${r.lantai || ''}"`,
-                    `"${r.nama_ruang || ''}"`,
-                    r.luas_ruang || 0,
-                    `"${r.jenis_permukaan || ''}"`,
-                    `"${r.catatan || ''}"`
-                ];
-                csvContent += row.join(",") + "\r\n";
-            });
+        let chartGedungInstance = null;
+        let chartPermukaanInstance = null;
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `room_survey_${currentUser}_${Date.now()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Fungsionalitas Dashboard Analitik User sesuai ketentuan nomor 3 & 4
-        function renderAnalytics() {
-            const rawRows = getLocalData();
+        // Fungsionalitas Dashboard Analitik User (Permintaan 3 & 4)
+        function renderAnalytics(containerPrefix = "", targetRows = null) {
+            const rawRows = targetRows !== null ? targetRows : getLocalData();
             const rows = getPropagatedRows(rawRows);
-            const selectedProject = document.getElementById("filterProject").value;
-            const query = document.getElementById("searchWildcard").value.toLowerCase();
-
-            // Filter data berdasarkan project dan wildcard nama ruang
-            const filtered = rows.filter(r => {
-                let matchProject = !selectedProject || (r.nama_project && r.nama_project.trim() === selectedProject);
-                let matchQuery = (r.nama_ruang || "").toLowerCase().includes(query);
-                return matchProject && matchQuery;
-            });
 
             let totalLuas = 0;
             let perGedung = {};
-            let namaRuangDetail = {}; // Menyimpan { namaRuang: { totalLuas, totalCount, perGedung: { gedung: {luas, count} } } }
-            let perPermukaanGedung = {}; // Menyimpan { gedung: { jenisPermukaan: luas } }
+            let namaSamaMap = {};
+            let perPermukaanGedung = {};
 
-            filtered.forEach(r => {
+            rows.forEach(r => {
                 let luas = parseFloat(r.luas_ruang) || 0;
                 totalLuas += luas;
 
-                let gedung = r.gedung ? r.gedung.trim() : "Tanpa Gedung";
-                let namaRuang = r.nama_ruang ? r.nama_ruang.trim() : "Lainnya";
-                let perm = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Lainnya";
-
-                // Total luas per gedung
+                let gedung = (r.gedung && r.gedung.trim() !== "") ? r.gedung.trim() : "Tanpa Gedung";
                 perGedung[gedung] = (perGedung[gedung] || 0) + luas;
 
-                // Luas ruangan yang memiliki nama yang sama juga jumlah ruang dan per gedung
-                if (!namaRuangDetail[namaRuang]) {
-                    namaRuangDetail[namaRuang] = { totalLuas: 0, totalCount: 0, perGedung: {} };
+                let namaRuang = (r.nama_ruang && r.nama_ruang.trim() !== "") ? r.nama_ruang.trim() : "Lainnya";
+                if (!namaSamaMap[namaRuang]) {
+                    namaSamaMap[namaRuang] = { count: 0, luas: 0 };
                 }
-                namaRuangDetail[namaRuang].totalLuas += luas;
-                namaRuangDetail[namaRuang].totalCount += 1;
-                if (!namaRuangDetail[namaRuang].perGedung[gedung]) {
-                    namaRuangDetail[namaRuang].perGedung[gedung] = { luas: 0, count: 0 };
-                }
-                namaRuangDetail[namaRuang].perGedung[gedung].luas += luas;
-                namaRuangDetail[namaRuang].perGedung[gedung].count += 1;
+                namaSamaMap[namaRuang].count += 1;
+                namaSamaMap[namaRuang].luas += luas;
 
-                // Luas per jenis lantai per gedung
-                if (!perPermukaanGedung[gedung]) {
-                    perPermukaanGedung[gedung] = {};
-                }
+                let perm = (r.jenis_permukaan && r.jenis_permukaan.trim() !== "") ? r.jenis_permukaan.trim() : "Lainnya";
+                if (!perPermukaanGedung[gedung]) perPermukaanGedung[gedung] = {};
                 perPermukaanGedung[gedung][perm] = (perPermukaanGedung[gedung][perm] || 0) + luas;
             });
 
-            document.getElementById("statTotalLuas").innerText = totalLuas.toFixed(2) + " m²";
-            document.getElementById("statTotalRuang").innerText = filtered.length + " Ruang";
+            const totalLuasId = containerPrefix ? containerPrefix + "TotalLuas" : "statTotalLuas";
+            const totalRuangId = containerPrefix ? containerPrefix + "TotalRuang" : "statTotalRuang";
+            const perGedungId = containerPrefix ? containerPrefix + "PerGedung" : "statPerGedung";
+            const namaSamaId = containerPrefix ? containerPrefix + "NamaSama" : "statNamaSama";
+            const perPermGedungId = containerPrefix ? containerPrefix + "PerPermukaanGedung" : "statPerPermukaanGedung";
+
+            if (document.getElementById(totalLuasId)) document.getElementById(totalLuasId).innerText = totalLuas.toFixed(2) + " m²";
+            if (document.getElementById(totalRuangId)) document.getElementById(totalRuangId).innerText = rows.length + " Ruang";
 
             // 1. Total Luas per Gedung lengkap dengan persentase
             let htmlGedung = "";
@@ -585,66 +620,86 @@
                 let prop = totalLuas > 0 ? ((perGedung[g] / totalLuas) * 100).toFixed(1) : 0;
                 htmlGedung += `<div class="flex justify-between border-b pb-1"><span>${g}</span><span class="font-semibold">${perGedung[g].toFixed(2)} m² (${prop}%)</span></div>`;
             }
-            document.getElementById("statPerGedung").innerHTML = htmlGedung || "<p class='text-gray-500'>Belum ada data</p>";
+            if (document.getElementById(perGedungId)) document.getElementById(perGedungId).innerHTML = htmlGedung || "<p class='text-gray-500'>Belum ada data</p>";
 
-            // 2. Luas ruangan yang memiliki nama yang sama juga jumlah ruang dan per gedung
-            let htmlNamaRuangSama = "";
-            for (let nr in namaRuangDetail) {
-                let item = namaRuangDetail[nr];
-                htmlNamaRuangSama += `<div class="font-semibold text-iss-blue mt-2">Ruang: "${nr}" (${item.totalCount} Ruang, ${item.totalLuas.toFixed(2)} m²)</div>`;
-                for (let g in item.perGedung) {
-                    htmlNamaRuangSama += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>- Gedung ${g}</span><span>${item.perGedung[g].count} Ruang, ${item.perGedung[g].luas.toFixed(2)} m²</span></div>`;
-                }
+            // 2. Luas ruangan yang memiliki nama yang sama juga jumlah ruang
+            let htmlNamaSama = "";
+            for (let ns in namaSamaMap) {
+                let prop = totalLuas > 0 ? ((namaSamaMap[ns].luas / totalLuas) * 100).toFixed(1) : 0;
+                htmlNamaSama += `<div class="flex justify-between border-b pb-1"><span>${ns} (${namaSamaMap[ns].count} ruang)</span><span class="font-semibold">${namaSamaMap[ns].luas.toFixed(2)} m² (${prop}%)</span></div>`;
             }
-            document.getElementById("statNamaRuangSama").innerHTML = htmlNamaRuangSama || "<p class='text-gray-500'>Belum ada data</p>";
+            if (document.getElementById(namaSamaId)) document.getElementById(namaSamaId).innerHTML = htmlNamaSama || "<p class='text-gray-500'>Belum ada data</p>";
 
             // 3. Luas per jenis lantai per gedung lengkap dengan persentase
             let htmlPermGedung = "";
             for (let g in perPermukaanGedung) {
-                htmlPermGedung += `<div class="font-semibold text-iss-blue mt-2">Gedung: ${g}</div>`;
-                let totalLuasGedung = perGedung[g] || 1;
+                htmlPermGedung += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
                 for (let p in perPermukaanGedung[g]) {
-                    let luasP = perPermukaanGedung[g][p];
-                    let propP = ((luasP / totalLuasGedung) * 100).toFixed(1);
-                    htmlPermGedung += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${p}</span><span>${luasP.toFixed(2)} m² (${propP}%)</span></div>`;
+                    let gedungTotal = perGedung[g] || 0;
+                    let prop = gedungTotal > 0 ? ((perPermukaanGedung[g][p] / gedungTotal) * 100).toFixed(1) : 0;
+                    htmlPermGedung += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${p}</span><span>${perPermukaanGedung[g][p].toFixed(2)} m² (${prop}%)</span></div>`;
                 }
             }
-            document.getElementById("statPerPermukaanGedung").innerHTML = htmlPermGedung || "<p class='text-gray-500'>Belum ada data</p>";
+            if (document.getElementById(perPermGedungId)) document.getElementById(perPermGedungId).innerHTML = htmlPermGedung || "<p class='text-gray-500'>Belum ada data</p>";
 
-            // 4. Visualisasi Grafik dengan Endpoint (Chart.js)
-            renderChart("chartGedung", Object.keys(perGedung), Object.values(perGedung), "Luas per Gedung (m²)");
-        }
-
-        function renderChart(canvasId, labels, dataValues, labelName) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            if (chartInstance) {
-                chartInstance.destroy();
+            // 4. Visualisasi Grafik dengan Endpoint (Hanya untuk User utama)
+            if (!containerPrefix) {
+                renderCharts(perGedung, perPermukaanGedung);
             }
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels.length > 0 ? labels : ['Tidak Ada Data'],
-                    datasets: [{
-                        label: labelName,
-                        data: dataValues.length > 0 ? dataValues : [0],
-                        backgroundColor: '#0066FF',
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
         }
 
-        // Fungsionalitas Dashboard Admin sesuai ketentuan nomor 5
+        function renderCharts(perGedung, perPermukaanGedung) {
+            let labelsGedung = Object.keys(perGedung);
+            let dataGedung = Object.values(perGedung);
+
+            let ctxGedung = document.getElementById('chartGedung');
+            if (ctxGedung) {
+                if (chartGedungInstance) chartGedungInstance.destroy();
+                chartGedungInstance = new Chart(ctxGedung, {
+                    type: 'bar',
+                    data: {
+                        labels: labelsGedung,
+                        datasets: [{
+                            label: 'Total Luas per Gedung (m²)',
+                            data: dataGedung,
+                            backgroundColor: '#0066FF'
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+            }
+
+            let permTotals = {};
+            for (let g in perPermukaanGedung) {
+                for (let p in perPermukaanGedung[g]) {
+                    permTotals[p] = (permTotals[p] || 0) + perPermukaanGedung[g][p];
+                }
+            }
+            let labelsPerm = Object.keys(permTotals);
+            let dataPerm = Object.values(permTotals);
+
+            let ctxPerm = document.getElementById('chartPermukaan');
+            if (ctxPerm) {
+                if (chartPermukaanInstance) chartPermukaanInstance.destroy();
+                chartPermukaanInstance = new Chart(ctxPerm, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labelsPerm,
+                        datasets: [{
+                            label: 'Luas per Jenis Permukaan (m²)',
+                            data: dataPerm,
+                            backgroundColor: ['#0066FF', '#3385FF', '#66A3FF', '#99C2FF', '#CCE0FF', '#1A1A1A', '#4D4D4D']
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            }
+        }
+
+        // Fungsionalitas Dashboard Admin (Permintaan 5)
         async function loadAdminData() {
             const container = document.getElementById("adminContentContainer");
-            container.innerHTML = "<p class='text-gray-500 text-center'>Memuat data seluruh user...</p>";
+            container.innerHTML = "<p class='text-gray-500 text-center'>Memuat data analitik seluruh user...</p>";
 
             try {
                 let res = await fetch(API_URL, {
@@ -673,93 +728,39 @@
                     let usersData = Object.values(mergedMap);
                     let html = "";
 
-                    usersData.forEach((u, idx) => {
+                    usersData.forEach((u, index) => {
+                        let prefix = `admin_u_${index}_`;
                         let propagatedRows = getPropagatedRows(u.rows);
                         let totalLuasUser = propagatedRows.reduce((acc, cur) => acc + (parseFloat(cur.luas_ruang) || 0), 0);
-                        
-                        // Hitung analitik per user untuk admin sesuai ketentuan nomor 3 & 4 (tanpa daftar data per gedung)
-                        let perGedung = {};
-                        let namaRuangDetail = {};
-                        let perPermukaanGedung = {};
-
-                        propagatedRows.forEach(r => {
-                            let luas = parseFloat(r.luas_ruang) || 0;
-                            let gedung = r.gedung ? r.gedung.trim() : "Tanpa Gedung";
-                            let namaRuang = r.nama_ruang ? r.nama_ruang.trim() : "Lainnya";
-                            let perm = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Lainnya";
-
-                            perGedung[gedung] = (perGedung[gedung] || 0) + luas;
-
-                            if (!namaRuangDetail[namaRuang]) {
-                                namaRuangDetail[namaRuang] = { totalLuas: 0, totalCount: 0, perGedung: {} };
-                            }
-                            namaRuangDetail[namaRuang].totalLuas += luas;
-                            namaRuangDetail[namaRuang].totalCount += 1;
-                            if (!namaRuangDetail[namaRuang].perGedung[gedung]) {
-                                namaRuangDetail[namaRuang].perGedung[gedung] = { luas: 0, count: 0 };
-                            }
-                            namaRuangDetail[namaRuang].perGedung[gedung].luas += luas;
-                            namaRuangDetail[namaRuang].perGedung[gedung].count += 1;
-
-                            if (!perPermukaanGedung[gedung]) {
-                                perPermukaanGedung[gedung] = {};
-                            }
-                            perPermukaanGedung[gedung][perm] = (perPermukaanGedung[gedung][perm] || 0) + luas;
-                        });
-
-                        // Render bagian admin per user
-                        let htmlGedung = "";
-                        for (let g in perGedung) {
-                            let prop = totalLuasUser > 0 ? ((perGedung[g] / totalLuasUser) * 100).toFixed(1) : 0;
-                            htmlGedung += `<div class="flex justify-between border-b pb-1 text-sm"><span>${g}</span><span class="font-semibold">${perGedung[g].toFixed(2)} m² (${prop}%)</span></div>`;
-                        }
-
-                        let htmlNamaRuangSama = "";
-                        for (let nr in namaRuangDetail) {
-                            let item = namaRuangDetail[nr];
-                            htmlNamaRuangSama += `<div class="font-semibold text-iss-blue mt-2 text-sm">Ruang: "${nr}" (${item.totalCount} Ruang, ${item.totalLuas.toFixed(2)} m²)</div>`;
-                            for (let g in item.perGedung) {
-                                htmlNamaRuangSama += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>- Gedung ${g}</span><span>${item.perGedung[g].count} Ruang, ${item.perGedung[g].luas.toFixed(2)} m²</span></div>`;
-                            }
-                        }
-
-                        let htmlPermGedung = "";
-                        for (let g in perPermukaanGedung) {
-                            htmlPermGedung += `<div class="font-semibold text-iss-blue mt-2 text-sm">Gedung: ${g}</div>`;
-                            let totalLuasGedung = perGedung[g] || 1;
-                            for (let p in perPermukaanGedung[g]) {
-                                let luasP = perPermukaanGedung[g][p];
-                                let propP = ((luasP / totalLuasGedung) * 100).toFixed(1);
-                                htmlPermGedung += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${p}</span><span>${luasP.toFixed(2)} m² (${propP}%)</span></div>`;
-                            }
-                        }
-
-                        let chartCanvasId = `adminChart_${idx}`;
 
                         html += `
                             <div class="border rounded-2xl p-4 bg-gray-50 space-y-4">
                                 <div class="flex justify-between items-center border-b pb-2">
                                     <h4 class="font-bold text-lg text-iss-blue">User: ${u.user}</h4>
-                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold">Total Luas Area Terukur: ${totalLuasUser.toFixed(2)} m²</span>
+                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold">Total Luas: ${totalLuasUser.toFixed(2)} m²</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-white p-3 rounded-xl border">
+                                        <p class="text-xs text-gray-500">Total Luas Area Terukur</p>
+                                        <h5 id="${prefix}TotalLuas" class="font-bold text-iss-blue">0.00 m²</h5>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-xl border">
+                                        <p class="text-xs text-gray-500">Jumlah Total Ruangan</p>
+                                        <h5 id="${prefix}TotalRuang" class="font-bold text-iss-blue">0 Ruang</h5>
+                                    </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div class="bg-white p-3 rounded-xl border">
-                                        <h5 class="font-bold text-gray-700 mb-2 text-sm">Total Luas per Gedung</h5>
-                                        ${htmlGedung || "<p class='text-gray-500 text-xs'>Belum ada data</p>"}
+                                    <div class="bg-white p-3 rounded-xl border text-xs space-y-1">
+                                        <p class="font-bold text-gray-700">Total Luas per Gedung</p>
+                                        <div id="${prefix}PerGedung" class="space-y-1"></div>
                                     </div>
-                                    <div class="bg-white p-3 rounded-xl border">
-                                        <h5 class="font-bold text-gray-700 mb-2 text-sm">Luas Ruangan Bernama Sama</h5>
-                                        ${htmlNamaRuangSama || "<p class='text-gray-500 text-xs'>Belum ada data</p>"}
+                                    <div class="bg-white p-3 rounded-xl border text-xs space-y-1">
+                                        <p class="font-bold text-gray-700">Luas Ruangan Bernama Sama</p>
+                                        <div id="${prefix}NamaSama" class="space-y-1"></div>
                                     </div>
-                                    <div class="bg-white p-3 rounded-xl border">
-                                        <h5 class="font-bold text-gray-700 mb-2 text-sm">Luas per Jenis Lantai per Gedung</h5>
-                                        ${htmlPermGedung || "<p class='text-gray-500 text-xs'>Belum ada data</p>"}
-                                    </div>
-                                </div>
-                                <div class="bg-white p-3 rounded-xl border">
-                                    <h5 class="font-bold text-gray-700 mb-2 text-sm">Visualisasi Grafik Luas per Gedung</h5>
-                                    <div class="w-full h-48 relative">
-                                        <canvas id="${chartCanvasId}"></canvas>
+                                    <div class="bg-white p-3 rounded-xl border text-xs space-y-1">
+                                        <p class="font-bold text-gray-700">Luas per Jenis Lantai / Gedung</p>
+                                        <div id="${prefix}PerPermukaanGedung" class="space-y-1"></div>
                                     </div>
                                 </div>
                             </div>
@@ -768,16 +769,10 @@
 
                     container.innerHTML = html;
 
-                    // Render chart untuk masing-masing user di admin dashboard setelah DOM ter-render
-                    usersData.forEach((u, idx) => {
-                        let propagatedRows = getPropagatedRows(u.rows);
-                        let perGedung = {};
-                        propagatedRows.forEach(r => {
-                            let luas = parseFloat(r.luas_ruang) || 0;
-                            let gedung = r.gedung ? r.gedung.trim() : "Tanpa Gedung";
-                            perGedung[gedung] = (perGedung[gedung] || 0) + luas;
-                        });
-                        renderChart(`adminChart_${idx}`, Object.keys(perGedung), Object.values(perGedung), "Luas per Gedung (m²)");
+                    // Render analitik per user setelah elemen dirender
+                    usersData.forEach((u, index) => {
+                        let prefix = `admin_u_${index}_`;
+                        renderAnalytics(prefix, u.rows);
                     });
 
                 } else {
