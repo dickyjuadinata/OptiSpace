@@ -44,20 +44,17 @@
                     <label class="block text-sm font-medium text-gray-700">Username / Role</label>
                     <input type="text" id="username" required onblur="fetchLoginProjects()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
                 </div>
-                <!-- Permintaan 4: Kolom nama project ditempatkan ditengah diantara username dan pin -->
                 <div id="projectInputContainer">
                     <label class="block text-sm font-medium text-gray-700">Nama Project Awal</label>
                     <select id="loginProject" onchange="handleLoginProjectChange()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
                         <option value="">-- Pilih / Masukkan Username Terlebih Dahulu --</option>
                     </select>
-                    <!-- Input tambahan jika memilih buat project baru -->
                     <input type="text" id="loginNewProjectInput" placeholder="Ketik nama project baru..." class="w-full mt-2 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none hidden">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">PIN Akses</label>
                     <input type="password" id="pin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Masukkan PIN">
                 </div>
-                <!-- Permintaan 5: Tombol masuk buat ada efek ditekan (active:scale-[0.98]) -->
                 <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Masuk</button>
             </form>
 
@@ -86,15 +83,18 @@
 
             <!-- TAB CONTENT: SURVEY / INPUT -->
             <div id="tabSurvey" class="space-y-6">
-                <!-- Pilihan Project -->
+                <!-- Pilihan Project dengan Tambahan Tombol Hapus Project -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
                     <h3 class="text-xl font-bold text-iss-blue mb-4">Pilih Project</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Pilih Project Tersedia</label>
-                            <select id="selectProject" onchange="handleProjectSelection()" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                <option value="">-- Pilih Project --</option>
-                            </select>
+                            <div class="flex gap-2 mt-1">
+                                <select id="selectProject" onchange="handleProjectSelection()" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                    <option value="">-- Pilih Project --</option>
+                                </select>
+                                <button type="button" onclick="deleteCurrentProject()" class="bg-red-600 text-white px-4 py-3 rounded-xl font-semibold hover:bg-red-700 transition active:scale-[0.98] whitespace-nowrap" title="Hapus Project Terpilih">🗑️ Hapus</button>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Atau Buat Project Baru</label>
@@ -112,7 +112,6 @@
                     <form id="surveyForm" onsubmit="saveRoomData(event)" class="space-y-4">
                         <input type="hidden" id="editIndex" value="">
                         
-                        <!-- UTAMA (Selalu Tampil) -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Nama Ruang *</label>
@@ -138,7 +137,6 @@
                             </div>
                         </div>
 
-                        <!-- TAMBAHAN (Muncul bila dibutuhkan / Expandable) -->
                         <div class="border-t pt-4">
                             <button type="button" onclick="toggleExtraFields()" class="text-iss-blue text-sm font-semibold flex items-center gap-1">
                                 ⚙️ Tambah Informasi Detail (Gedung, Lantai, Catatan)
@@ -202,7 +200,6 @@
                             </div>
                         </div>
                         
-                        <!-- Ringkasan Kartu -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
                                 <p class="text-sm text-gray-600">Total Luas Area Terukur</p>
@@ -214,7 +211,6 @@
                             </div>
                         </div>
 
-                        <!-- Rincian Berdasarkan Ketentuan Nomor 3 -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="bg-gray-50 p-4 rounded-xl border space-y-2">
                                 <h4 class="font-bold text-gray-700">Total Luas per Gedung (lengkap dengan persentase)</h4>
@@ -230,7 +226,6 @@
                             </div>
                         </div>
 
-                        <!-- Visualisasi Grafik dengan Endpoint (Ketentuan Nomor 4) -->
                         <div class="border-t pt-6 space-y-4">
                             <h4 class="font-bold text-gray-700 text-lg">Visualisasi Grafik Analitik</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -247,7 +242,6 @@
 
                 <!-- ADMIN DASHBOARD VIEW -->
                 <div id="adminDashboardView" class="hidden space-y-6">
-                    <!-- Manajemen Persetujuan Akun -->
                     <div class="bg-white p-6 rounded-2xl shadow-md">
                         <h3 class="text-xl font-bold text-iss-blue mb-4">Manajemen Persetujuan Akun User</h3>
                         <div class="overflow-x-auto">
@@ -266,7 +260,6 @@
                         </div>
                     </div>
 
-                    <!-- Waktu Login & Aktivitas User (Permintaan 1) -->
                     <div class="bg-white p-6 rounded-2xl shadow-md">
                         <h3 class="text-xl font-bold text-iss-blue mb-4">Log Waktu Login & Aktivitas User</h3>
                         <div class="overflow-x-auto max-h-60">
@@ -285,7 +278,6 @@
                         </div>
                     </div>
 
-                    <!-- Dashboard Data Seluruh User (Dilengkapi Fitur Expand & Collapse - Permintaan 3) -->
                     <div class="bg-white p-6 rounded-2xl shadow-md">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-xl font-bold text-iss-blue">Dashboard Administrator (Data Survey User)</h3>
@@ -295,7 +287,7 @@
                             </div>
                         </div>
                         <div id="adminContentContainer" class="space-y-6">
-                            <!-- Data user lain dirender secara dinamis di sini -->
+                            <!-- Data user lain dirender secara dinamis -->
                         </div>
                     </div>
                 </div>
@@ -324,7 +316,6 @@
             updateOnlineStatus();
         };
 
-        // Fungsi untuk mengunduh spreadsheet per project yang dipilih dalam format Excel (.xlsx)
         async function downloadExcel() {
             if (!currentUser || isAdmin) return;
             if (!currentProject) {
@@ -344,6 +335,53 @@
                 }
             } catch (e) {
                 alert("Terjadi kesalahan saat mencoba mengunduh file.");
+            }
+        }
+
+        // Fungsi baru untuk menghapus project yang sudah tidak terpakai
+        async function deleteCurrentProject() {
+            if (!currentProject) {
+                alert("Tidak ada project yang dipilih.");
+                return;
+            }
+
+            let projects = getProjectsList();
+            if (projects.length <= 1) {
+                alert("Tidak dapat menghapus project terakhir. Setiap user harus memiliki minimal 1 project.");
+                return;
+            }
+
+            if (confirm(`Apakah Anda yakin ingin menghapus project "${currentProject}" beserta seluruh data ruang di dalamnya?`)) {
+                // Hapus data dari localStorage terlebih dahulu
+                localStorage.removeItem(`data_${currentUser}_${currentProject}`);
+                
+                // Hapus dari daftar project lokal
+                projects = projects.filter(p => p !== currentProject);
+                saveProjectsList(projects);
+
+                // Kirim request ke server backend Google Apps Script untuk menghapus sheet/project terkait
+                if (navigator.onLine) {
+                    try {
+                        let res = await fetch(API_URL, {
+                            method: "POST",
+                            body: JSON.stringify({ action: "deleteProject", username: currentUser, project: currentProject })
+                        });
+                        let json = await res.json();
+                        if (json.status === "success" && json.projects) {
+                            saveProjectsList(json.projects);
+                        }
+                    } catch (e) {
+                        console.error("Gagal menghapus project di server:", e);
+                    }
+                }
+
+                // Pindah ke project pertama yang tersisa
+                currentProject = getProjectsList()[0] || "";
+                localStorage.setItem("survey_project", currentProject);
+                
+                loadProjectsList();
+                loadData();
+                alert("Project berhasil dihapus.");
             }
         }
 
@@ -406,7 +444,6 @@
             const usernameInput = document.getElementById("username").value.trim();
             const selectProject = document.getElementById("loginProject");
             
-            // Permintaan 2: Jika admin, sembunyikan atau kosongkan requirement project
             if (usernameInput === "admin") {
                 selectProject.innerHTML = '<option value="admin">Admin System</option>';
                 return;
@@ -507,11 +544,11 @@
             
             if (isAdmin) {
                 document.getElementById("navSurveyBtn").classList.add("hidden");
-                document.getElementById("navDownloadExcelBtn").classList.add("hidden"); // Sembunyikan untuk admin
+                document.getElementById("navDownloadExcelBtn").classList.add("hidden");
                 switchView('dashboard');
             } else {
                 document.getElementById("navSurveyBtn").classList.remove("hidden");
-                document.getElementById("navDownloadExcelBtn").classList.remove("hidden"); // Tampilkan untuk user
+                document.getElementById("navDownloadExcelBtn").classList.remove("hidden");
                 switchView('survey');
             }
         }
@@ -551,7 +588,6 @@
             extra.classList.toggle("hidden");
         }
 
-        // Fungsi Expand & Collapse Card User Admin (Permintaan 3)
         function toggleAdminCard(idx) {
             const content = document.getElementById(`adminCardContent_${idx}`);
             const icon = document.getElementById(`adminCardIcon_${idx}`);
@@ -707,17 +743,8 @@
             }
 
             const editIndex = document.getElementById("editIndex").value;
-            let rows = getLocalData();
             
-            let rowId = "";
-            if (editIndex === "") {
-                rowId = "ID_" + new Date().getTime() + "_" + Math.random().toString(36).substring(2, 7);
-            } else {
-                rowId = rows[editIndex].id || ("ID_" + new Date().getTime() + "_" + Math.random().toString(36).substring(2, 7));
-            }
-
             const newItem = {
-                id: rowId,
                 gedung: document.getElementById("gedung").value,
                 lantai: document.getElementById("lantai").value,
                 nama_ruang: document.getElementById("nama_ruang").value,
@@ -726,6 +753,7 @@
                 catatan: document.getElementById("catatan").value
             };
 
+            let rows = getLocalData();
             if (editIndex === "") {
                 rows.push(newItem);
             } else {
@@ -938,7 +966,6 @@
                 let json = await res.json();
 
                 if (json.status === "success") {
-                    // Render Log Waktu Login & Aktivitas (Permintaan 1)
                     let activityLogs = json.activityLogs || [];
                     let logHtml = "";
                     if (activityLogs.length === 0) {
@@ -1059,7 +1086,6 @@
                             }
                         }
 
-                        // Dilengkapi Fitur Expand & Collapse per User (Permintaan 3)
                         html += `
                             <div class="border rounded-2xl p-6 bg-gray-50 space-y-4">
                                 <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleAdminCard(${idx})">
