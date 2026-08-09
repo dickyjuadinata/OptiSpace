@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pendataan Ruang</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0066ff">
+  <style>
+    :root {
+      --primary-blue: #0066ff;
+      --dark-blue: #0a192f;
+      --light-bg: #f4f7fe;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--light-bg); color: #333; padding-bottom: 20px; }
+    
+    header {
+      background-color: var(--primary-blue);
+      color: var(--white);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .status-badge {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.2);
+    }
+
+    .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+    .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    
+    h2 { margin-bottom: 15px; color: var(--dark-blue); font-size: 1.2rem; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #555; }
+    input, select, textarea {
+      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem;
+    }
+    
+    .btn {
+      background-color: var(--primary-blue); color: var(--white); border: none; padding: 12px;
+      width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s;
+    }
+    .btn:hover { background-color: #0052cc; }
+    .btn-secondary { background-color: #6c757d; margin-top: 8px; }
+
+    .toggle-details {
+      background: none; border: none; color: var(--primary-blue); font-size: 0.85rem;
+      cursor: pointer; font-weight: bold; margin-bottom: 12px; display: inline-block;
+    }
+
+    .data-item {
+      border-left: 4px solid var(--primary-blue); padding: 10px; background: #fff;
+      margin-bottom: 10px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h3>Pendataan Ruang</h3>
+    <span id="status-net" class="status-badge">Online</span>
+  </header>
+
+  <div class="container">
+    <!-- View Login -->
+    <div id="login-view" class="card">
+      <h2>Akses Masuk</h2>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="login-user" placeholder="Masukkan username">
+      </div>
+      <div class="form-group">
+        <label>PIN Akses</label>
+        <input type="password" id="login-pin" placeholder="****">
+      </div>
+      <button class="btn" onclick="app.login()">Masuk</button>
+    </div>
+
+    <!-- View Dashboard App -->
+    <div id="app-view" class="hidden">
+      <div class="card">
+        <div style="display:flex; justify-between; align-items:center; margin-bottom: 10px;">
+          <small id="user-info"></small>
+          <button onclick="app.logout()" style="background:none; border:none; color:red; cursor:pointer;">Keluar</button>
+        </div>
+        
+        <h2 id="form-title">Input Data Ruang</h2>
+        <form id="room-form" onsubmit="app.saveRecord(event)">
+          <input type="hidden" id="edit-id">
+          
+          <!-- UI Utama Menurut Spesifikasi -->
+          <div class="form-group">
+            <label>Nama Ruang *</label>
+            <input type="text" id="namaRuang" required>
+          </div>
+          <div class="form-group">
+            <label>Luas Ruang (m²) *</label>
+            <input type="number" id="luasRuang" step="0.1" required>
+          </div>
+          <div class="form-group">
+            <label>Jenis Permukaan Lantai *</label>
+            <select id="jenisPermukaan" required>
+              <option value="">-- Pilih --</option>
+              <option value="Keramik">Keramik</option>
+              <option value="Vinyl">Vinyl</option>
+              <option value="Beton/Semen">Beton/Semen</option>
+              <option value="Karpet">Karpet</option>
+              <option value="Granit">Granit</option>
+            </select>
+          </div>
+
+          <!-- Kolom Opsional Tambahan -->
+          <button type="button" class="toggle-details" onclick="app.toggleOptional()">+ Opsi Tambahan (Gedung, Lantai, Catatan)</button>
+          
+          <div id="optional-fields" class="hidden">
+            <div class="form-group">
+              <label>Nama Gedung</label>
+              <input type="text" id="namaGedung">
+            </div>
+            <div class="form-group">
+              <label>Lantai</label>
+              <input type="text" id="lantai">
+            </div>
+            <div class="form-group">
+              <label>Catatan</label>
+              <textarea id="catatan" rows="2"></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn">Simpan Data</button>
+          <button type="button" id="btn-cancel" class="btn btn-secondary hidden" onclick="app.resetForm()">Batal Edit</button>
+        </form>
+      </div>
+
+      <!-- List Data & Sync Queue -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2>Daftar Ruangan</h2>
+          <button class="btn" style="width: auto; padding: 6px 12px; font-size: 0.8rem;" onclick="app.syncOfflineQueue()">Sync Data</button>
+        </div>
+        <div id="sync-info" style="font-size: 0.8rem; color: orange; margin-bottom: 10px;"></div>
+        <div id="data-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // URL Web App GAS Anda
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbw0t3vA-Dn4ObxsTANZQC9lRKnFZime-u3uPHaH2B999eSltFlKCBVe200c4XPmY3JZ/exec";
+
+    const app = {
+      user: null,
+      records: [],
+      offlineQueue: [],
+
+      init: function() {
+        this.checkSession();
+        this.updateOnlineStatus();
+        window.addEventListener('online', () => this.updateOnlineStatus());
+        window.addEventListener('offline', () => this.updateOnlineStatus());
+        
+        // Register Service Worker untuk PWA
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
+        }
+      },
+
+      updateOnlineStatus: function() {
+        const badge = document.getElementById('status-net');
+        if (navigator.onLine) {
+          badge.textContent = "Online";
+          badge.style.background = "#28a745";
+          this.syncOfflineQueue();
+        } else {
+          badge.textContent = "Offline";
+          badge.style.background = "#dc3545";
+        }
+      },
+
+      login: async function() {
+        const username = document.getElementById('login-user').value;
+        const pin = document.getElementById('login-pin').value;
+
+        if(!username || !pin) return alert("Username dan PIN harus diisi");
+
+        try {
+          const res = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "login", username, pin })
+          });
+          const result = await res.json();
+
+          if(result.status === "success") {
+            this.user = { username, pin, role: result.role };
+            localStorage.setItem('app_session', JSON.stringify(this.user));
+            this.showApp();
+          } else {
+            alert(result.message);
+          }
+        } catch (e) {
+          alert("Gagal melakukan verifikasi login. Pastikan Anda online saat pertama kali login.");
+        }
+      },
+
+      checkSession: function() {
+        const session = localStorage.getItem('app_session');
+        if (session) {
+          this.user = JSON.parse(session);
+          this.showApp();
+        }
+      },
+
+      logout: function() {
+        localStorage.removeItem('app_session');
+        location.reload();
+      },
+
+      showApp: function() {
+        document.getElementById('login-view').classList.add('hidden');
+        document.getElementById('app-view').classList.remove('hidden');
+        document.getElementById('user-info').innerText = `Login sebagai: ${this.user.username} (${this.user.role})`;
+        this.loadRecords();
+      },
+
+      toggleOptional: function() {
+        document.getElementById('optional-fields').classList.toggle('hidden');
+      },
+
+      loadRecords: async function() {
+        // Multi-tier load: Ambil cache lokal dulu, lalu sync server jika online
+        const localData = localStorage.getItem(`records_${this.user.username}`);
+        if(localData) {
+          this.records = JSON.parse(localData);
+          this.renderList();
+        }
+
+        if(navigator.onLine) {
+          try {
+            const res = await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({ action: "getData", username: this.user.username, pin: this.user.pin })
+            });
+            const result = await res.json();
+            if(result.status === "success") {
+              this.records = result.data;
+              localStorage.setItem(`records_${this.user.username}`, JSON.stringify(this.records));
+              this.renderList();
+            }
+          } catch(e) { console.log("Gagal memuat data dari server"); }
+        }
+      },
+
+      saveRecord: function(e) {
+        e.preventDefault();
+        const item = {
+          id: document.getElementById('edit-id').value || null,
+          namaRuang: document.getElementById('namaRuang').value,
+          luasRuang: document.getElementById('luasRuang').value,
+          jenisPermukaan: document.getElementById('jenisPermukaan').value,
+          namaGedung: document.getElementById('namaGedung').value,
+          lantai: document.getElementById('lantai').value,
+          catatan: document.getElementById('catatan').value
+        };
+
+        // Simpan ke antrean/state lokal
+        this.offlineQueue.push(item);
+        localStorage.setItem(`queue_${this.user.username}`, JSON.stringify(this.offlineQueue));
+        
+        // Update UI secara instant (Optimistic UI)
+        if(item.id) {
+          const idx = this.records.findIndex(r => r.id == item.id);
+          if(idx !== -1) this.records[idx] = item;
+        } else {
+          this.records.push(item);
+        }
+        localStorage.setItem(`records_${this.user.username}`, JSON.stringify(this.records));
+
+        this.resetForm();
+        this.renderList();
+        this.syncOfflineQueue();
+      },
+
+      syncOfflineQueue: async function() {
+        const savedQueue = localStorage.getItem(`queue_${this.user.username}`);
+        if (savedQueue) this.offlineQueue = JSON.parse(savedQueue);
+
+        if(!navigator.onLine || this.offlineQueue.length === 0) {
+          document.getElementById('sync-info').innerText = this.offlineQueue.length > 0 ? 
+            `${this.offlineQueue.length} data tersimpan di HP (belum tersinkron)` : '';
+          return;
+        }
+
+        try {
+          const res = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({
+              action: "saveData",
+              username: this.user.username,
+              pin: this.user.pin,
+              records: this.offlineQueue
+            })
+          });
+          const result = await res.json();
+          if(result.status === "success") {
+            this.offlineQueue = [];
+            localStorage.removeItem(`queue_${this.user.username}`);
+            document.getElementById('sync-info').innerText = "Semua data tersinkron!";
+            setTimeout(() => document.getElementById('sync-info').innerText = '', 3000);
+            this.loadRecords();
+          }
+        } catch(e) {
+          console.log("Gagal sinkronisasi");
+        }
+      },
+
+      renderList: function() {
+        const listEl = document.getElementById('data-list');
+        listEl.innerHTML = "";
+
+        this.records.forEach((rec) => {
+          const div = document.createElement('div');
+          div.className = "data-item";
+          div.innerHTML = `
+            <div style="display:flex; justify-content:space-between;">
+              <strong>${rec.namaRuang}</strong>
+              <button style="border:none; background:none; color:var(--primary-blue); cursor:pointer;" onclick="app.editRecord('${rec.id}')">Edit</button>
+            </div>
+            <div><small>Luas: ${rec.luasRuang} m² | Permukaan: ${rec.jenisPermukaan}</small></div>
+            ${rec.namaGedung ? `<div style="font-size:0.8rem; color:#666;">Gedung: ${rec.namaGedung} (${rec.lantai || '-'})</div>` : ''}
+            ${rec.catatan ? `<div style="font-size:0.8rem; color:#666;">Catatan: ${rec.catatan}</div>` : ''}
+          `;
+          listEl.appendChild(div);
+        });
+      },
+
+      editRecord: function(id) {
+        const item = this.records.find(r => r.id == id);
+        if(!item) return;
+
+        document.getElementById('edit-id').value = item.id;
+        document.getElementById('namaRuang').value = item.namaRuang;
+        document.getElementById('luasRuang').value = item.luasRuang;
+        document.getElementById('jenisPermukaan').value = item.jenisPermukaan;
+        document.getElementById('namaGedung').value = item.namaGedung || "";
+        document.getElementById('lantai').value = item.lantai || "";
+        document.getElementById('catatan').value = item.catatan || "";
+
+        document.getElementById('form-title').innerText = "Edit Data Ruang";
+        document.getElementById('btn-cancel').classList.remove('hidden');
+        if(!document.getElementById('optional-fields').classList.contains('hidden')) {
+           // Biarkan terbuka
+        } else if (item.namaGedung || item.lantai || item.catatan) {
+           this.toggleOptional();
+        }
+      },
+
+      resetForm: function() {
+        document.getElementById('room-form').reset();
+        document.getElementById('edit-id').value = "";
+        document.getElementById('form-title').innerText = "Input Data Ruang";
+        document.getElementById('btn-cancel').classList.add('hidden');
+      }
+    };
+
+    app.init();
+  </script>
+</body>
+</html>
