@@ -35,15 +35,21 @@
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username / Role</label>
-                    <input type="text" id="username" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
+                    <input type="text" id="username" required oninput="handleUsernameInput()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
+                </div>
+                <!-- Kolom Nama Project Awal (Dropdown/Tengah) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nama Project Awal</label>
+                    <select id="loginProject" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
+                        <option value="">-- Pilih atau Buat Project --</option>
+                    </select>
+                    <!-- Input opsional jika ingin membuat project baru langsung dari menu login jika belum ada di list -->
+                    <input type="text" id="loginNewProjectInput" placeholder="Atau ketik nama project baru..." class="w-full mt-2 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none hidden">
+                    <button type="button" id="toggleNewProjBtn" onclick="toggleLoginNewProject()" class="text-xs text-iss-blue underline mt-1 hidden">Input project baru secara manual</button>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">PIN Akses</label>
                     <input type="password" id="pin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Masukkan PIN">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Nama Project Awal</label>
-                    <input type="text" id="loginProject" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: Gedung A / Project 1">
                 </div>
                 <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Masuk</button>
             </form>
@@ -264,11 +270,64 @@
             }
         }
 
+        // Fungsi baru untuk memperbarui list project login berdasarkan username yang diketik
+        function handleUsernameInput() {
+            const username = document.getElementById("username").value.trim();
+            const projectSelect = document.getElementById("loginProject");
+            const newProjInput = document.getElementById("loginNewProjectInput");
+            const toggleBtn = document.getElementById("toggleNewProjBtn");
+
+            projectSelect.innerHTML = '<option value="">-- Pilih Project Sebelumnya --</option>';
+            newProjInput.classList.add("hidden");
+            newProjInput.value = "";
+            toggleBtn.classList.remove("hidden");
+
+            if (!username) return;
+
+            let projects = JSON.parse(localStorage.getItem(`projects_${username}`)) || [];
+            if (projects.length > 0) {
+                projects.forEach(p => {
+                    projectSelect.innerHTML += `<option value="${p}">${p}</option>`;
+                });
+            }
+            projectSelect.innerHTML += `<option value="__new__">+ Buat Project Baru...</option>`;
+            
+            projectSelect.onchange = function() {
+                if (this.value === "__new__") {
+                    newProjInput.classList.remove("hidden");
+                    newProjInput.required = true;
+                } else {
+                    newProjInput.classList.add("hidden");
+                    newProjInput.required = false;
+                }
+            };
+        }
+
+        function toggleLoginNewProject() {
+            const projectSelect = document.getElementById("loginProject");
+            const newProjInput = document.getElementById("loginNewProjectInput");
+            projectSelect.value = "__new__";
+            newProjInput.classList.remove("hidden");
+            newProjInput.required = true;
+        }
+
         async function handleLogin(e) {
             e.preventDefault();
             const username = document.getElementById("username").value.trim();
             const pin = document.getElementById("pin").value;
-            const project = document.getElementById("loginProject").value.trim();
+            
+            let projectSelectVal = document.getElementById("loginProject").value;
+            let project = "";
+            if (projectSelectVal === "__new__") {
+                project = document.getElementById("loginNewProjectInput").value.trim();
+            } else {
+                project = projectSelectVal;
+            }
+
+            if (!project) {
+                alert("Silakan pilih atau masukkan nama project terlebih dahulu.");
+                return;
+            }
 
             try {
                 let response = await fetch(API_URL, {
@@ -451,7 +510,6 @@
             renderTable();
         }
 
-        // Fungsi Helper untuk mewariskan nilai gedung & lantai yang kosong dari baris sebelumnya
         function getPropagatedRows(rows) {
             let lastGedung = "";
             let lastLantai = "";
@@ -577,7 +635,6 @@
             });
         }
 
-        // Fungsionalitas Dashboard Analitik User (Ketentuan Nomor 3 & 4)
         function renderAnalytics() {
             const selectedProj = document.getElementById("dashboardProjectSelect").value;
             let rawRows = [];
@@ -595,8 +652,8 @@
 
             let totalLuas = 0;
             let perGedung = {};
-            let namaSamaPerGedung = {}; // { gedung: { nama_ruang: { totalLuas, count } } }
-            let perPermukaanGedung = {}; // { gedung: { jenis_permukaan: luas } }
+            let namaSamaPerGedung = {}; 
+            let perPermukaanGedung = {}; 
 
             rows.forEach(r => {
                 let luas = parseFloat(r.luas_ruang) || 0;
@@ -621,7 +678,6 @@
             document.getElementById("statTotalLuas").innerText = totalLuas.toFixed(2) + " m²";
             document.getElementById("statTotalRuang").innerText = rows.length + " Ruang";
 
-            // 1. Total Luas per Gedung (lengkap dengan persentase)
             let htmlGedung = "";
             let labelsGedung = [];
             let dataChartGedung = [];
@@ -633,7 +689,6 @@
             }
             document.getElementById("statPerGedung").innerHTML = htmlGedung || "<p class='text-gray-500'>Belum ada data</p>";
 
-            // 2. Luas ruangan yang memiliki nama yang sama per gedung
             let htmlNamaSama = "";
             for (let g in namaSamaPerGedung) {
                 htmlNamaSama += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
@@ -647,7 +702,6 @@
             }
             document.getElementById("statNamaSamaGedung").innerHTML = htmlNamaSama || "<p class='text-gray-500'>Belum ada data</p>";
 
-            // 3. Luas per jenis lantai per gedung (lengkap dengan persentase)
             let htmlPerm = "";
             let totalPermukaanGlobal = {};
             for (let g in perPermukaanGedung) {
@@ -661,12 +715,10 @@
             }
             document.getElementById("statPerPermukaan").innerHTML = htmlPerm || "<p class='text-gray-500'>Belum ada data</p>";
 
-            // 4. Visualisasi Grafik dengan Endpoint (Menggunakan Chart.js)
             renderCharts(labelsGedung, dataChartGedung, totalPermukaanGlobal);
         }
 
         function renderCharts(labelsGedung, dataChartGedung, totalPermukaanGlobal) {
-            // Grafik Gedung (Bar Chart)
             const ctxGedung = document.getElementById('chartGedung').getContext('2d');
             if (chartInstanceGedung) chartInstanceGedung.destroy();
             chartInstanceGedung = new Chart(ctxGedung, {
@@ -687,7 +739,6 @@
                 }
             });
 
-            // Grafik Jenis Lantai (Doughnut Chart)
             const labelsLantai = Object.keys(totalPermukaanGlobal);
             const dataLantai = Object.values(totalPermukaanGlobal);
             const ctxLantai = document.getElementById('chartLantai').getContext('2d');
@@ -710,7 +761,6 @@
             });
         }
 
-        // Fungsionalitas Dashboard Admin (Ketentuan Nomor 5)
         async function loadAdminData() {
             const container = document.getElementById("adminContentContainer");
             container.innerHTML = "<p class='text-gray-500 text-center'>Memuat data seluruh user...</p>";
@@ -746,7 +796,6 @@
                         let propagatedRows = getPropagatedRows(u.rows);
                         let totalLuasUser = propagatedRows.reduce((acc, cur) => acc + (parseFloat(cur.luas_ruang) || 0), 0);
 
-                        // Kalkulasi ketentuan nomor 3 untuk admin per user
                         let perGedung = {};
                         let namaSamaPerGedung = {};
                         let perPermukaanGedung = {};
@@ -833,7 +882,6 @@
 
                     container.innerHTML = html;
 
-                    // Render chart untuk masing-masing user pada admin dashboard
                     usersData.forEach((u, idx) => {
                         let propagatedRows = getPropagatedRows(u.rows);
                         let perGedung = {};
