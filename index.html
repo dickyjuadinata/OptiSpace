@@ -324,13 +324,17 @@
             updateOnlineStatus();
         };
 
-        // Fungsi untuk mengunduh spreadsheet dalam format Excel (.xlsx)
+        // Fungsi untuk mengunduh spreadsheet per project yang dipilih dalam format Excel (.xlsx)
         async function downloadExcel() {
             if (!currentUser || isAdmin) return;
+            if (!currentProject) {
+                alert("Silakan pilih project terlebih dahulu untuk diunduh!");
+                return;
+            }
             try {
                 let res = await fetch(API_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action: "getDownloadUrl", username: currentUser })
+                    body: JSON.stringify({ action: "getDownloadUrl", username: currentUser, project: currentProject })
                 });
                 let json = await res.json();
                 if (json.status === "success" && json.exportXlsxUrl) {
