@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Pendataan Ruang</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0066FF">
+    <style>
+        :root {
+            --primary-blue: #0066FF;
+            --dark-blue: #002D62;
+            --bg-light: #F4F7FC;
+            --white: #FFFFFF;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .hidden { display: none !important; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark-blue);
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #0052cc;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover { background-color: #5a6268; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        #sync-status {
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header>Aplikasi Pendataan Ruang</header>
+
+    <div class="container">
+        <!-- LOGIN AREA -->
+        <div id="login-section">
+            <h3>Login Pengguna</h3>
+            <div class="form-group">
+                <label>Pilih Akses:</label>
+                <select id="role-select" onchange="toggleRoleFields()">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Username / Nama User:</label>
+                <input type="text" id="username" placeholder="Masukkan nama Anda">
+            </div>
+            <div class="form-group" id="pin-group">
+                <label>PIN Akses (Khusus Admin):</label>
+                <input type="password" id="pin-input" placeholder="Masukkan PIN Admin">
+            </div>
+            <button onclick="handleLogin()">Masuk</button>
+        </div>
+
+        <!-- DASHBOARD APLIKASI -->
+        <div id="app-section" class="hidden">
+            <h3 id="welcome-msg"></h3>
+            <div id="sync-status">Status Jaringan: Online</div>
+            <hr>
+
+            <h4>Form Input / Edit Ruang</h4>
+            <input type="hidden" id="edit-index" value="">
+            
+            <!-- Kolom Utama (Selalu Muncul) -->
+            <div class="form-group">
+                <label>Nama Ruang *</label>
+                <input type="text" id="nama_ruang" required>
+            </div>
+            <div class="form-group">
+                <label>Luas Ruang (m²) *</label>
+                <input type="number" id="luas_ruang" required>
+            </div>
+            <div class="form-group">
+                <label>Jenis Permukaan Lantai *</label>
+                <input type="text" id="jenis_permukaan" placeholder="Contoh: Keramik, Vinyl, Semen">
+            </div>
+
+            <!-- Kolom Tambahan (Opsional / Muncul Bila Dibutuhkan) -->
+            <button type="button" class="btn-secondary" onclick="toggleExtraFields()" style="margin-bottom:15px;">+ Tambah Detail Gedung/Catatan</button>
+            
+            <div id="extra-fields" class="hidden">
+                <div class="form-group">
+                    <label>Nama Gedung</label>
+                    <input type="text" id="nama_gedung">
+                </div>
+                <div class="form-group">
+                    <label>Lantai</label>
+                    <input type="text" id="lantai">
+                </div>
+                <div class="form-group">
+                    <label>Catatan</label>
+                    <textarea id="catatan"></textarea>
+                </div>
+            </div>
+
+            <button onclick="saveData()">Simpan Data</button>
+            <button class="btn-secondary" onclick="resetForm()">Reset Form</button>
+
+            <h4 style="margin-top: 30px;">Data Ruang Tersimpan</h4>
+            <div style="overflow-x:auto;">
+                <table id="data-table">
+                    <thead>
+                        <tr>
+                            <th>Gedung</th>
+                            <th>Lantai</th>
+                            <th>Ruang</th>
+                            <th>Luas</th>
+                            <th>Permukaan</th>
+                            <th>Catatan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Data Masuk Disini -->
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn-secondary" onclick="logout()" style="margin-top:20px;">Keluar</button>
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw0t3vA-Dn4ObxsTANZQC9lRKnFZime-u3uPHaH2B999eSltFlKCBVe200c4XPmY3JZ/exec";
+        let currentUser = null;
+        let currentRole = null;
+        let localData = [];
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(() => console.log("Service Worker Terdaftar"));
+        }
+
+        function toggleRoleFields() {
+            let role = document.getElementById('role-select').value;
+            document.getElementById('pin-group').style.display = (role === 'admin') ? 'block' : 'none';
+        }
+
+        function toggleExtraFields() {
+            let extra = document.getElementById('extra-fields');
+            extra.classList.toggle('hidden');
+        }
+
+        function handleLogin() {
+            let role = document.getElementById('role-select').value;
+            let username = document.getElementById('username').value.trim();
+            let pin = document.getElementById('pin-input').value;
+
+            if (!username) {
+                alert("Mohon masukkan nama/username!");
+                return;
+            }
+
+            if (role === 'admin') {
+                // Verifikasi PIN melalui Backend GAS demi keamanan
+                fetch(WEB_APP_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "verifyAdmin", pin: pin })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        proceedLogin(username, role);
+                    } else {
+                        alert("PIN Admin Salah!");
+                    }
+                })
+                .catch(() => {
+                    alert("Gagal terhubung ke server untuk verifikasi admin.");
+                });
+            } else {
+                proceedLogin(username, role);
+            }
+        }
+
+        function proceedLogin(username, role) {
+            currentUser = username;
+            currentRole = role;
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('app-section').classList.remove('hidden');
+            document.getElementById('welcome-msg').innerText = `Selamat Datang, ${username} (${role.toUpperCase()})`;
+            loadData();
+        }
+
+        function logout() {
+            currentUser = null;
+            currentRole = null;
+            document.getElementById('app-section').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('edit-index').value = "";
+            document.getElementById('nama_ruang').value = "";
+            document.getElementById('luas_ruang').value = "";
+            document.getElementById('jenis_permukaan').value = "";
+            document.getElementById('nama_gedung').value = "";
+            document.getElementById('lantai').value = "";
+            document.getElementById('catatan').value = "";
+        }
+
+        function saveData() {
+            let item = {
+                nama_gedung: document.getElementById('nama_gedung').value || "-",
+                lantai: document.getElementById('lantai').value || "-",
+                nama_ruang: document.getElementById('nama_ruang').value,
+                luas_ruang: document.getElementById('luas_ruang').value,
+                jenis_permukaan: document.getElementById('jenis_permukaan').value,
+                catatan: document.getElementById('catatan').value || "-",
+                user: currentUser
+            };
+
+            if (!item.nama_ruang || !item.luas_ruang || !item.jenis_permukaan) {
+                alert("Mohon lengkapi kolom utama (Nama Ruang, Luas, Jenis Permukaan)!");
+                return;
+            }
+
+            let editIdx = document.getElementById('edit-index').value;
+            if (editIdx !== "") {
+                localData[editIdx] = item;
+            } else {
+                localData.push(item);
+            }
+
+            localStorage.setItem("pendataan_ruang_" + currentUser, JSON.stringify(localData));
+            renderTable();
+            resetForm();
+            syncToServer();
+        }
+
+        function loadData() {
+            let saved = localStorage.getItem("pendataan_ruang_" + currentUser);
+            if (saved) {
+                localData = JSON.parse(saved);
+                renderTable();
+            }
+            if (navigator.onLine) {
+                fetch(`${WEB_APP_URL}?action=getData&user=${encodeURIComponent(currentUser)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data && data.length > 0) {
+                        localData = data;
+                        localStorage.setItem("pendataan_ruang_" + currentUser, JSON.stringify(localData));
+                        renderTable();
+                    }
+                }).catch(err => console.log("Offline mode: menggunakan cache lokal"));
+            }
+        }
+
+        function renderTable() {
+            let tbody = document.getElementById('table-body');
+            tbody.innerHTML = "";
+            localData.forEach((row, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${row.nama_gedung}</td>
+                        <td>${row.lantai}</td>
+                        <td>${row.nama_ruang}</td>
+                        <td>${row.luas_ruang}</td>
+                        <td>${row.jenis_permukaan}</td>
+                        <td>${row.catatan}</td>
+                        <td><button onclick="editData(${index})" style="padding:5px 10px; font-size:0.8rem;">Edit</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function editData(index) {
+            let item = localData[index];
+            document.getElementById('edit-index').value = index;
+            document.getElementById('nama_gedung').value = item.nama_gedung;
+            document.getElementById('lantai').value = item.lantai;
+            document.getElementById('nama_ruang').value = item.nama_ruang;
+            document.getElementById('luas_ruang').value = item.luas_ruang;
+            document.getElementById('jenis_permukaan').value = item.jenis_permukaan;
+            document.getElementById('catatan').value = item.catatan;
+            document.getElementById('extra-fields').classList.remove('hidden');
+        }
+
+        function syncToServer() {
+            if (!navigator.onLine) return;
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "saveData", user: currentUser, data: localData })
+            }).then(res => res.json()).then(res => console.log("Sinkronisasi Berhasil"));
+        }
+
+        window.addEventListener('online', () => {
+            document.getElementById('sync-status').innerText = "Status Jaringan: Online (Tersinkronisasi)";
+            syncToServer();
+        });
+        window.addEventListener('offline', () => {
+            document.getElementById('sync-status').innerText = "Status Jaringan: Offline (Data Tersimpan di Perangkat)";
+        });
+    </script>
+</body>
+</html>
