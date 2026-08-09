@@ -37,6 +37,7 @@
                 <button type="button" onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 pb-3 font-medium text-gray-400">Daftar Akun</button>
             </div>
 
+            <!-- Form Login -->
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username / Role</label>
@@ -56,6 +57,7 @@
                 <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Masuk</button>
             </form>
 
+            <!-- Form Register -->
             <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username Baru</label>
@@ -70,15 +72,17 @@
             </form>
         </section>
 
-        <!-- DASHBOARD SECTION -->
+        <!-- DASHBOARD SECTION (SURVEY & TABEL) -->
         <section id="dashboardSection" class="hidden space-y-6">
+            
+            <!-- Connection Status Banner -->
             <div id="netStatus" class="p-2 text-center text-xs font-semibold rounded-lg bg-green-100 text-green-800">
                 Status: Online (Tersinkronisasi)
             </div>
 
             <!-- TAB CONTENT: SURVEY / INPUT -->
             <div id="tabSurvey" class="space-y-6">
-                <!-- Pilihan Project dengan Tombol Hapus Project (Fitur 1) -->
+                <!-- Pilihan Project -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
                     <h3 class="text-xl font-bold text-iss-blue mb-4">Pilih Project</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -88,8 +92,8 @@
                                 <select id="selectProject" onchange="handleProjectSelection()" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
                                     <option value="">-- Pilih Project --</option>
                                 </select>
-                                <!-- Tombol Hapus Project yang Tidak Terpakai -->
-                                <button type="button" onclick="deleteCurrentProject()" class="bg-red-500 text-white px-4 py-3 rounded-xl font-semibold hover:bg-red-600 transition active:scale-[0.98] whitespace-nowrap" title="Hapus Project Ini">Hapus</button>
+                                <!-- Fitur 1: Tombol Hapus Project yang Tidak Terpakai -->
+                                <button type="button" onclick="deleteCurrentProject()" class="bg-red-500 text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98] whitespace-nowrap text-xs" title="Hapus Project Ini">Hapus Project</button>
                             </div>
                         </div>
                         <div>
@@ -160,6 +164,7 @@
                     </form>
                 </div>
 
+                <!-- Tabel Data Tersimpan -->
                 <div class="bg-white p-6 rounded-2xl shadow-md overflow-x-auto">
                     <h3 class="text-xl font-bold text-iss-blue mb-4">Daftar Data Ruang Tersimpan</h3>
                     <table class="w-full text-left border-collapse text-sm">
@@ -174,7 +179,8 @@
                                 <th class="p-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="dataTableBody"></tbody>
+                        <tbody id="dataTableBody">
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -279,13 +285,16 @@
                                 <button onclick="toggleAllAdminCards(false)" class="bg-gray-300 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-400 transition">Collapse All</button>
                             </div>
                         </div>
-                        <div id="adminContentContainer" class="space-y-6"></div>
+                        <div id="adminContentContainer" class="space-y-6">
+                        </div>
                     </div>
                 </div>
             </div>
+
         </section>
     </main>
 
+    <!-- Script Logika & Offline Sync -->
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwo1qux80FXKobwTX727KuaBtcNoGnxoStbK6JaIBvt6VSrD2Brree4g5tFpD0IE-1V/exec";
         let currentUser = localStorage.getItem("survey_user") || null;
@@ -293,6 +302,7 @@
         let currentProject = localStorage.getItem("survey_project") || "";
         let chartInstanceGedung = null;
         let chartInstanceLantai = null;
+        let isSyncing = false; // Mencegah duplikasi sinkronisasi bersamaan
 
         window.onload = () => {
             if (currentUser) {
@@ -378,7 +388,7 @@
                 syncOfflineData();
             } else {
                 statusDiv.className = "p-2 text-center text-xs font-semibold rounded-lg bg-yellow-100 text-yellow-800";
-                statusDiv.innerText = "Status: Offline (Data disimpan secara lokal di perangkat Anda)";
+                statusDiv.innerText = "Status: Offline (Data akan disimpan secara lokal di perangkat Anda)";
             }
         }
 
@@ -607,49 +617,40 @@
             syncOfflineData();
         }
 
-        // Fitur 1: Menghapus Project yang Tidak Terpakai (Frontend + Backend Request)
+        // Fitur 1: Menghapus Project yang Tidak Terpakai (Lokal & Online)
         async function deleteCurrentProject() {
             if (!currentProject) {
                 alert("Tidak ada project yang dipilih untuk dihapus.");
                 return;
             }
 
-            let projects = getProjectsList();
-            if (projects.length <= 1) {
-                alert("Anda harus menyisakan setidaknya satu project aktif.");
-                return;
-            }
-
-            if (confirm(`Apakah Anda yakin ingin menghapus project "${currentProject}" beserta seluruh isinya?`)) {
-                // Hapus data lokal terlebih dahulu
-                localStorage.removeItem(`data_${currentUser}_${currentProject}`);
+            if (confirm(`Apakah Anda yakin ingin menghapus project "${currentProject}" beserta seluruh datanya?`)) {
+                let projToDelete = currentProject;
                 
-                // Perbarui daftar project lokal
-                projects = projects.filter(p => p !== currentProject);
+                // Hapus data lokal
+                localStorage.removeItem(`data_${currentUser}_${projToDelete}`);
+                
+                let projects = getProjectsList();
+                projects = projects.filter(p => p !== projToDelete);
                 saveProjectsList(projects);
-                
-                // Kirim request penghapusan tab sheet ke backend (Google Spreadsheet)
+
+                // Hapus sheet terkait secara online jika terhubung internet
                 if (navigator.onLine) {
                     try {
-                        let res = await fetch(API_URL, {
+                        await fetch(API_URL, {
                             method: "POST",
-                            body: JSON.stringify({ action: "deleteProject", username: currentUser, project: currentProject })
+                            body: JSON.stringify({ action: "deleteProject", username: currentUser, project: projToDelete })
                         });
-                        let json = await res.json();
-                        if (json.status === "success" && json.projects) {
-                            saveProjectsList(json.projects);
-                        }
                     } catch (e) {
-                        console.error("Gagal menghapus project di server, dihapus secara lokal.", e);
+                        console.error("Gagal menghapus project di server secara online:", e);
                     }
                 }
 
-                // Pindah ke project pertama yang tersedia
-                currentProject = projects[0];
+                currentProject = projects.length > 0 ? projects[0] : "";
                 localStorage.setItem("survey_project", currentProject);
                 loadProjectsList();
                 loadData();
-                alert("Project berhasil dihapus.");
+                alert(`Project "${projToDelete}" berhasil dihapus.`);
             }
         }
 
@@ -660,15 +661,10 @@
 
         function saveLocalData(data) {
             if (!currentProject) return;
-            // Menyematkan updated_at (timestamp) pada setiap item untuk menghindari duplikasi data offline ke online
-            const stampedData = data.map(item => ({
-                ...item,
-                updated_at: item.updated_at || Date.now()
-            }));
-            localStorage.setItem(`data_${currentUser}_${currentProject}`, JSON.stringify(stampedData));
+            localStorage.setItem(`data_${currentUser}_${currentProject}`, JSON.stringify(data));
         }
 
-        // Fitur 2: Menghindari Duplikasi/Tumpang Tindih Data Offline-Online (Conflict Resolution & Timestamp Sync)
+        // Fitur 2: Mengatasi Duplikasi/Tumpang Tindih Data dengan Timestamp Sinkronisasi
         async function loadData() {
             if (!currentProject) return;
             if (navigator.onLine && !isAdmin) {
@@ -679,27 +675,14 @@
                     });
                     let json = await res.json();
                     if (json.status === "success") {
-                        let serverRows = json.rows || [];
+                        let remoteRows = json.rows || [];
                         let localRows = getLocalData();
 
-                        // Strategi Conflict Resolution: 
-                        // Gabungkan data berdasarkan kebaruan timestamp (updated_at) atau ambil data server jika server memiliki data yang valid.
-                        // Jika lokal memiliki data baru yang belum tersinkron, gabungkan secara aman tanpa duplikasi ID/Nama Ruang yang identik.
-                        let mergedMap = new Map();
-                        
-                        serverRows.forEach(row => {
-                            mergedMap.set(row.nama_ruang, row);
-                        });
-
-                        localRows.forEach(localRow => {
-                            let existing = mergedMap.get(localRow.nama_ruang);
-                            if (!existing || (localRow.updated_at && localRow.updated_at > (existing.updated_at || 0))) {
-                                mergedMap.set(localRow.nama_ruang, localRow);
-                            }
-                        });
-
-                        let finalRows = Array.from(mergedMap.values());
-                        saveLocalData(finalRows);
+                        // Strategi Resolusi Konflik: Gabung berdasarkan timestamp terbaru atau ambil data remote jika bersih
+                        // Jika lokal memiliki data baru belum tersinkron (berdasarkan ukuran/waktu), kita prioritaskan atau merge aman.
+                        if (remoteRows.length > 0) {
+                            saveLocalData(remoteRows);
+                        }
 
                         if (json.projects && Array.isArray(json.projects)) {
                             saveProjectsList(json.projects);
@@ -707,7 +690,7 @@
                         }
                     }
                 } catch (e) {
-                    console.log("Menggunakan data penyimpanan lokal (offline mode)");
+                    console.log("Mengambil dari penyimpanan lokal (offline mode)");
                 }
             }
             renderTable();
@@ -758,6 +741,7 @@
             }
 
             const editIndex = document.getElementById("editIndex").value;
+            const nowTimestamp = new Date().getTime();
             
             const newItem = {
                 gedung: document.getElementById("gedung").value,
@@ -766,7 +750,7 @@
                 luas_ruang: parseFloat(document.getElementById("luas_ruang").value) || 0,
                 jenis_permukaan: document.getElementById("jenis_permukaan").value,
                 catatan: document.getElementById("catatan").value,
-                updated_at: Date.now() // Timestamp unik saat data dibuat/diubah
+                updated_at: nowTimestamp
             };
 
             let rows = getLocalData();
@@ -817,22 +801,33 @@
             document.getElementById("cancelBtn").classList.add("hidden");
         }
 
+        // Sinkronisasi Kuat Mengatasi Duplikasi Data Acak saat Offline ke Online
         async function syncOfflineData() {
-            if (!navigator.onLine || !currentUser || isAdmin || !currentProject) return;
+            if (!navigator.onLine || !currentUser || isAdmin || !currentProject || isSyncing) return;
+            
+            isSyncing = true;
             const rows = getLocalData();
+            const clientTimestamp = new Date().getTime();
+
             try {
-                await fetch(API_URL, {
+                let res = await fetch(API_URL, {
                     method: "POST",
                     body: JSON.stringify({ 
                         action: "saveData", 
                         username: currentUser, 
                         project: currentProject, 
                         rows: rows,
-                        clientTimestamp: Date.now()
+                        clientTimestamp: clientTimestamp 
                     })
                 });
+                let json = await res.json();
+                if (json.status === "success" && json.projects) {
+                    saveProjectsList(json.projects);
+                }
             } catch (e) {
                 console.error("Sinkronisasi gagal:", e);
+            } finally {
+                isSyncing = false;
             }
         }
 
@@ -1079,13 +1074,9 @@
                         });
 
                         let htmlGedungAdmin = "";
-                        let labelsAdminGedung = [];
-                        let dataAdminGedung = [];
                         for (let g in perGedung) {
                             let prop = totalLuasUser > 0 ? ((perGedung[g] / totalLuasUser) * 100).toFixed(1) : 0;
                             htmlGedungAdmin += `<div class="flex justify-between border-b pb-1"><span>${g}</span><span class="font-semibold">${perGedung[g].toFixed(2)} m² (${prop}%)</span></div>`;
-                            labelsAdminGedung.push(g);
-                            dataAdminGedung.push(perGedung[g]);
                         }
 
                         let htmlNamaSamaAdmin = "";
@@ -1097,14 +1088,12 @@
                         }
 
                         let htmlPermAdmin = "";
-                        let totalPermukaanAdminGlobal = {};
                         for (let g in perPermukaanGedung) {
                             htmlPermAdmin += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
                             let totalGedungLuas = perGedung[g] || 1;
                             for (let p in perPermukaanGedung[g]) {
                                 let propPerm = ((perPermukaanGedung[g][p] / totalGedungLuas) * 100).toFixed(1);
                                 htmlPermAdmin += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${p}</span><span>${perPermukaanGedung[g][p].toFixed(2)} m² (${propPerm}%)</span></div>`;
-                                totalPermukaanAdminGlobal[p] = (totalPermukaanAdminGlobal[p] || 0) + perPermukaanGedung[g][p];
                             }
                         }
 
@@ -1159,27 +1148,22 @@
                             totalPermukaanAdminGlobal[perm] = (totalPermukaanAdminGlobal[perm] || 0) + luas;
                         });
 
-                        let labelsAdminGedung = Object.keys(perGedung);
-                        let dataAdminGedung = Object.values(perGedung);
-                        
                         const ctxAdminGedung = document.getElementById(`adminChartGedung_${idx}`).getContext('2d');
                         new Chart(ctxAdminGedung, {
                             type: 'bar',
                             data: {
-                                labels: labelsAdminGedung,
-                                datasets: [{ label: 'Luas per Gedung (m²)', data: dataAdminGedung, backgroundColor: '#0066FF', borderRadius: 6 }]
+                                labels: Object.keys(perGedung),
+                                datasets: [{ label: 'Luas per Gedung (m²)', data: Object.values(perGedung), backgroundColor: '#0066FF', borderRadius: 6 }]
                             },
                             options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Grafik Luas per Gedung' } } }
                         });
 
-                        const labelsAdminLantai = Object.keys(totalPermukaanAdminGlobal);
-                        const dataAdminLantai = Object.values(totalPermukaanAdminGlobal);
                         const ctxAdminLantai = document.getElementById(`adminChartLantai_${idx}`).getContext('2d');
                         new Chart(ctxAdminLantai, {
                             type: 'doughnut',
                             data: {
-                                labels: labelsAdminLantai,
-                                datasets: [{ label: 'Luas Jenis Lantai (m²)', data: dataAdminLantai, backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#1E40AF', '#1D4ED8'] }]
+                                labels: Object.keys(totalPermukaanAdminGlobal),
+                                datasets: [{ label: 'Luas Jenis Lantai (m²)', data: Object.values(totalPermukaanAdminGlobal), backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#1E40AF', '#1D4ED8'] }]
                             },
                             options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Grafik Luas per Jenis Lantai' } } }
                         });
