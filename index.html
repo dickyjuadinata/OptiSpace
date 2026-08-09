@@ -3,345 +3,335 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pendataan Ruang</title>
+  <title>Aplikasi Pendataan Ruang</title>
+  <!-- Manifest & PWA Support -->
   <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0066FF">
+  <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.js"></script>
   <style>
-    :root {
-      --primary-blue: #007bff;
-      --dark-navy: #03091e;
-      --bg-light: #f4f6f9;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg-light);
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-    header {
-      background-color: var(--dark-navy);
-      color: #fff;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .hero-banner {
-      background-color: var(--primary-blue);
-      color: white;
-      padding: 30px 20px;
-      border-radius: 0 0 20px 20px;
-      margin-bottom: 20px;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 15px;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 600;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-    button {
-      background-color: var(--primary-blue);
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 25px;
-      cursor: pointer;
-      font-weight: bold;
-      width: 100%;
-    }
-    button.outline {
-      background: transparent;
-      border: 2px solid var(--primary-blue);
-      color: var(--primary-blue);
-    }
-    .hidden { display: none; }
-    .status-badge {
-      font-size: 12px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      background: #ffc107;
-      color: #000;
-    }
-    .status-badge.synced {
-      background: #28a745;
-      color: #fff;
-    }
-    .data-item {
-      border-bottom: 1px solid #eee;
-      padding: 10px 0;
-    }
+    .bg-corporate { background-color: #0066FF; }
+    .text-corporate { color: #0066FF; }
+    .border-corporate { border-color: #0066FF; }
   </style>
 </head>
-<body>
+<body class="bg-gray-100 font-sans antialiased">
 
-  <!-- Header -->
-  <header>
-    <div style="font-weight: bold; font-size: 18px;">ISS Space Data</div>
-    <div id="connectionStatus" class="status-badge">Online</div>
-  </header>
-
-  <!-- Container Utama -->
-  <div class="container">
-
-    <!-- View Login -->
-    <div id="loginView" class="card">
-      <h2>Masuk Sistem</h2>
-      <div class="form-group">
-        <label>Username</label>
-        <input type="text" id="loginUser" placeholder="Masukkan ID User/Admin">
+  <!-- App Container -->
+  <div id="app" class="min-h-screen flex flex-col">
+    
+    <!-- Header -->
+    <header class="bg-corporate text-white p-4 shadow-md flex justify-between items-center">
+      <h1 class="text-lg font-bold">Space Inventory App</h1>
+      <div id="user-info" class="text-sm hidden">
+        <span id="lbl-username" class="font-semibold"></span> | 
+        <button onclick="logout()" class="underline hover:text-gray-200">Keluar</button>
       </div>
-      <div class="form-group">
-        <label>PIN Akses</label>
-        <input type="password" id="loginPin" placeholder="****">
-      </div>
-      <button onclick="handleLogin()">Masuk</button>
-    </div>
+    </header>
 
-    <!-- View App (Main Area) -->
-    <div id="appView" class="hidden">
-      <div class="hero-banner">
-        <h2 style="margin:0;">Form Pendataan Ruang</h2>
-        <p style="margin:5px 0 0 0; font-size:14px;">Input data ruang kerja dan fasilitas.</p>
-      </div>
+    <!-- Main Content -->
+    <main class="flex-grow p-4 max-w-lg mx-auto w-full">
+      
+      <!-- VIEW: LOGIN -->
+      <section id="view-login" class="bg-white p-6 rounded-xl shadow-md mt-10">
+        <h2 class="text-xl font-bold mb-4 text-corporate">Login Pengguna</h2>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Username / ID User</label>
+          <input type="text" id="login-user" class="w-full p-3 border rounded-lg focus:outline-none border-corporate" placeholder="Contoh: user1">
+        </div>
+        <div class="mb-6">
+          <label class="block text-gray-700 text-sm font-bold mb-2">PIN Akses</label>
+          <input type="password" id="login-pin" class="w-full p-3 border rounded-lg focus:outline-none border-corporate" placeholder="Masukkan PIN">
+        </div>
+        <button onclick="login()" class="w-full bg-corporate text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">Masuk</button>
+      </section>
 
-      <!-- Form Input Utama -->
-      <div class="card">
-        <form id="roomForm">
-          <!-- Kolom Utama (Wajib Tampil Sesuai Permintaan) -->
-          <div class="form-group">
-            <label>Nama Ruang *</label>
-            <input type="text" id="namaRuang" required>
+      <!-- VIEW: DASHBOARD / FORM INPUT -->
+      <section id="view-dashboard" class="hidden">
+        
+        <!-- Status Koneksi & Sinkronisasi -->
+        <div id="sync-status" class="mb-4 p-2 text-center text-xs rounded font-semibold bg-yellow-100 text-yellow-800">
+          Status: <span id="conn-text">Online</span> | Antrean Offline: <span id="queue-count">0</span>
+        </div>
+
+        <!-- Form Input Card -->
+        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+          <h2 id="form-title" class="text-lg font-bold mb-4 text-corporate">Input Ruang Baru</h2>
+          <input type="hidden" id="edit-id">
+          
+          <!-- Field Utama (Wajib Tampil Sesuai Permintaan Poin 2) -->
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Nama Ruang *</label>
+            <input type="text" id="inp-ruang" class="w-full p-3 border rounded-lg focus:outline-none" required>
           </div>
-          <div class="form-group">
-            <label>Luas Ruang (m²) *</label>
-            <input type="number" id="luasRuang" required>
-          </div>
-          <div class="form-group">
-            <label>Jenis Permukaan Lantai *</label>
-            <input type="text" id="jenisLantai" placeholder="cth: Keramik, Karpet, Epoxy" required>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Luas Ruang (m2) *</label>
+            <input type="number" step="0.01" id="inp-luas" class="w-full p-3 border rounded-lg focus:outline-none" required>
           </div>
 
-          <!-- Opsi Toggle Opsional -->
-          <button type="button" class="outline" style="margin-bottom:15px;" onclick="toggleOptionalFields()">
-            + Tampilkan Detail Lainnya (Gedung/Lantai/Catatan)
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Jenis Permukaan Lantai *</label>
+            <input type="text" id="inp-permukaan" class="w-full p-3 border rounded-lg focus:outline-none" placeholder="Contoh: Keramik, Vinyl, Semen" required>
+          </div>
+
+          <!-- Kolom Tambahan (Muncul Bila Dibutuhkan / Tombol Toggle) -->
+          <button type="button" onclick="toggleExtraFields()" class="text-sm text-corporate font-semibold mb-4 underline focus:outline-none">
+            + Tambah Detail Gedung & Catatan (Opsional)
           </button>
 
-          <!-- Kolom Tambahan (Hidden by Default) -->
-          <div id="optionalFields" class="hidden">
-            <div class="form-group">
-              <label>Nama Gedung</label>
-              <input type="text" id="namaGedung">
+          <div id="extra-fields" class="hidden space-y-4 mb-4 border-t pt-4">
+            <div>
+              <label class="block text-gray-700 text-sm font-bold mb-2">Nama Gedung</label>
+              <input type="text" id="inp-gedung" class="w-full p-3 border rounded-lg focus:outline-none">
             </div>
-            <div class="form-group">
-              <label>Lantai</label>
-              <input type="text" id="lantai">
+            <div>
+              <label class="block text-gray-700 text-sm font-bold mb-2">Lantai</label>
+              <input type="text" id="inp-lantai" class="w-full p-3 border rounded-lg focus:outline-none">
             </div>
-            <div class="form-group">
-              <label>Catatan</label>
-              <textarea id="catatan" rows="3"></textarea>
+            <div>
+              <label class="block text-gray-700 text-sm font-bold mb-2">Catatan</label>
+              <textarea id="inp-catatan" class="w-full p-3 border rounded-lg focus:outline-none"></textarea>
             </div>
           </div>
 
-          <button type="submit">Simpan Data</button>
-        </form>
-      </div>
+          <button onclick="saveData()" class="w-full bg-corporate text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">Simpan Data</button>
+          <button onclick="resetForm()" class="w-full mt-2 bg-gray-300 text-gray-700 p-2 rounded-lg text-sm">Batal / Reset</button>
+        </div>
 
-      <!-- Tabel/List Data -->
-      <div class="card">
-        <h3>Daftar Data Ruang</h3>
-        <button class="outline" style="margin-bottom: 10px;" onclick="syncOfflineData()">Sinkronkan Data Sekarang</button>
-        <div id="dataList"></div>
-      </div>
+        <!-- Data Tersimpan (Struktur: Nama Gedung - Lantai - Nama Ruang - Luas - Permukaan - Catatan) -->
+        <div class="bg-white p-6 rounded-xl shadow-md">
+          <h2 class="text-lg font-bold mb-4 text-corporate">Daftar Ruang Tersimpan</h2>
+          <div id="data-list" class="space-y-3">
+            <!-- Data akan dimuat secara dinamis via JavaScript -->
+          </div>
+        </div>
 
-      <button onclick="handleLogout()" style="background-color: #dc3545; margin-top:20px;">Keluar</button>
-    </div>
+      </section>
 
+    </main>
   </div>
 
+  <!-- SCRIPT LOGIKA APLIKASI & OFFLINE SYNC -->
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbw0t3vA-Dn4ObxsTANZQC9lRKnFZime-u3uPHaH2B999eSltFlKCBVe200c4XPmY3JZ/exec";
+    const WEB_URL = "https://script.google.com/macros/s/AKfycbw0t3vA-Dn4ObxsTANZQC9lRKnFZime-u3uPHaH2B999eSltFlKCBVe200c4XPmY3JZ/exec";
+    
+    let currentUser = localStorage.getItem("currentUser") || null;
+    let currentRole = localStorage.getItem("currentRole") || null;
 
-    let db;
-    let currentUser = null;
-
-    // 1. Inisialisasi Offline DB (IndexedDB)
-    const request = indexedDB.open("SpaceAppDB", 1);
-    request.onupgradeneeded = (e) => {
-      db = e.target.result;
-      db.createObjectStore("rooms", { keyPath: "id", autoIncrement: true });
+    window.onload = function() {
+      if (currentUser) {
+        showDashboard();
+        loadData();
+      }
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', updateOnlineStatus);
+      updateOnlineStatus();
     };
-    request.onsuccess = (e) => { db = e.target.result; };
-
-    // Detection Offline/Online Status
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
 
     function updateOnlineStatus() {
-      const status = document.getElementById('connectionStatus');
-      if (navigator.onLine) {
-        status.innerText = "Online";
-        status.classList.add("synced");
-        syncOfflineData(); // Auto sync saat kembali online
+      const isOnline = navigator.onLine;
+      const connText = document.getElementById("conn-text");
+      const queue = JSON.parse(localStorage.getItem("offlineQueue") || "[]");
+      
+      document.getElementById("queue-count").innerText = queue.length;
+      if (isOnline) {
+        connText.innerText = "Online";
+        connText.className = "text-green-600 font-bold";
+        if (queue.length > 0) syncOfflineData();
       } else {
-        status.innerText = "Offline Mode";
-        status.classList.remove("synced");
+        connText.innerText = "Offline (Tersimpan Lokal)";
+        connText.className = "text-red-600 font-bold";
       }
     }
 
-    // Toggle Field Opsional UI
-    function toggleOptionalFields() {
-      const el = document.getElementById('optionalFields');
-      el.classList.toggle('hidden');
+    function toggleExtraFields() {
+      const extra = document.getElementById("extra-fields");
+      extra.classList.toggle("hidden");
     }
 
-    // 2. Authentication
-    async function handleLogin() {
-      const username = document.getElementById('loginUser').value;
-      const pin = document.getElementById('loginPin').value;
+    async function login() {
+      let user = document.getElementById("login-user").value.trim();
+      let pin = document.getElementById("login-pin").value.trim();
+      
+      if(!user || !pin) {
+        alert("Harap isi username dan PIN!");
+        return;
+      }
 
       try {
-        const res = await fetch(GAS_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'login', username, pin })
+        let response = await fetch(WEB_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "login", username: user, pin: pin })
         });
-        const data = await res.json();
-
-        if (data.status === 'success') {
-          currentUser = { username: data.username, role: data.role };
-          localStorage.setItem('user', JSON.stringify(currentUser));
-          showAppView();
+        let res = await response.json();
+        
+        if (res.status === "success") {
+          currentUser = res.username;
+          currentRole = res.role;
+          localStorage.setItem("currentUser", currentUser);
+          localStorage.setItem("currentRole", currentRole);
+          showDashboard();
+          loadData();
         } else {
-          alert(data.message);
+          alert(res.message);
         }
       } catch (err) {
-        alert("Gagal login. Pastikan koneksi internet tersedia saat pertama kali login.");
+        alert("Gagal terhubung ke server (Cek koneksi internet saat login pertama).");
       }
     }
 
-    function showAppView() {
-      document.getElementById('loginView').classList.add('hidden');
-      document.getElementById('appView').classList.remove('hidden');
-      renderDataList();
+    function logout() {
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("currentRole");
+      currentUser = null;
+      currentRole = null;
+      document.getElementById("view-dashboard").classList.add("hidden");
+      document.getElementById("view-login").classList.remove("hidden");
+      document.getElementById("user-info").classList.add("hidden");
     }
 
-    function handleLogout() {
-      localStorage.removeItem('user');
-      location.reload();
+    function showDashboard() {
+      document.getElementById("view-login").classList.add("hidden");
+      document.getElementById("view-dashboard").classList.remove("hidden");
+      document.getElementById("user-info").classList.remove("hidden");
+      document.getElementById("lbl-username").innerText = currentUser;
     }
 
-    // 3. Simpan Data (Offline First)
-    document.getElementById('roomForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const payload = {
-        namaRuang: document.getElementById('namaRuang').value,
-        luasRuang: document.getElementById('luasRuang').value,
-        jenisLantai: document.getElementById('jenisLantai').value,
-        namaGedung: document.getElementById('namaGedung').value || "-",
-        lantai: document.getElementById('lantai').value || "-",
-        catatan: document.getElementById('catatan').value || "-",
-        synced: false
+    async function saveData() {
+      let payload = {
+        id: document.getElementById("edit-id").value || ("ID_" + Date.now()),
+        ruang: document.getElementById("inp-ruang").value,
+        luas: document.getElementById("inp-luas").value,
+        permukaan: document.getElementById("inp-permukaan").value,
+        gedung: document.getElementById("inp-gedung").value || "-",
+        lantai: document.getElementById("inp-lantai").value || "-",
+        catatan: document.getElementById("inp-catatan").value || "-"
       };
 
-      // Simpan ke IndexedDB lokal
-      const tx = db.transaction("rooms", "readwrite");
-      tx.objectStore("rooms").add(payload);
-      
-      document.getElementById('roomForm').reset();
-      alert("Data tersimpan di penyimpanan lokal!");
-      
-      renderDataList();
+      if(!payload.ruang || !payload.luas || !payload.permukaan) {
+        alert("Mohon lengkapi kolom utama (Nama Ruang, Luas, Jenis Permukaan)!");
+        return;
+      }
+
+      // Simpan ke local cache untuk tampilan instan & offline support
+      let localData = JSON.parse(localStorage.getItem("data_" + currentUser) || "[]");
+      let index = localData.findIndex(item => item.id === payload.id);
+      if(index >= 0) {
+        localData[index] = payload;
+      } else {
+        localData.push(payload);
+      }
+      localStorage.setItem("data_" + currentUser, JSON.stringify(localData));
 
       if (navigator.onLine) {
-        syncOfflineData();
-      }
-    });
-
-    // 4. Render & Edit Data
-    function renderDataList() {
-      const dataList = document.getElementById('dataList');
-      dataList.innerHTML = "";
-
-      const tx = db.transaction("rooms", "readonly");
-      const store = tx.objectStore("rooms");
-      store.openCursor().onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-          const item = cursor.value;
-          const div = document.createElement('div');
-          div.className = "data-item";
-          div.innerHTML = `
-            <strong>${item.namaGedung} - Lantai ${item.lantai} - ${item.namaRuang}</strong><br>
-            <small>Luas: ${item.luasRuang} m² | Permukaan: ${item.jenisLantai}</small><br>
-            <small>Catatan: ${item.catatan}</small><br>
-            <span class="status-badge ${item.synced ? 'synced' : ''}">${item.synced ? 'Tersinkron' : 'Belum Sinkron'}</span>
-          `;
-          dataList.appendChild(div);
-          cursor.continue();
+        try {
+          await fetch(WEB_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "saveData", username: currentUser, payload: payload })
+          });
+          alert("Data berhasil disimpan ke Cloud!");
+        } catch(e) {
+          queueOffline(payload);
         }
-      };
+      } else {
+        queueOffline(payload);
+        alert("Jaringan offline. Data tersimpan di perangkat dan akan disinkronkan nanti.");
+      }
+
+      resetForm();
+      renderDataList(localData);
     }
 
-    // 5. Sinkronisasi Data ke Backend GAS
+    function queueOffline(payload) {
+      let queue = JSON.parse(localStorage.getItem("offlineQueue") || "[]");
+      queue.push({ username: currentUser, payload: payload });
+      localStorage.setItem("offlineQueue", JSON.stringify(queue));
+      updateOnlineStatus();
+    }
+
     async function syncOfflineData() {
-      if (!navigator.onLine || !currentUser) return;
+      let queue = JSON.parse(localStorage.getItem("offlineQueue") || "[]");
+      if (queue.length === 0) return;
 
-      const tx = db.transaction("rooms", "readwrite");
-      const store = tx.objectStore("rooms");
-      const unsynced = [];
-
-      store.openCursor().onsuccess = async (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-          if (!cursor.value.synced) {
-            unsynced.push(cursor.value);
-          }
-          cursor.continue();
-        } else if (unsynced.length > 0) {
-          // Kirim ke GAS
-          const res = await fetch(GAS_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-              action: 'syncData',
-              username: currentUser.username,
-              records: unsynced
-            })
+      let remainingQueue = [];
+      for (let item of queue) {
+        try {
+          await fetch(WEB_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "saveData", username: item.username, payload: item.payload })
           });
-          
-          const result = await res.json();
-          if (result.status === 'success') {
-            // Update status local db
-            const writeTx = db.transaction("rooms", "readwrite");
-            const writeStore = writeTx.objectStore("rooms");
-            unsynced.forEach(item => {
-              item.synced = true;
-              writeStore.put(item);
-            });
-            renderDataList();
-          }
+        } catch (e) {
+          remainingQueue.push(item);
         }
-      };
+      }
+      localStorage.setItem("offlineQueue", JSON.stringify(remainingQueue));
+      updateOnlineStatus();
+    }
+
+    async function loadData() {
+      if (navigator.onLine) {
+        try {
+          let response = await fetch(WEB_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "getData", username: currentUser })
+          });
+          let res = await response.json();
+          if (res.status === "success") {
+            localStorage.setItem("data_" + currentUser, JSON.stringify(res.data));
+            renderDataList(res.data);
+            return;
+          }
+        } catch(e) {
+          console.log("Gagal ambil dari server, menggunakan cache lokal.");
+        }
+      }
+      // Fallback lokal
+      let localData = JSON.parse(localStorage.getItem("data_" + currentUser) || "[]");
+      renderDataList(localData);
+    }
+
+    function renderDataList(data) {
+      let container = document.getElementById("data-list");
+      container.innerHTML = "";
+      if(data.length === 0) {
+        container.innerHTML = `<p class="text-gray-500 text-sm">Belum ada data tersimpan.</p>`;
+        return;
+      }
+      
+      data.forEach(item => {
+        let div = document.createElement("div");
+        div.className = "p-3 border rounded-lg bg-gray-50 text-sm flex justify-between items-start";
+        div.innerHTML = `
+          <div>
+            <p class="font-bold text-corporate">${item.gedung} - Lantai ${item.lantai} - ${item.ruang}</p>
+            <p class="text-gray-600">Luas: ${item.luas} m2 | Lantai: ${item.permukaan}</p>
+            <p class="text-gray-500 italic text-xs">Catatan: ${item.catatan}</p>
+          </div>
+          <button onclick='editData(${JSON.stringify(item)})' class="bg-yellow-500 text-white px-2 py-1 rounded text-xs">Edit</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function editData(item) {
+      document.getElementById("edit-id").value = item.id;
+      document.getElementById("inp-ruang").value = item.ruang;
+      document.getElementById("inp-luas").value = item.luas;
+      document.getElementById("inp-permukaan").value = item.permukaan;
+      document.getElementById("inp-gedung").value = item.gedung;
+      document.getElementById("inp-lantai").value = item.lantai;
+      document.getElementById("inp-catatan").value = item.catatan;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+      document.getElementById("edit-id").value = "";
+      document.getElementById("inp-ruang").value = "";
+      document.getElementById("inp-luas").value = "";
+      document.getElementById("inp-permukaan").value = "";
+      document.getElementById("inp-gedung").value = "";
+      document.getElementById("inp-lantai").value = "";
+      document.getElementById("inp-catatan").value = "";
     }
   </script>
 </body>
