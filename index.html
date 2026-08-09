@@ -11,12 +11,6 @@
         .bg-iss-blue { background-color: #0066FF; }
         .text-iss-blue { color: #0066FF; }
         .border-iss-blue { border-color: #0066FF; }
-        /* Tambahan untuk feedback tombol disentuh */
-        button:active, .btn-feedback:active {
-            transform: scale(0.96);
-            opacity: 0.85;
-            transition: transform 0.1s ease, opacity 0.1s ease;
-        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
@@ -63,7 +57,10 @@
             <div id="tabSurvey" class="space-y-6">
                 <!-- Pilihan Project -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <h3 class="text-xl font-bold text-iss-blue mb-4">Pilih Project</h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-iss-blue">Pilih Project</h3>
+                        <button type="button" onclick="downloadSpreadsheet()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition active:scale-[0.98]">📥 Download Spreadsheet</button>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Pilih Project Tersedia</label>
@@ -438,6 +435,23 @@
                 }
             }
             renderTable();
+        }
+
+        async function downloadSpreadsheet() {
+            try {
+                let res = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "getDownloadUrl", username: currentUser })
+                });
+                let json = await res.json();
+                if (json.status === "success" && json.exportXlsxUrl) {
+                    window.open(json.exportXlsxUrl, '_blank');
+                } else {
+                    alert("Gagal mendapatkan tautan download.");
+                }
+            } catch (e) {
+                alert("Terjadi kesalahan jaringan saat mencoba mengunduh.");
+            }
         }
 
         // Fungsi Helper untuk mewariskan nilai gedung & lantai yang kosong dari baris sebelumnya
@@ -871,3 +885,4 @@
     </script>
 </body>
 </html>
+```[cite: 6]
