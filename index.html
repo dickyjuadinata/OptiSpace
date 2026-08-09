@@ -40,7 +40,7 @@
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username / Role</label>
-                    <input type="text" id="username" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
+                    <input type="text" id="username" required onblur="fetchLoginProjects()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">PIN Akses</label>
@@ -48,7 +48,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Nama Project Awal</label>
-                    <input type="text" id="loginProject" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: Gedung A / Project 1">
+                    <select id="loginProject" required onchange="handleLoginProjectChange()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
+                        <option value="">-- Pilih / Masukkan Username Terlebih Dahulu --</option>
+                    </select>
+                    <!-- Input tambahan jika memilih buat project baru -->
+                    <input type="text" id="loginNewProjectInput" placeholder="Ketik nama project baru..." class="w-full mt-2 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none hidden">
                 </div>
                 <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Masuk</button>
             </form>
@@ -343,11 +347,55 @@
             }
         }
 
+        // Fungsi baru untuk memuat project lama berdasarkan username saat mengisi login
+        function fetchLoginProjects() {
+            const usernameInput = document.getElementById("username").value.trim();
+            const selectProject = document.getElementById("loginProject");
+            
+            if (!usernameInput) {
+                selectProject.innerHTML = '<option value="">-- Pilih / Masukkan Username Terlebih Dahulu --</option>';
+                return;
+            }
+
+            // Ambil project dari localStorage berdasarkan user tersebut
+            let projects = JSON.parse(localStorage.getItem(`projects_${usernameInput}`)) || [];
+            
+            selectProject.innerHTML = '<option value="">-- Pilih Project --</option>';
+            projects.forEach(p => {
+                selectProject.innerHTML += `<option value="${p}">${p}</option>`;
+            });
+            selectProject.innerHTML += '<option value="__new__">➕ Buat Project Baru...</option>';
+        }
+
+        function handleLoginProjectChange() {
+            const selectProject = document.getElementById("loginProject");
+            const newInput = document.getElementById("loginNewProjectInput");
+            
+            if (selectProject.value === "__new__") {
+                newInput.classList.remove("hidden");
+                newInput.required = true;
+                newInput.focus();
+            } else {
+                newInput.classList.add("hidden");
+                newInput.required = false;
+                newInput.value = "";
+            }
+        }
+
         async function handleLogin(e) {
             e.preventDefault();
             const username = document.getElementById("username").value.trim();
             const pin = document.getElementById("pin").value;
-            const project = document.getElementById("loginProject").value.trim();
+            
+            const selectProjectVal = document.getElementById("loginProject").value;
+            const newInputVal = document.getElementById("loginNewProjectInput").value.trim();
+            
+            let project = selectProjectVal === "__new__" ? newInputVal : selectProjectVal;
+
+            if (!project) {
+                alert("Silakan pilih atau buat nama project terlebih dahulu!");
+                return;
+            }
 
             try {
                 let response = await fetch(API_URL, {
