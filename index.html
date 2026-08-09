@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Room Survey App - ISS Style</title>
-    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -37,7 +36,6 @@
                 <button type="button" onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 pb-3 font-medium text-gray-400">Daftar Akun</button>
             </div>
 
-            <!-- Form Login -->
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username / Role</label>
@@ -57,7 +55,6 @@
                 <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Masuk</button>
             </form>
 
-            <!-- Form Register -->
             <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username Baru</label>
@@ -67,22 +64,19 @@
                     <label class="block text-sm font-medium text-gray-700">PIN Unik Pilihan Anda</label>
                     <input type="password" id="regPin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Buat PIN rahasia">
                 </div>
-                <p class="text-xs text-gray-500">Catatan: Akun baru memerlukan persetujuan dari Admin sebelum dapat digunakan untuk login.</p>
+                <p class="text-xs text-gray-500">Catatan: Akun baru memerlukan persetujuan dari Admin.</p>
                 <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Daftar Sekarang</button>
             </form>
         </section>
 
-        <!-- DASHBOARD SECTION (SURVEY & TABEL) -->
+        <!-- DASHBOARD SECTION -->
         <section id="dashboardSection" class="hidden space-y-6">
-            
-            <!-- Connection Status Banner -->
             <div id="netStatus" class="p-2 text-center text-xs font-semibold rounded-lg bg-green-100 text-green-800">
                 Status: Online (Tersinkronisasi)
             </div>
 
             <!-- TAB CONTENT: SURVEY / INPUT -->
             <div id="tabSurvey" class="space-y-6">
-                <!-- Pilihan Project -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
                     <h3 class="text-xl font-bold text-iss-blue mb-4">Pilih Project</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -92,15 +86,14 @@
                                 <select id="selectProject" onchange="handleProjectSelection()" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
                                     <option value="">-- Pilih Project --</option>
                                 </select>
-                                <!-- Fitur 1: Tombol Hapus Project yang Tidak Terpakai -->
-                                <button type="button" onclick="deleteCurrentProject()" class="bg-red-500 text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98] whitespace-nowrap text-xs" title="Hapus Project Ini">Hapus Project</button>
+                                <button type="button" onclick="deleteCurrentProject()" class="bg-red-500 text-white px-4 py-3 rounded-xl font-semibold hover:bg-red-600 transition whitespace-nowrap" title="Hapus Project Ini">Hapus</button>
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Atau Buat Project Baru</label>
                             <div class="flex gap-2 mt-1">
                                 <input type="text" id="newProjectInput" placeholder="Nama project baru..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
-                                <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98] whitespace-nowrap">Tambah</button>
+                                <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition whitespace-nowrap">Tambah</button>
                             </div>
                         </div>
                     </div>
@@ -158,13 +151,12 @@
                         </div>
 
                         <div class="flex gap-2">
-                            <button type="submit" class="flex-1 bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Simpan Data</button>
-                            <button type="button" onclick="resetForm()" id="cancelBtn" class="hidden bg-gray-300 text-gray-700 px-4 py-3 rounded-xl font-semibold hover:bg-gray-400 transition active:scale-[0.98]">Batal</button>
+                            <button type="submit" class="flex-1 bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition">Simpan Data</button>
+                            <button type="button" onclick="resetForm()" id="cancelBtn" class="hidden bg-gray-300 text-gray-700 px-4 py-3 rounded-xl font-semibold hover:bg-gray-400 transition">Batal</button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Tabel Data Tersimpan -->
                 <div class="bg-white p-6 rounded-2xl shadow-md overflow-x-auto">
                     <h3 class="text-xl font-bold text-iss-blue mb-4">Daftar Data Ruang Tersimpan</h3>
                     <table class="w-full text-left border-collapse text-sm">
@@ -179,8 +171,7 @@
                                 <th class="p-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="dataTableBody">
-                        </tbody>
+                        <tbody id="dataTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -192,7 +183,7 @@
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4">
                             <h3 class="text-xl font-bold text-iss-blue">Dashboard Analitik Ruang</h3>
                             <div class="w-full md:w-64">
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Pilih Project untuk Analitik</label>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Pilih Project</label>
                                 <select id="dashboardProjectSelect" onchange="renderAnalytics()" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
                                     <option value="">Semua Project</option>
                                 </select>
@@ -216,17 +207,17 @@
                                 <div id="statPerGedung" class="space-y-2 text-sm"></div>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-xl border space-y-2">
-                                <h4 class="font-bold text-gray-700">Luas Ruangan Nama Sama per Gedung</h4>
+                                <h4 class="font-bold text-gray-700">Luas Ruangan Nama Sama</h4>
                                 <div id="statNamaSamaGedung" class="space-y-2 text-sm"></div>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-xl border space-y-2">
-                                <h4 class="font-bold text-gray-700">Luas per Jenis Lantai per Gedung</h4>
+                                <h4 class="font-bold text-gray-700">Luas per Jenis Lantai</h4>
                                 <div id="statPerPermukaan" class="space-y-2 text-sm"></div>
                             </div>
                         </div>
 
                         <div class="border-t pt-6 space-y-4">
-                            <h4 class="font-bold text-gray-700 text-lg">Visualisasi Grafik Analitik</h4>
+                            <h4 class="font-bold text-gray-700 text-lg">Visualisasi Grafik</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="bg-gray-50 p-4 rounded-xl border relative h-72">
                                     <canvas id="chartGedung"></canvas>
@@ -285,24 +276,22 @@
                                 <button onclick="toggleAllAdminCards(false)" class="bg-gray-300 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-400 transition">Collapse All</button>
                             </div>
                         </div>
-                        <div id="adminContentContainer" class="space-y-6">
-                        </div>
+                        <div id="adminContentContainer" class="space-y-6"></div>
                     </div>
                 </div>
             </div>
-
         </section>
     </main>
 
-    <!-- Script Logika & Offline Sync -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwo1qux80FXKobwTX727KuaBtcNoGnxoStbK6JaIBvt6VSrD2Brree4g5tFpD0IE-1V/exec";
+        // Ganti URL di bawah ini dengan URL Web App Google Apps Script terbaru Anda setelah dideploy ulang (Deploy > New Deployment)
+        const API_URL = "ISI_URL_DEPLOYMENT_WEB_APP_ANDA_DISINI";
+
         let currentUser = localStorage.getItem("survey_user") || null;
         let isAdmin = localStorage.getItem("survey_is_admin") === "true";
         let currentProject = localStorage.getItem("survey_project") || "";
         let chartInstanceGedung = null;
         let chartInstanceLantai = null;
-        let isSyncing = false; // Mencegah duplikasi sinkronisasi bersamaan
 
         window.onload = () => {
             if (currentUser) {
@@ -318,7 +307,7 @@
         async function downloadExcel() {
             if (!currentUser || isAdmin) return;
             if (!currentProject) {
-                alert("Silakan pilih project terlebih dahulu untuk diunduh!");
+                alert("Silakan pilih project terlebih dahulu!");
                 return;
             }
             try {
@@ -333,7 +322,7 @@
                     alert("Gagal mendapatkan link download Excel.");
                 }
             } catch (e) {
-                alert("Terjadi kesalahan saat mencoba mengunduh file.");
+                alert("Terjadi kesalahan saat mengunduh file.");
             }
         }
 
@@ -376,7 +365,7 @@
                     switchAuthTab('login');
                 }
             } catch (err) {
-                alert("Gagal terhubung ke server. Periksa koneksi internet.");
+                alert("Gagal terhubung ke server. Periksa koneksi.");
             }
         }
 
@@ -384,11 +373,11 @@
             const statusDiv = document.getElementById("netStatus");
             if (navigator.onLine) {
                 statusDiv.className = "p-2 text-center text-xs font-semibold rounded-lg bg-green-100 text-green-800";
-                statusDiv.innerText = "Status: Online (Menyinkronkan data offline jika ada...)";
+                statusDiv.innerText = "Status: Online";
                 syncOfflineData();
             } else {
                 statusDiv.className = "p-2 text-center text-xs font-semibold rounded-lg bg-yellow-100 text-yellow-800";
-                statusDiv.innerText = "Status: Offline (Data akan disimpan secara lokal di perangkat Anda)";
+                statusDiv.innerText = "Status: Offline (Mode Lokal)";
             }
         }
 
@@ -402,12 +391,11 @@
             }
 
             if (!usernameInput) {
-                selectProject.innerHTML = '<option value="">-- Pilih / Masukkan Username Terlebih Dahulu --</option>';
+                selectProject.innerHTML = '<option value="">-- Pilih Username Terlebih Dahulu --</option>';
                 return;
             }
 
             let projects = JSON.parse(localStorage.getItem(`projects_${usernameInput}`)) || [];
-            
             selectProject.innerHTML = '<option value="">-- Pilih Project --</option>';
             projects.forEach(p => {
                 selectProject.innerHTML += `<option value="${p}">${p}</option>`;
@@ -477,14 +465,12 @@
                     alert(result.message);
                 }
             } catch (err) {
-                alert("Gagal terhubung ke server. Periksa koneksi internet.");
+                alert("Gagal terhubung ke server.");
             }
         }
 
         function logout() {
-            localStorage.removeItem("survey_user");
-            localStorage.removeItem("survey_is_admin");
-            localStorage.removeItem("survey_project");
+            localStorage.clear();
             location.reload();
         }
 
@@ -536,8 +522,7 @@
         }
 
         function toggleExtraFields() {
-            const extra = document.getElementById("extraFields");
-            extra.classList.toggle("hidden");
+            document.getElementById("extraFields").classList.toggle("hidden");
         }
 
         function toggleAdminCard(idx) {
@@ -595,10 +580,7 @@
         async function createNewProject() {
             const input = document.getElementById("newProjectInput");
             const newProj = input.value.trim();
-            if (!newProj) {
-                alert("Nama project baru tidak boleh kosong.");
-                return;
-            }
+            if (!newProj) return;
 
             let projects = getProjectsList();
             if (projects.includes(newProj)) {
@@ -617,40 +599,36 @@
             syncOfflineData();
         }
 
-        // Fitur 1: Menghapus Project yang Tidak Terpakai (Lokal & Online)
         async function deleteCurrentProject() {
-            if (!currentProject) {
-                alert("Tidak ada project yang dipilih untuk dihapus.");
+            if (!currentProject) return;
+            let projects = getProjectsList();
+            if (projects.length <= 1) {
+                alert("Harus menyisakan minimal satu project.");
                 return;
             }
 
-            if (confirm(`Apakah Anda yakin ingin menghapus project "${currentProject}" beserta seluruh datanya?`)) {
-                let projToDelete = currentProject;
-                
-                // Hapus data lokal
-                localStorage.removeItem(`data_${currentUser}_${projToDelete}`);
-                
-                let projects = getProjectsList();
-                projects = projects.filter(p => p !== projToDelete);
+            if (confirm(`Hapus project "${currentProject}"?`)) {
+                localStorage.removeItem(`data_${currentUser}_${currentProject}`);
+                projects = projects.filter(p => p !== currentProject);
                 saveProjectsList(projects);
-
-                // Hapus sheet terkait secara online jika terhubung internet
+                
                 if (navigator.onLine) {
                     try {
-                        await fetch(API_URL, {
+                        let res = await fetch(API_URL, {
                             method: "POST",
-                            body: JSON.stringify({ action: "deleteProject", username: currentUser, project: projToDelete })
+                            body: JSON.stringify({ action: "deleteProject", username: currentUser, project: currentProject })
                         });
-                    } catch (e) {
-                        console.error("Gagal menghapus project di server secara online:", e);
-                    }
+                        let json = await res.json();
+                        if (json.status === "success" && json.projects) {
+                            saveProjectsList(json.projects);
+                        }
+                    } catch (e) {}
                 }
 
-                currentProject = projects.length > 0 ? projects[0] : "";
+                currentProject = projects[0];
                 localStorage.setItem("survey_project", currentProject);
                 loadProjectsList();
                 loadData();
-                alert(`Project "${projToDelete}" berhasil dihapus.`);
             }
         }
 
@@ -661,10 +639,13 @@
 
         function saveLocalData(data) {
             if (!currentProject) return;
-            localStorage.setItem(`data_${currentUser}_${currentProject}`, JSON.stringify(data));
+            const stampedData = data.map(item => ({
+                ...item,
+                updated_at: item.updated_at || Date.now()
+            }));
+            localStorage.setItem(`data_${currentUser}_${currentProject}`, JSON.stringify(stampedData));
         }
 
-        // Fitur 2: Mengatasi Duplikasi/Tumpang Tindih Data dengan Timestamp Sinkronisasi
         async function loadData() {
             if (!currentProject) return;
             if (navigator.onLine && !isAdmin) {
@@ -675,23 +656,25 @@
                     });
                     let json = await res.json();
                     if (json.status === "success") {
-                        let remoteRows = json.rows || [];
+                        let serverRows = json.rows || [];
                         let localRows = getLocalData();
+                        let mergedMap = new Map();
+                        
+                        serverRows.forEach(row => mergedMap.set(row.nama_ruang, row));
+                        localRows.forEach(localRow => {
+                            let existing = mergedMap.get(localRow.nama_ruang);
+                            if (!existing || (localRow.updated_at && localRow.updated_at > (existing.updated_at || 0))) {
+                                mergedMap.set(localRow.nama_ruang, localRow);
+                            }
+                        });
 
-                        // Strategi Resolusi Konflik: Gabung berdasarkan timestamp terbaru atau ambil data remote jika bersih
-                        // Jika lokal memiliki data baru belum tersinkron (berdasarkan ukuran/waktu), kita prioritaskan atau merge aman.
-                        if (remoteRows.length > 0) {
-                            saveLocalData(remoteRows);
-                        }
-
+                        saveLocalData(Array.from(mergedMap.values()));
                         if (json.projects && Array.isArray(json.projects)) {
                             saveProjectsList(json.projects);
                             loadProjectsList();
                         }
                     }
-                } catch (e) {
-                    console.log("Mengambil dari penyimpanan lokal (offline mode)");
-                }
+                } catch (e) {}
             }
             renderTable();
         }
@@ -702,10 +685,8 @@
             return rows.map(r => {
                 let gedung = (r.gedung && r.gedung.trim() !== "" && r.gedung !== "-") ? r.gedung.trim() : lastGedung;
                 let lantai = (r.lantai && r.lantai.toString().trim() !== "" && r.lantai !== "-") ? r.lantai.toString().trim() : lastLantai;
-                
                 if (gedung) lastGedung = gedung;
                 if (lantai) lastLantai = lantai;
-
                 return { ...r, gedung, lantai };
             });
         }
@@ -735,14 +716,9 @@
 
         function saveRoomData(e) {
             e.preventDefault();
-            if (!currentProject) {
-                alert("Silakan pilih atau buat project terlebih dahulu!");
-                return;
-            }
+            if (!currentProject) return;
 
             const editIndex = document.getElementById("editIndex").value;
-            const nowTimestamp = new Date().getTime();
-            
             const newItem = {
                 gedung: document.getElementById("gedung").value,
                 lantai: document.getElementById("lantai").value,
@@ -750,7 +726,7 @@
                 luas_ruang: parseFloat(document.getElementById("luas_ruang").value) || 0,
                 jenis_permukaan: document.getElementById("jenis_permukaan").value,
                 catatan: document.getElementById("catatan").value,
-                updated_at: nowTimestamp
+                updated_at: Date.now()
             };
 
             let rows = getLocalData();
@@ -801,34 +777,21 @@
             document.getElementById("cancelBtn").classList.add("hidden");
         }
 
-        // Sinkronisasi Kuat Mengatasi Duplikasi Data Acak saat Offline ke Online
         async function syncOfflineData() {
-            if (!navigator.onLine || !currentUser || isAdmin || !currentProject || isSyncing) return;
-            
-            isSyncing = true;
+            if (!navigator.onLine || !currentUser || isAdmin || !currentProject) return;
             const rows = getLocalData();
-            const clientTimestamp = new Date().getTime();
-
             try {
-                let res = await fetch(API_URL, {
+                await fetch(API_URL, {
                     method: "POST",
                     body: JSON.stringify({ 
                         action: "saveData", 
                         username: currentUser, 
                         project: currentProject, 
                         rows: rows,
-                        clientTimestamp: clientTimestamp 
+                        clientTimestamp: Date.now()
                     })
                 });
-                let json = await res.json();
-                if (json.status === "success" && json.projects) {
-                    saveProjectsList(json.projects);
-                }
-            } catch (e) {
-                console.error("Sinkronisasi gagal:", e);
-            } finally {
-                isSyncing = false;
-            }
+            } catch (e) {}
         }
 
         function populateDashboardProjectDropdown() {
@@ -854,7 +817,6 @@
             }
 
             const rows = getPropagatedRows(rawRows);
-
             let totalLuas = 0;
             let perGedung = {};
             let namaSamaPerGedung = {}; 
@@ -898,11 +860,7 @@
             for (let g in namaSamaPerGedung) {
                 htmlNamaSama += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
                 for (let nr in namaSamaPerGedung[g]) {
-                    if (namaSamaPerGedung[g][nr].count > 1) {
-                        htmlNamaSama += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${nr} (${namaSamaPerGedung[g][nr].count} ruang)</span><span>${namaSamaPerGedung[g][nr].totalLuas.toFixed(2)} m²</span></div>`;
-                    } else {
-                        htmlNamaSama += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${nr}</span><span>${namaSamaPerGedung[g][nr].totalLuas.toFixed(2)} m²</span></div>`;
-                    }
+                    htmlNamaSama += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${nr} (${namaSamaPerGedung[g][nr].count} ruang)</span><span>${namaSamaPerGedung[g][nr].totalLuas.toFixed(2)} m²</span></div>`;
                 }
             }
             document.getElementById("statNamaSamaGedung").innerHTML = htmlNamaSama || "<p class='text-gray-500'>Belum ada data</p>";
@@ -930,18 +888,9 @@
                 type: 'bar',
                 data: {
                     labels: labelsGedung,
-                    datasets: [{
-                        label: 'Total Luas per Gedung (m²)',
-                        data: dataChartGedung,
-                        backgroundColor: '#0066FF',
-                        borderRadius: 6
-                    }]
+                    datasets: [{ label: 'Luas per Gedung (m²)', data: dataChartGedung, backgroundColor: '#0066FF', borderRadius: 6 }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { title: { display: true, text: 'Endpoint Grafik: Luas per Gedung' } }
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
 
             const labelsLantai = Object.keys(totalPermukaanGlobal);
@@ -952,17 +901,9 @@
                 type: 'doughnut',
                 data: {
                     labels: labelsLantai,
-                    datasets: [{
-                        label: 'Luas Jenis Lantai (m²)',
-                        data: dataLantai,
-                        backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#1E40AF', '#1D4ED8']
-                    }]
+                    datasets: [{ label: 'Luas Jenis Lantai (m²)', data: dataLantai, backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#1E40AF', '#1D4ED8'] }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { title: { display: true, text: 'Endpoint Grafik: Luas per Jenis Lantai' } }
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
 
@@ -971,10 +912,6 @@
             const approvalBody = document.getElementById("adminUserApprovalBody");
             const logBody = document.getElementById("adminActivityLogBody");
             
-            container.innerHTML = "<p class='text-gray-500 text-center'>Memuat data seluruh user...</p>";
-            approvalBody.innerHTML = "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Memuat daftar user...</td></tr>";
-            logBody.innerHTML = "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Memuat log aktivitas...</td></tr>";
-
             try {
                 let res = await fetch(API_URL, {
                     method: "POST",
@@ -985,117 +922,34 @@
                 if (json.status === "success") {
                     let activityLogs = json.activityLogs || [];
                     let logHtml = "";
-                    if (activityLogs.length === 0) {
-                        logHtml = "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Belum ada aktivitas tercatat.</td></tr>";
-                    } else {
-                        activityLogs.reverse().forEach(l => {
-                            let formattedTime = new Date(l.time).toLocaleString("id-ID");
-                            logHtml += `
-                                <tr class="border-b">
-                                    <td class="p-3 text-xs text-gray-600">${formattedTime}</td>
-                                    <td class="p-3 font-semibold">${l.user}</td>
-                                    <td class="p-3 text-xs">${l.activity}</td>
-                                </tr>
-                            `;
-                        });
-                    }
-                    logBody.innerHTML = logHtml;
+                    activityLogs.reverse().forEach(l => {
+                        let formattedTime = new Date(l.time).toLocaleString("id-ID");
+                        logHtml += `<tr class="border-b"><td class="p-3 text-xs text-gray-600">${formattedTime}</td><td class="p-3 font-semibold">${l.user}</td><td class="p-3 text-xs">${l.activity}</td></tr>`;
+                    });
+                    logBody.innerHTML = logHtml || "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Belum ada aktivitas.</td></tr>";
 
                     let usersMeta = json.usersMeta || [];
                     let approvalHtml = "";
-                    if (usersMeta.length === 0) {
-                        approvalHtml = "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Belum ada user yang mendaftar.</td></tr>";
-                    } else {
-                        usersMeta.forEach(m => {
-                            let statusBadge = m.status === "ACTIVE" 
-                                ? `<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">ACTIVE</span>` 
-                                : `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">PENDING</span>`;
-                            
-                            let actionBtn = m.status === "PENDING" 
-                                ? `<button onclick="approveUser('${m.user}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-semibold hover:bg-green-700 transition">Setujui</button>` 
-                                : `-`;
+                    usersMeta.forEach(m => {
+                        let statusBadge = m.status === "ACTIVE" ? `<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">ACTIVE</span>` : `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">PENDING</span>`;
+                        let actionBtn = m.status === "PENDING" ? `<button onclick="approveUser('${m.user}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-semibold">Setujui</button>` : `-`;
+                        let deleteBtn = `<button onclick="deleteUser('${m.user}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold ml-2">Hapus</button>`;
+                        approvalHtml += `<tr class="border-b"><td class="p-3 font-semibold">${m.user}</td><td class="p-3">${statusBadge}</td><td class="p-3 text-center">${actionBtn} ${deleteBtn}</td></tr>`;
+                    });
+                    approvalBody.innerHTML = approvalHtml || "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Belum ada user.</td></tr>";
 
-                            let deleteBtn = `<button onclick="deleteUser('${m.user}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold hover:bg-red-700 transition ml-2">Hapus User</button>`;
-
-                            approvalHtml += `
-                                <tr class="border-b">
-                                    <td class="p-3 font-semibold">${m.user}</td>
-                                    <td class="p-3">${statusBadge}</td>
-                                    <td class="p-3 text-center">${actionBtn} ${deleteBtn}</td>
-                                </tr>
-                            `;
-                        });
-                    }
-                    approvalBody.innerHTML = approvalHtml;
-
-                    let rawUsersData = json.usersData;
-                    if (rawUsersData.length === 0) {
-                        container.innerHTML = "<p class='text-gray-500 text-center'>Belum ada data dari user manapun.</p>";
-                        return;
-                    }
-
+                    let rawUsersData = json.usersData || [];
                     let mergedMap = {};
                     rawUsersData.forEach(u => {
-                        if (!mergedMap[u.user]) {
-                            mergedMap[u.user] = { user: u.user, rows: [] };
-                        }
-                        if (u.rows && u.rows.length > 0) {
-                            mergedMap[u.user].rows = mergedMap[u.user].rows.concat(u.rows);
-                        }
+                        if (!mergedMap[u.user]) mergedMap[u.user] = { user: u.user, rows: [] };
+                        if (u.rows) mergedMap[u.user].rows = mergedMap[u.user].rows.concat(u.rows);
                     });
 
                     let usersData = Object.values(mergedMap);
                     let html = "";
-
                     usersData.forEach((u, idx) => {
                         let propagatedRows = getPropagatedRows(u.rows);
                         let totalLuasUser = propagatedRows.reduce((acc, cur) => acc + (parseFloat(cur.luas_ruang) || 0), 0);
-
-                        let perGedung = {};
-                        let namaSamaPerGedung = {};
-                        let perPermukaanGedung = {};
-
-                        propagatedRows.forEach(r => {
-                            let luas = parseFloat(r.luas_ruang) || 0;
-                            let gedung = r.gedung ? r.gedung.trim() : "Tanpa Gedung";
-                            perGedung[gedung] = (perGedung[gedung] || 0) + luas;
-
-                            let namaRuang = r.nama_ruang ? r.nama_ruang.trim() : "Lainnya";
-                            if (!namaSamaPerGedung[gedung]) namaSamaPerGedung[gedung] = {};
-                            if (!namaSamaPerGedung[gedung][namaRuang]) {
-                                namaSamaPerGedung[gedung][namaRuang] = { totalLuas: 0, count: 0 };
-                            }
-                            namaSamaPerGedung[gedung][namaRuang].totalLuas += luas;
-                            namaSamaPerGedung[gedung][namaRuang].count += 1;
-
-                            let perm = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Lainnya";
-                            if (!perPermukaanGedung[gedung]) perPermukaanGedung[gedung] = {};
-                            perPermukaanGedung[gedung][perm] = (perPermukaanGedung[gedung][perm] || 0) + luas;
-                        });
-
-                        let htmlGedungAdmin = "";
-                        for (let g in perGedung) {
-                            let prop = totalLuasUser > 0 ? ((perGedung[g] / totalLuasUser) * 100).toFixed(1) : 0;
-                            htmlGedungAdmin += `<div class="flex justify-between border-b pb-1"><span>${g}</span><span class="font-semibold">${perGedung[g].toFixed(2)} m² (${prop}%)</span></div>`;
-                        }
-
-                        let htmlNamaSamaAdmin = "";
-                        for (let g in namaSamaPerGedung) {
-                            htmlNamaSamaAdmin += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
-                            for (let nr in namaSamaPerGedung[g]) {
-                                htmlNamaSamaAdmin += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${nr} (${namaSamaPerGedung[g][nr].count} ruang)</span><span>${namaSamaPerGedung[g][nr].totalLuas.toFixed(2)} m²</span></div>`;
-                            }
-                        }
-
-                        let htmlPermAdmin = "";
-                        for (let g in perPermukaanGedung) {
-                            htmlPermAdmin += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
-                            let totalGedungLuas = perGedung[g] || 1;
-                            for (let p in perPermukaanGedung[g]) {
-                                let propPerm = ((perPermukaanGedung[g][p] / totalGedungLuas) * 100).toFixed(1);
-                                htmlPermAdmin += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${p}</span><span>${perPermukaanGedung[g][p].toFixed(2)} m² (${propPerm}%)</span></div>`;
-                            }
-                        }
 
                         html += `
                             <div class="border rounded-2xl p-6 bg-gray-50 space-y-4">
@@ -1104,37 +958,18 @@
                                         <h4 class="font-bold text-xl text-iss-blue">User: ${u.user}</h4>
                                         <span id="adminCardIcon_${idx}" class="text-sm font-bold text-iss-blue">▼</span>
                                     </div>
-                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold">Total Luas Area Terukur: ${totalLuasUser.toFixed(2)} m² | Total Ruangan: ${propagatedRows.length} Ruang</span>
+                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold">Total Luas: ${totalLuasUser.toFixed(2)} m² | Ruangan: ${propagatedRows.length}</span>
                                 </div>
                                 <div id="adminCardContent_${idx}" class="hidden space-y-4">
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div class="bg-white p-4 rounded-xl border space-y-2">
-                                            <h5 class="font-bold text-gray-700 text-sm">Total Luas per Gedung</h5>
-                                            <div class="space-y-1 text-xs">${htmlGedungAdmin || '<p class="text-gray-500">Tidak ada data</p>'}</div>
-                                        </div>
-                                        <div class="bg-white p-4 rounded-xl border space-y-2">
-                                            <h5 class="font-bold text-gray-700 text-sm">Luas Ruangan Nama Sama</h5>
-                                            <div class="space-y-1 text-xs">${htmlNamaSamaAdmin || '<p class="text-gray-500">Tidak ada data</p>'}</div>
-                                        </div>
-                                        <div class="bg-white p-4 rounded-xl border space-y-2">
-                                            <h5 class="font-bold text-gray-700 text-sm">Luas per Jenis Lantai</h5>
-                                            <div class="space-y-1 text-xs">${htmlPermAdmin || '<p class="text-gray-500">Tidak ada data</p>'}</div>
-                                        </div>
-                                    </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                        <div class="bg-white p-4 rounded-xl border relative h-64">
-                                            <canvas id="adminChartGedung_${idx}"></canvas>
-                                        </div>
-                                        <div class="bg-white p-4 rounded-xl border relative h-64">
-                                            <canvas id="adminChartLantai_${idx}"></canvas>
-                                        </div>
+                                        <div class="bg-white p-4 rounded-xl border relative h-64"><canvas id="adminChartGedung_${idx}"></canvas></div>
+                                        <div class="bg-white p-4 rounded-xl border relative h-64"><canvas id="adminChartLantai_${idx}"></canvas></div>
                                     </div>
                                 </div>
                             </div>
                         `;
                     });
-
-                    container.innerHTML = html;
+                    container.innerHTML = html || "<p class='text-gray-500 text-center'>Belum ada data survey.</p>";
 
                     usersData.forEach((u, idx) => {
                         let propagatedRows = getPropagatedRows(u.rows);
@@ -1148,33 +983,20 @@
                             totalPermukaanAdminGlobal[perm] = (totalPermukaanAdminGlobal[perm] || 0) + luas;
                         });
 
-                        const ctxAdminGedung = document.getElementById(`adminChartGedung_${idx}`).getContext('2d');
-                        new Chart(ctxAdminGedung, {
+                        new Chart(document.getElementById(`adminChartGedung_${idx}`).getContext('2d'), {
                             type: 'bar',
-                            data: {
-                                labels: Object.keys(perGedung),
-                                datasets: [{ label: 'Luas per Gedung (m²)', data: Object.values(perGedung), backgroundColor: '#0066FF', borderRadius: 6 }]
-                            },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Grafik Luas per Gedung' } } }
+                            data: { labels: Object.keys(perGedung), datasets: [{ label: 'Luas (m²)', data: Object.values(perGedung), backgroundColor: '#0066FF' }] },
+                            options: { responsive: true, maintainAspectRatio: false }
                         });
 
-                        const ctxAdminLantai = document.getElementById(`adminChartLantai_${idx}`).getContext('2d');
-                        new Chart(ctxAdminLantai, {
+                        new Chart(document.getElementById(`adminChartLantai_${idx}`).getContext('2d'), {
                             type: 'doughnut',
-                            data: {
-                                labels: Object.keys(totalPermukaanAdminGlobal),
-                                datasets: [{ label: 'Luas Jenis Lantai (m²)', data: Object.values(totalPermukaanAdminGlobal), backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#1E40AF', '#1D4ED8'] }]
-                            },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Grafik Luas per Jenis Lantai' } } }
+                            data: { labels: Object.keys(totalPermukaanAdminGlobal), datasets: [{ data: Object.values(totalPermukaanAdminGlobal), backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD'] }] },
+                            options: { responsive: true, maintainAspectRatio: false }
                         });
                     });
-
-                } else {
-                    container.innerHTML = `<p class='text-red-500 text-center'>${json.message}</p>`;
                 }
-            } catch (e) {
-                container.innerHTML = "<p class='text-red-500 text-center'>Gagal memuat data admin. Periksa koneksi jaringan.</p>";
-            }
+            } catch (e) {}
         }
 
         async function approveUser(targetUser) {
@@ -1185,16 +1007,12 @@
                 });
                 let json = await res.json();
                 alert(json.message);
-                if (json.status === "success") {
-                    loadAdminData();
-                }
-            } catch (e) {
-                alert("Gagal menyetujui user.");
-            }
+                if (json.status === "success") loadAdminData();
+            } catch (e) {}
         }
 
         async function deleteUser(targetUser) {
-            if (confirm(`Apakah Anda yakin ingin menghapus user ${targetUser} beserta seluruh data file survey miliknya?`)) {
+            if (confirm(`Hapus user ${targetUser}?`)) {
                 try {
                     let res = await fetch(API_URL, {
                         method: "POST",
@@ -1202,12 +1020,8 @@
                     });
                     let json = await res.json();
                     alert(json.message);
-                    if (json.status === "success") {
-                        loadAdminData();
-                    }
-                } catch (e) {
-                    alert("Gagal menghapus user.");
-                }
+                    if (json.status === "success") loadAdminData();
+                } catch (e) {}
             }
         }
     </script>
