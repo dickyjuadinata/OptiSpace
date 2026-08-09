@@ -11,6 +11,12 @@
         .bg-iss-blue { background-color: #0066FF; }
         .text-iss-blue { color: #0066FF; }
         .border-iss-blue { border-color: #0066FF; }
+        /* Tambahan untuk feedback tombol disentuh */
+        button:active, .btn-feedback:active {
+            transform: scale(0.96);
+            opacity: 0.85;
+            transition: transform 0.1s ease, opacity 0.1s ease;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
