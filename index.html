@@ -324,6 +324,21 @@
             renderTable();
         }
 
+        // Fungsi Helper untuk mewariskan nilai gedung & lantai yang kosong dari baris sebelumnya
+        function getPropagatedRows(rows) {
+            let lastGedung = "";
+            let lastLantai = "";
+            return rows.map(r => {
+                let gedung = (r.gedung && r.gedung.trim() !== "" && r.gedung !== "-") ? r.gedung.trim() : lastGedung;
+                let lantai = (r.lantai && r.lantai.toString().trim() !== "" && r.lantai !== "-") ? r.lantai.toString().trim() : lastLantai;
+                
+                if (gedung) lastGedung = gedung;
+                if (lantai) lastLantai = lantai;
+
+                return { ...r, gedung, lantai };
+            });
+        }
+
         function renderTable() {
             const rows = getLocalData();
             const tbody = document.getElementById("dataTableBody");
@@ -423,7 +438,8 @@
 
         // Fungsionalitas Dashboard Analitik User & Wildcard Filter
         function renderAnalytics() {
-            const rows = getLocalData();
+            const rawRows = getLocalData();
+            const rows = getPropagatedRows(rawRows); // Menerapkan propagasi nilai gedung & lantai ke dashboard
             const query = document.getElementById("searchWildcard").value.toLowerCase();
 
             // Filter dengan wildcard pencarian nama ruang
