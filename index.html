@@ -41,6 +41,10 @@
                     <label class="block text-sm font-medium text-gray-700">PIN Akses</label>
                     <input type="password" id="pin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Masukkan PIN">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nama Project Awal</label>
+                    <input type="text" id="loginProject" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: Gedung A / Project 1">
+                </div>
                 <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Masuk</button>
             </form>
         </section>
@@ -57,10 +61,7 @@
             <div id="tabSurvey" class="space-y-6">
                 <!-- Pilihan Project -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-iss-blue">Pilih Project</h3>
-                        <button type="button" onclick="downloadSpreadsheet()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition active:scale-[0.98]">📥 Download Spreadsheet</button>
-                    </div>
+                    <h3 class="text-xl font-bold text-iss-blue mb-4">Pilih Project</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Pilih Project Tersedia</label>
@@ -267,19 +268,32 @@
             e.preventDefault();
             const username = document.getElementById("username").value.trim();
             const pin = document.getElementById("pin").value;
+            const project = document.getElementById("loginProject").value.trim();
 
             try {
                 let response = await fetch(API_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action: "login", username, pin })
+                    body: JSON.stringify({ action: "login", username, pin, project })
                 });
                 let result = await response.json();
 
                 if (result.status === "success") {
                     currentUser = username;
                     isAdmin = result.isAdmin || false;
+                    currentProject = project;
                     localStorage.setItem("survey_user", username);
                     localStorage.setItem("survey_is_admin", isAdmin);
+                    localStorage.setItem("survey_project", project);
+                    
+                    // Simpan project ke local storage list user jika belum ada
+                    if (!isAdmin && project) {
+                        let projects = JSON.parse(localStorage.getItem(`projects_${currentUser}`)) || [];
+                        if (!projects.includes(project)) {
+                            projects.push(project);
+                            localStorage.setItem(`projects_${currentUser}`, JSON.stringify(projects));
+                        }
+                    }
+
                     showDashboard();
                     loadProjectsList();
                     loadData();
@@ -349,7 +363,7 @@
         }
 
         function getProjectsList() {
-            return JSON.parse(localStorage.getItem(`projects_${currentUser}`)) || ["Project Utama"];
+            return JSON.parse(localStorage.getItem(`projects_${currentUser}`)) || [];
         }
 
         function saveProjectsList(projects) {
@@ -435,23 +449,6 @@
                 }
             }
             renderTable();
-        }
-
-        async function downloadSpreadsheet() {
-            try {
-                let res = await fetch(API_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "getDownloadUrl", username: currentUser })
-                });
-                let json = await res.json();
-                if (json.status === "success" && json.exportXlsxUrl) {
-                    window.open(json.exportXlsxUrl, '_blank');
-                } else {
-                    alert("Gagal mendapatkan tautan download.");
-                }
-            } catch (e) {
-                alert("Terjadi kesalahan jaringan saat mencoba mengunduh.");
-            }
         }
 
         // Fungsi Helper untuk mewariskan nilai gedung & lantai yang kosong dari baris sebelumnya
