@@ -6,363 +6,284 @@
     <title>Aplikasi Pendataan Ruang</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0066FF">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-blue: #0066FF;
-            --dark-blue: #002D62;
-            --bg-light: #F4F7FC;
-            --white: #FFFFFF;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-light);
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
-        header {
-            background-color: var(--primary-blue);
-            color: var(--white);
-            padding: 1rem;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            background: var(--white);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-        .hidden { display: none !important; }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: var(--dark-blue);
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: var(--primary-blue);
-            color: var(--white);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1rem;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background-color: #0052cc;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            margin-top: 10px;
-        }
-        .btn-secondary:hover { background-color: #5a6268; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 0.9rem;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: var(--primary-blue);
-            color: white;
-        }
-        #sync-status {
-            font-size: 0.85rem;
-            text-align: center;
-            margin-top: 10px;
-            font-weight: bold;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .bg-primary { background-color: #0066FF; }
+        .text-primary { color: #0066FF; }
+        .border-primary { border-color: #0066FF; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <header>Aplikasi Pendataan Ruang</header>
-
-    <div class="container">
-        <!-- LOGIN AREA -->
-        <div id="login-section">
-            <h3>Login Pengguna</h3>
-            <div class="form-group">
-                <label>Pilih Akses:</label>
-                <select id="role-select" onchange="toggleRoleFields()">
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                </select>
+    <!-- LOGIN SCREEN -->
+    <div id="loginSection" class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
+            <div class="text-center mb-6">
+                <div class="bg-blue-50 text-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl font-bold">🏢</div>
+                <h1 class="text-2xl font-bold text-slate-900">Pendataan Ruang</h1>
+                <p class="text-sm text-slate-500">Silakan masuk untuk melanjutkan</p>
             </div>
-            <div class="form-group">
-                <label>Username / Nama User:</label>
-                <input type="text" id="username" placeholder="Masukkan nama Anda">
-            </div>
-            <div class="form-group" id="pin-group">
-                <label>PIN Akses (Khusus Admin):</label>
-                <input type="password" id="pin-input" placeholder="Masukkan PIN Admin">
-            </div>
-            <button onclick="handleLogin()">Masuk</button>
-        </div>
-
-        <!-- DASHBOARD APLIKASI -->
-        <div id="app-section" class="hidden">
-            <h3 id="welcome-msg"></h3>
-            <div id="sync-status">Status Jaringan: Online</div>
-            <hr>
-
-            <h4>Form Input / Edit Ruang</h4>
-            <input type="hidden" id="edit-index" value="">
-            
-            <!-- Kolom Utama (Selalu Muncul) -->
-            <div class="form-group">
-                <label>Nama Ruang *</label>
-                <input type="text" id="nama_ruang" required>
-            </div>
-            <div class="form-group">
-                <label>Luas Ruang (m²) *</label>
-                <input type="number" id="luas_ruang" required>
-            </div>
-            <div class="form-group">
-                <label>Jenis Permukaan Lantai *</label>
-                <input type="text" id="jenis_permukaan" placeholder="Contoh: Keramik, Vinyl, Semen">
-            </div>
-
-            <!-- Kolom Tambahan (Opsional / Muncul Bila Dibutuhkan) -->
-            <button type="button" class="btn-secondary" onclick="toggleExtraFields()" style="margin-bottom:15px;">+ Tambah Detail Gedung/Catatan</button>
-            
-            <div id="extra-fields" class="hidden">
-                <div class="form-group">
-                    <label>Nama Gedung</label>
-                    <input type="text" id="nama_gedung">
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Username (user / admin)</label>
+                    <input type="text" id="username" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
                 </div>
-                <div class="form-group">
-                    <label>Lantai</label>
-                    <input type="text" id="lantai">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">PIN Akses</label>
+                    <input type="password" id="pin" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
                 </div>
-                <div class="form-group">
-                    <label>Catatan</label>
-                    <textarea id="catatan"></textarea>
-                </div>
-            </div>
-
-            <button onclick="saveData()">Simpan Data</button>
-            <button class="btn-secondary" onclick="resetForm()">Reset Form</button>
-
-            <h4 style="margin-top: 30px;">Data Ruang Tersimpan</h4>
-            <div style="overflow-x:auto;">
-                <table id="data-table">
-                    <thead>
-                        <tr>
-                            <th>Gedung</th>
-                            <th>Lantai</th>
-                            <th>Ruang</th>
-                            <th>Luas</th>
-                            <th>Permukaan</th>
-                            <th>Catatan</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body">
-                        <!-- Data Masuk Disini -->
-                    </tbody>
-                </table>
-            </div>
-            <button class="btn-secondary" onclick="logout()" style="margin-top:20px;">Keluar</button>
+                <button type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-500/30">Masuk</button>
+            </form>
         </div>
     </div>
 
+    <!-- MAIN APP SCREEN -->
+    <div id="appSection" class="hidden flex-grow flex flex-col">
+        <!-- Navbar -->
+        <header class="bg-primary text-white shadow-md">
+            <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 class="text-lg font-bold">Sistem Pendataan Ruang</h1>
+                <div class="flex items-center gap-3">
+                    <span id="syncStatus" class="text-xs bg-blue-700 px-2 py-1 rounded-full">Online</span>
+                    <button onclick="logout()" class="text-sm bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition">Keluar</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
+            <!-- Form Input -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
+                <h2 class="text-lg font-bold text-slate-900 mb-4">Form Input Ruangan</h2>
+                <form id="roomForm" onsubmit="saveRoom(event)" class="space-y-4">
+                    <input type="hidden" id="editId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Nama Ruang *</label>
+                            <input type="text" id="namaRuang" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Luas Ruang (m²) *</label>
+                            <input type="number" step="0.01" id="luas" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Jenis Permukaan Lantai *</label>
+                        <input type="text" id="permukaan" required placeholder="Contoh: Keramik, Vinyl, Semen" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <!-- Kolom Tambahan (Opsional) -->
+                    <div>
+                        <button type="button" onclick="toggleExtraFields()" id="toggleBtn" class="text-sm text-primary font-medium hover:underline">+ Tampilkan Nama Gedung, Lantai & Catatan</button>
+                    </div>
+                    <div id="extraFields" class="hidden space-y-4 pt-2 border-t border-slate-100">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Nama Gedung</label>
+                                <input type="text" id="gedung" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Lantai</label>
+                                <input type="text" id="lantai" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Catatan</label>
+                            <textarea id="catatan" rows="2" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition shadow-md">Simpan Data</button>
+                </form>
+            </div>
+
+            <!-- Data List -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="text-lg font-bold text-slate-900 mb-4">Daftar Ruangan Tersimpan</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-slate-500 text-sm">
+                                <th class="py-3 px-4">Gedung / Lantai</th>
+                                <th class="py-3 px-4">Nama Ruang</th>
+                                <th class="py-3 px-4">Luas</th>
+                                <th class="py-3 px-4">Permukaan</th>
+                                <th class="py-3 px-4">Catatan</th>
+                                <th class="py-3 px-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roomTableBody" class="text-sm divide-y divide-slate-100">
+                            <!-- Data akan dimuat disini -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwo1qux80FXKobwTX727KuaBtcNoGnxoStbK6JaIBvt6VSrD2Brree4g5tFpD0IE-1V/exec";
-        let currentUser = null;
-        let currentRole = null;
-        let localData = [];
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbw0t3vA-Dn4ObxsTANZQC9lRKnFZime-u3uPHaH2B999eSltFlKCBVe200c4XPmY3JZ/exec";
+        let currentUser = localStorage.getItem("currentUser") || null;
+        let records = JSON.parse(localStorage.getItem("localRecords") || "[]");
 
-        // PWA Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(() => console.log("Service Worker Terdaftar"));
-        }
-
-        function toggleRoleFields() {
-            let role = document.getElementById('role-select').value;
-            document.getElementById('pin-group').style.display = (role === 'admin') ? 'block' : 'none';
-        }
-
-        function toggleExtraFields() {
-            let extra = document.getElementById('extra-fields');
-            extra.classList.toggle('hidden');
-        }
-
-        function handleLogin() {
-            let role = document.getElementById('role-select').value;
-            let username = document.getElementById('username').value.trim();
-            let pin = document.getElementById('pin-input').value;
-
-            if (!username) {
-                alert("Mohon masukkan nama/username!");
-                return;
+        window.onload = function() {
+            if (currentUser) {
+                showApp();
+                syncWithServer();
             }
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus();
+        }
 
-            if (role === 'admin') {
-                // Verifikasi PIN melalui Backend GAS demi keamanan
-                fetch(WEB_APP_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "verifyAdmin", pin: pin })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        proceedLogin(username, role);
-                    } else {
-                        alert("PIN Admin Salah!");
-                    }
-                })
-                .catch(() => {
-                    alert("Gagal terhubung ke server untuk verifikasi admin.");
-                });
+        function updateOnlineStatus() {
+            const status = document.getElementById("syncStatus");
+            if (navigator.onLine) {
+                status.innerText = "Online";
+                status.className = "text-xs bg-emerald-600 px-2 py-1 rounded-full text-white";
+                syncWithServer();
             } else {
-                proceedLogin(username, role);
+                status.innerText = "Offline (Tersimpan Lokal)";
+                status.className = "text-xs bg-amber-600 px-2 py-1 rounded-full text-white";
             }
         }
 
-        function proceedLogin(username, role) {
-            currentUser = username;
-            currentRole = role;
-            document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('app-section').classList.remove('hidden');
-            document.getElementById('welcome-msg').innerText = `Selamat Datang, ${username} (${role.toUpperCase()})`;
-            loadData();
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById("username").value;
+            const pin = document.getElementById("pin").value;
+
+            try {
+                let response = await fetch(GAS_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "login", username, pin })
+                });
+                let result = await response.json();
+                if (result.status === "success") {
+                    currentUser = username;
+                    localStorage.setItem("currentUser", currentUser);
+                    records = result.records || [];
+                    localStorage.setItem("localRecords", JSON.stringify(records));
+                    showApp();
+                } else {
+                    alert(result.message);
+                }
+            } catch (err) {
+                alert("Gagal terhubung ke server. Periksa koneksi internet.");
+            }
         }
 
         function logout() {
+            localStorage.removeItem("currentUser");
             currentUser = null;
-            currentRole = null;
-            document.getElementById('app-section').classList.add('hidden');
-            document.getElementById('login-section').classList.remove('hidden');
-            resetForm();
+            document.getElementById("appSection").classList.add("hidden");
+            document.getElementById("loginSection").classList.remove("hidden");
         }
 
-        function resetForm() {
-            document.getElementById('edit-index').value = "";
-            document.getElementById('nama_ruang').value = "";
-            document.getElementById('luas_ruang').value = "";
-            document.getElementById('jenis_permukaan').value = "";
-            document.getElementById('nama_gedung').value = "";
-            document.getElementById('lantai').value = "";
-            document.getElementById('catatan').value = "";
-        }
-
-        function saveData() {
-            let item = {
-                nama_gedung: document.getElementById('nama_gedung').value || "-",
-                lantai: document.getElementById('lantai').value || "-",
-                nama_ruang: document.getElementById('nama_ruang').value,
-                luas_ruang: document.getElementById('luas_ruang').value,
-                jenis_permukaan: document.getElementById('jenis_permukaan').value,
-                catatan: document.getElementById('catatan').value || "-",
-                user: currentUser
-            };
-
-            if (!item.nama_ruang || !item.luas_ruang || !item.jenis_permukaan) {
-                alert("Mohon lengkapi kolom utama (Nama Ruang, Luas, Jenis Permukaan)!");
-                return;
-            }
-
-            let editIdx = document.getElementById('edit-index').value;
-            if (editIdx !== "") {
-                localData[editIdx] = item;
-            } else {
-                localData.push(item);
-            }
-
-            localStorage.setItem("pendataan_ruang_" + currentUser, JSON.stringify(localData));
+        function showApp() {
+            document.getElementById("loginSection").classList.add("hidden");
+            document.getElementById("appSection").classList.remove("hidden");
             renderTable();
-            resetForm();
-            syncToServer();
         }
 
-        function loadData() {
-            let saved = localStorage.getItem("pendataan_ruang_" + currentUser);
-            if (saved) {
-                localData = JSON.parse(saved);
-                renderTable();
+        function toggleExtraFields() {
+            const extra = document.getElementById("extraFields");
+            const btn = document.getElementById("toggleBtn");
+            if (extra.classList.contains("hidden")) {
+                extra.classList.remove("hidden");
+                btn.innerText = "- Sembunyikan kolom tambahan";
+            } else {
+                extra.classList.add("hidden");
+                btn.innerText = "+ Tampilkan Nama Gedung, Lantai & Catatan";
             }
-            if (navigator.onLine) {
-                fetch(`${WEB_APP_URL}?action=getData&user=${encodeURIComponent(currentUser)}`)
-                .then(res => res.json())
-                .then(data => {
-                    if(data && data.length > 0) {
-                        localData = data;
-                        localStorage.setItem("pendataan_ruang_" + currentUser, JSON.stringify(localData));
-                        renderTable();
-                    }
-                }).catch(err => console.log("Offline mode: menggunakan cache lokal"));
+        }
+
+        function saveRoom(e) {
+            e.preventDefault();
+            const id = document.getElementById("editId").value || Date.now().toString();
+            const gedung = document.getElementById("gedung").value;
+            const lantai = document.getElementById("lantai").value;
+            const namaRuang = document.getElementById("namaRuang").value;
+            const luas = document.getElementById("luas").value;
+            const permukaan = document.getElementById("permukaan").value;
+            const catatan = document.getElementById("catatan").value;
+            const timestamp = new Date().toISOString();
+
+            const existingIndex = records.findIndex(r => r.id === id);
+            const newRecord = { id, gedung, lantai, namaRuang, luas, permukaan, catatan, timestamp };
+
+            if (existingIndex >= 0) {
+                records[existingIndex] = newRecord;
+            } else {
+                records.push(newRecord);
             }
+
+            localStorage.setItem("localRecords", JSON.stringify(records));
+            document.getElementById("roomForm").reset();
+            document.getElementById("editId").value = "";
+            renderTable();
+            syncWithServer();
         }
 
         function renderTable() {
-            let tbody = document.getElementById('table-body');
+            const tbody = document.getElementById("roomTableBody");
             tbody.innerHTML = "";
-            localData.forEach((row, index) => {
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-400">Belum ada data tersimpan.</td></tr>`;
+                return;
+            }
+            records.forEach(r => {
                 tbody.innerHTML += `
-                    <tr>
-                        <td>${row.nama_gedung}</td>
-                        <td>${row.lantai}</td>
-                        <td>${row.nama_ruang}</td>
-                        <td>${row.luas_ruang}</td>
-                        <td>${row.jenis_permukaan}</td>
-                        <td>${row.catatan}</td>
-                        <td><button onclick="editData(${index})" style="padding:5px 10px; font-size:0.8rem;">Edit</button></td>
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-3 px-4">${r.gedung || '-'}/${r.lantai || '-'}</td>
+                        <td class="py-3 px-4 font-medium">${r.namaRuang}</td>
+                        <td class="py-3 px-4">${r.luas} m²</td>
+                        <td class="py-3 px-4">${r.permukaan}</td>
+                        <td class="py-3 px-4 text-slate-500">${r.catatan || '-'}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="editRecord('${r.id}')" class="text-blue-600 hover:underline mr-2">Edit</button>
+                            <button onclick="deleteRecord('${r.id}')" class="text-red-600 hover:underline">Hapus</button>
+                        </td>
                     </tr>
                 `;
             });
         }
 
-        function editData(index) {
-            let item = localData[index];
-            document.getElementById('edit-index').value = index;
-            document.getElementById('nama_gedung').value = item.nama_gedung;
-            document.getElementById('lantai').value = item.lantai;
-            document.getElementById('nama_ruang').value = item.nama_ruang;
-            document.getElementById('luas_ruang').value = item.luas_ruang;
-            document.getElementById('jenis_permukaan').value = item.jenis_permukaan;
-            document.getElementById('catatan').value = item.catatan;
-            document.getElementById('extra-fields').classList.remove('hidden');
+        function editRecord(id) {
+            const r = records.find(item => item.id === id);
+            if (!r) return;
+            document.getElementById("editId").value = r.id;
+            document.getElementById("namaRuang").value = r.namaRuang;
+            document.getElementById("luas").value = r.luas;
+            document.getElementById("permukaan").value = r.permukaan;
+            document.getElementById("gedung").value = r.gedung || "";
+            document.getElementById("lantai").value = r.lantai || "";
+            document.getElementById("catatan").value = r.catatan || "";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function syncToServer() {
-            if (!navigator.onLine) return;
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify({ action: "saveData", user: currentUser, data: localData })
-            }).then(res => res.json()).then(res => console.log("Sinkronisasi Berhasil"));
+        function deleteRecord(id) {
+            if (confirm("Yakin ingin menghapus data ini?")) {
+                records = records.filter(item => item.id !== id);
+                localStorage.setItem("localRecords", JSON.stringify(records));
+                renderTable();
+                syncWithServer();
+            }
         }
 
-        window.addEventListener('online', () => {
-            document.getElementById('sync-status').innerText = "Status Jaringan: Online (Tersinkronisasi)";
-            syncToServer();
-        });
-        window.addEventListener('offline', () => {
-            document.getElementById('sync-status').innerText = "Status Jaringan: Offline (Data Tersimpan di Perangkat)";
-        });
+        async function syncWithServer() {
+            if (!navigator.onLine || !currentUser) return;
+            try {
+                await fetch(GAS_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "sync", username: currentUser, records })
+                });
+            } catch (err) {
+                console.log("Sync background gagal, dicoba lagi nanti.");
+            }
+        }
     </script>
 </body>
 </html>
