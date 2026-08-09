@@ -6,6 +6,11 @@
     <title>Room Survey App - ISS Style</title>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Tambahan Library Chart.js untuk Visualisasi Grafik (Permintaan #4) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tambahan Library jsPDF & html2canvas untuk Fitur Download PDF (Permintaan #2) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         .bg-iss-blue { background-color: #0066FF; }
         .text-iss-blue { color: #0066FF; }
@@ -54,6 +59,15 @@
 
             <!-- TAB CONTENT: SURVEY / INPUT -->
             <div id="tabSurvey" class="space-y-6">
+                <!-- Pilihan Nama Project (Permintaan #1) -->
+                <div class="bg-white p-6 rounded-2xl shadow-md">
+                    <h3 class="text-xl font-bold text-iss-blue mb-4">Pilih / Buat Nama Project</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="inputProjectName" placeholder="Masukkan Nama Project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                        <button type="button" onclick="selectProject()" class="bg-iss-blue text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition">Muat Project</button>
+                    </div>
+                </div>
+
                 <!-- Form Input / Edit Ruang -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
                     <h3 id="formTitle" class="text-xl font-bold text-iss-blue mb-4">Input Data Ruang Baru</h3>
@@ -139,8 +153,12 @@
             <!-- TAB CONTENT: ANALYTICS DASHBOARD -->
             <div id="tabDashboard" class="hidden space-y-6">
                 <div id="userDashboardView" class="space-y-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-md">
-                        <h3 class="text-xl font-bold text-iss-blue mb-4">Dashboard Analitik Ruang</h3>
+                    <div id="pdfArea" class="bg-white p-6 rounded-2xl shadow-md space-y-6">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-iss-blue">Dashboard Analitik Ruang</h3>
+                            <!-- Tombol Download PDF (Permintaan #2) -->
+                            <button onclick="downloadPDF()" class="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition">Download PDF</button>
+                        </div>
                         
                         <!-- Filter Wildcard Nama Ruang -->
                         <div class="mb-6">
@@ -151,7 +169,7 @@
                         <!-- Ringkasan Kartu -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
-                                <p class="text-sm text-gray-600">Total Luas Ruang (Filtered)</p>
+                                <p class="text-sm text-gray-600">Total Luas Area Terukur (Filtered)</p>
                                 <h4 id="statTotalLuas" class="text-2xl font-bold text-iss-blue">0.00 m²</h4>
                             </div>
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
@@ -160,7 +178,7 @@
                             </div>
                         </div>
 
-                        <!-- Rincian Berdasarkan Gedung, Jenis Permukaan (Dikelompokkan per Gedung), dan Jumlah Jenis Ruang -->
+                        <!-- Rincian Berdasarkan Gedung, Jenis Permukaan, dan Jumlah Jenis Ruang (Permintaan #3) -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="bg-gray-50 p-4 rounded-xl border">
                                 <h4 class="font-bold text-gray-700 mb-3">Total Luas per Gedung</h4>
@@ -171,14 +189,26 @@
                                 <div id="statPerPermukaan" class="space-y-2 text-sm"></div>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-xl border">
-                                <h4 class="font-bold text-gray-700 mb-3">Jumlah Ruangan per Jenis Ruang</h4>
+                                <h4 class="font-bold text-gray-700 mb-3">Luas Ruangan & Jumlah per Nama Ruang yang Sama</h4>
                                 <div id="statJenisRuang" class="space-y-2 text-sm"></div>
+                            </div>
+                        </div>
+
+                        <!-- Visualisasi Grafik (Permintaan #4) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+                            <div class="bg-gray-50 p-4 rounded-xl border">
+                                <h4 class="font-bold text-gray-700 mb-3 text-center">Grafik Luas per Gedung</h4>
+                                <canvas id="chartGedung"></canvas>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-xl border">
+                                <h4 class="font-bold text-gray-700 mb-3 text-center">Grafik Luas per Jenis Lantai</h4>
+                                <canvas id="chartPermukaan"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ADMIN DASHBOARD VIEW -->
+                <!-- ADMIN DASHBOARD VIEW (Permintaan #5) -->
                 <div id="adminDashboardView" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-2xl shadow-md">
                         <h3 class="text-xl font-bold text-iss-blue mb-4">Dashboard Administrator (Semua User)</h3>
@@ -197,6 +227,10 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbwo1qux80FXKobwTX727KuaBtcNoGnxoStbK6JaIBvt6VSrD2Brree4g5tFpD0IE-1V/exec";
         let currentUser = localStorage.getItem("survey_user") || null;
         let isAdmin = localStorage.getItem("survey_is_admin") === "true";
+        let currentProject = localStorage.getItem("survey_project") || "Default";
+
+        let chartGedungInstance = null;
+        let chartPermukaanInstance = null;
 
         window.onload = () => {
             if (currentUser) {
@@ -250,6 +284,7 @@
         function logout() {
             localStorage.removeItem("survey_user");
             localStorage.removeItem("survey_is_admin");
+            localStorage.removeItem("survey_project");
             location.reload();
         }
 
@@ -258,6 +293,7 @@
             document.getElementById("dashboardSection").classList.remove("hidden");
             document.getElementById("userInfo").classList.remove("hidden");
             document.getElementById("displayUser").innerText = (isAdmin ? "Admin: " : "User: ") + currentUser;
+            document.getElementById("inputProjectName").value = currentProject;
             
             if (isAdmin) {
                 document.getElementById("navSurveyBtn").classList.add("hidden");
@@ -302,12 +338,24 @@
             extra.classList.toggle("hidden");
         }
 
+        function selectProject() {
+            const projInput = document.getElementById("inputProjectName").value.trim();
+            if (!projInput) {
+                alert("Nama project tidak boleh kosong!");
+                return;
+            }
+            currentProject = projInput;
+            localStorage.setItem("survey_project", currentProject);
+            loadData();
+            alert(`Project "${currentProject}" berhasil dimuat.`);
+        }
+
         function getLocalData() {
-            return JSON.parse(localStorage.getItem(`data_${currentUser}`)) || [];
+            return JSON.parse(localStorage.getItem(`data_${currentUser}_${currentProject}`)) || [];
         }
 
         function saveLocalData(data) {
-            localStorage.setItem(`data_${currentUser}`, JSON.stringify(data));
+            localStorage.setItem(`data_${currentUser}_${currentProject}`, JSON.stringify(data));
         }
 
         async function loadData() {
@@ -315,7 +363,7 @@
                 try {
                     let res = await fetch(API_URL, {
                         method: "POST",
-                        body: JSON.stringify({ action: "getData", username: currentUser })
+                        body: JSON.stringify({ action: "getData", username: currentUser, project: currentProject })
                     });
                     let json = await res.json();
                     if (json.status === "success") {
@@ -433,14 +481,14 @@
             try {
                 await fetch(API_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action: "saveData", username: currentUser, rows: rows })
+                    body: JSON.stringify({ action: "saveData", username: currentUser, project: currentProject, rows: rows })
                 });
             } catch (e) {
                 console.error("Sinkronisasi gagal:", e);
             }
         }
 
-        // Fungsionalitas Dashboard Analitik User & Wildcard Filter
+        // Fungsionalitas Dashboard Analitik User, Wildcard Filter, dan Grafik (Permintaan #3 & #4)
         function renderAnalytics() {
             const rawRows = getLocalData();
             const rows = getPropagatedRows(rawRows); // Menerapkan propagasi nilai gedung & lantai ke dashboard
@@ -451,7 +499,7 @@
 
             let totalLuas = 0;
             let perGedung = {};
-            let perPermukaanGedung = {};
+            let perPermukaan = {};
             let perJenisRuang = {};
 
             filtered.forEach(r => {
@@ -462,11 +510,14 @@
                 perGedung[gedung] = (perGedung[gedung] || 0) + luas;
 
                 let perm = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Lainnya";
-                if (!perPermukaanGedung[gedung]) perPermukaanGedung[gedung] = {};
-                perPermukaanGedung[gedung][perm] = (perPermukaanGedung[gedung][perm] || 0) + luas;
+                perPermukaan[perm] = (perPermukaan[perm] || 0) + luas;
 
                 let namaRuang = r.nama_ruang ? r.nama_ruang.trim() : "Lainnya";
-                perJenisRuang[namaRuang] = (perJenisRuang[namaRuang] || 0) + 1;
+                if (!perJenisRuang[namaRuang]) {
+                    perJenisRuang[namaRuang] = { count: 0, luas: 0 };
+                }
+                perJenisRuang[namaRuang].count += 1;
+                perJenisRuang[namaRuang].luas += luas;
             });
 
             document.getElementById("statTotalLuas").innerText = totalLuas.toFixed(2) + " m²";
@@ -480,25 +531,90 @@
             }
             document.getElementById("statPerGedung").innerHTML = htmlGedung || "<p class='text-gray-500'>Belum ada data</p>";
 
-            // Render per Permukaan Lantai (Dikelompokkan per Gedung)
+            // Render per Permukaan Lantai
             let htmlPerm = "";
-            for (let g in perPermukaanGedung) {
-                htmlPerm += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
-                for (let p in perPermukaanGedung[g]) {
-                    htmlPerm += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${p}</span><span>${perPermukaanGedung[g][p].toFixed(2)} m²</span></div>`;
-                }
+            for (let p in perPermukaan) {
+                htmlPerm += `<div class="flex justify-between border-b pb-1"><span>${p}</span><span class="font-semibold">${perPermukaan[p].toFixed(2)} m²</span></div>`;
             }
             document.getElementById("statPerPermukaan").innerHTML = htmlPerm || "<p class='text-gray-500'>Belum ada data</p>";
 
-            // Render Jumlah Ruangan berdasarkan Jenis Ruangan
+            // Render Luas Ruangan & Jumlah per Nama Ruang yang Sama
             let htmlJenisRuang = "";
             for (let jr in perJenisRuang) {
-                htmlJenisRuang += `<div class="flex justify-between border-b pb-1"><span>${jr}</span><span class="font-semibold">${perJenisRuang[jr]} Ruangan</span></div>`;
+                htmlJenisRuang += `<div class="flex justify-between border-b pb-1"><span>${jr} (${perJenisRuang[jr].count} Ruang)</span><span class="font-semibold">${perJenisRuang[jr].luas.toFixed(2)} m²</span></div>`;
             }
             document.getElementById("statJenisRuang").innerHTML = htmlJenisRuang || "<p class='text-gray-500'>Belum ada data</p>";
+
+            // Render Grafik (Permintaan #4)
+            renderCharts(perGedung, perPermukaan);
         }
 
-        // Fungsionalitas Dashboard Admin
+        function renderCharts(perGedung, perPermukaan) {
+            const ctxGedung = document.getElementById('chartGedung').getContext('2d');
+            const ctxPermukaan = document.getElementById('chartPermukaan').getContext('2d');
+
+            if (chartGedungInstance) chartGedungInstance.destroy();
+            if (chartPermukaanInstance) chartPermukaanInstance.destroy();
+
+            chartGedungInstance = new Chart(ctxGedung, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(perGedung),
+                    datasets: [{
+                        label: 'Luas per Gedung (m²)',
+                        data: Object.values(perGedung),
+                        backgroundColor: '#0066FF'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
+
+            chartPermukaanInstance = new Chart(ctxPermukaan, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(perPermukaan),
+                    datasets: [{
+                        data: Object.values(perPermukaan),
+                        backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD', '#1E40AF', '#2563EB', '#60A5FA', '#93C5FD']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
+        }
+
+        // Fungsionalitas Download PDF (Permintaan #2)
+        async function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('pdfArea');
+            
+            try {
+                const canvas = await html2canvas(element, { scale: 2 });
+                const imgData = canvas.toDataURL('image/png');
+                
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210;
+                const pageHeight = 295;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save(`Dashboard_Survey_${currentUser}_${currentProject}.pdf`);
+            } catch (err) {
+                alert("Gagal mengunduh PDF.");
+            }
+        }
+
+        // Fungsionalitas Dashboard Admin (Permintaan #5: Sesuai ketentuan nomor 3 dan 4 per masing-masing users, tanpa menampilkan daftar data per gedung)
         async function loadAdminData() {
             const container = document.getElementById("adminContentContainer");
             container.innerHTML = "<p class='text-gray-500 text-center'>Memuat data seluruh user...</p>";
@@ -531,57 +647,109 @@
                     let usersData = Object.values(mergedMap);
 
                     let html = "";
-                    usersData.forEach(u => {
-                        // Menerapkan propagasi nilai gedung & lantai agar format tabel admin sama persis seperti dashboard user
+                    usersData.forEach((u, idx) => {
                         let propagatedRows = getPropagatedRows(u.rows);
                         let totalLuasUser = propagatedRows.reduce((acc, cur) => acc + (parseFloat(cur.luas_ruang) || 0), 0);
                         
+                        let perGedung = {};
+                        let perPermukaan = {};
+                        let perJenisRuang = {};
+
+                        propagatedRows.forEach(r => {
+                            let luas = parseFloat(r.luas_ruang) || 0;
+                            let gedung = r.gedung ? r.gedung.trim() : "Tanpa Gedung";
+                            perGedung[gedung] = (perGedung[gedung] || 0) + luas;
+
+                            let perm = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Lainnya";
+                            perPermukaan[perm] = (perPermukaan[perm] || 0) + luas;
+
+                            let namaRuang = r.nama_ruang ? r.nama_ruang.trim() : "Lainnya";
+                            if (!perJenisRuang[namaRuang]) {
+                                perJenisRuang[namaRuang] = { count: 0, luas: 0 };
+                            }
+                            perJenisRuang[namaRuang].count += 1;
+                            perJenisRuang[namaRuang].luas += luas;
+                        });
+
                         html += `
-                            <div class="border rounded-2xl p-4 bg-gray-50 space-y-3">
+                            <div class="border rounded-2xl p-4 bg-gray-50 space-y-4">
                                 <div class="flex justify-between items-center border-b pb-2">
                                     <h4 class="font-bold text-lg text-iss-blue">User: ${u.user}</h4>
-                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold">Total Luas: ${totalLuasUser.toFixed(2)} m²</span>
+                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold">Total Luas Area Terukur: ${totalLuasUser.toFixed(2)} m²</span>
                                 </div>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse text-xs">
-                                        <thead>
-                                            <tr class="bg-gray-200 text-gray-700">
-                                                <th class="p-2">Nama Gedung</th>
-                                                <th class="p-2">Lantai</th>
-                                                <th class="p-2">Nama Ruang</th>
-                                                <th class="p-2">Luas (m²)</th>
-                                                <th class="p-2">Jenis Permukaan</th>
-                                                <th class="p-2">Catatan</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="bg-white p-3 rounded-xl border">
+                                        <h5 class="font-bold text-gray-700 mb-2 text-sm">Total Luas per Gedung</h5>
+                                        <div class="space-y-1 text-xs">
                         `;
-
-                        if (propagatedRows.length === 0) {
-                            html += `<tr><td colspan="6" class="p-2 text-center text-gray-500">Belum ada input data.</td></tr>`;
-                        } else {
-                            propagatedRows.forEach(r => {
-                                html += `
-                                    <tr class="border-b bg-white">
-                                        <td class="p-2">${r.gedung || '-'}</td>
-                                        <td class="p-2">${r.lantai || '-'}</td>
-                                        <td class="p-2 font-medium">${r.nama_ruang}</td>
-                                        <td class="p-2">${r.luas_ruang}</td>
-                                        <td class="p-2">${r.jenis_permukaan}</td>
-                                        <td class="p-2">${r.catatan || '-'}</td>
-                                    </tr>
-                                `;
-                            });
+                        for (let g in perGedung) {
+                            html += `<div class="flex justify-between border-b pb-1"><span>${g}</span><span class="font-semibold">${perGedung[g].toFixed(2)} m²</span></div>`;
                         }
-
-                        html += `
-                                        </tbody>
-                                    </table>
+                        html += `       </div>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-xl border">
+                                        <h5 class="font-bold text-gray-700 mb-2 text-sm">Total Luas per Jenis Lantai</h5>
+                                        <div class="space-y-1 text-xs">`;
+                        for (let p in perPermukaan) {
+                            html += `<div class="flex justify-between border-b pb-1"><span>${p}</span><span class="font-semibold">${perPermukaan[p].toFixed(2)} m²</span></div>`;
+                        }
+                        html += `       </div>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-xl border">
+                                        <h5 class="font-bold text-gray-700 mb-2 text-sm">Luas Ruangan & Jumlah Nama Sama</h5>
+                                        <div class="space-y-1 text-xs">`;
+                        for (let jr in perJenisRuang) {
+                            html += `<div class="flex justify-between border-b pb-1"><span>${jr} (${perJenisRuang[jr].count})</span><span class="font-semibold">${perJenisRuang[jr].luas.toFixed(2)} m²</span></div>`;
+                        }
+                        html += `       </div>
+                                    </div>
+                                </div>
+                                <!-- Visualisasi Grafik Admin -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                    <div class="bg-white p-3 rounded-xl border">
+                                        <canvas id="adminChartGedung_${idx}"></canvas>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-xl border">
+                                        <canvas id="adminChartPermukaan_${idx}"></canvas>
+                                    </div>
                                 </div>
                             </div>
                         `;
                     });
                     container.innerHTML = html;
+
+                    // Render Grafik untuk masing-masing user di admin view
+                    usersData.forEach((u, idx) => {
+                        let propagatedRows = getPropagatedRows(u.rows);
+                        let perGedung = {};
+                        let perPermukaan = {};
+                        propagatedRows.forEach(r => {
+                            let luas = parseFloat(r.luas_ruang) || 0;
+                            let gedung = r.gedung ? r.gedung.trim() : "Tanpa Gedung";
+                            perGedung[gedung] = (perGedung[gedung] || 0) + luas;
+                            let perm = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Lainnya";
+                            perPermukaan[perm] = (perPermukaan[perm] || 0) + luas;
+                        });
+
+                        new Chart(document.getElementById(`adminChartGedung_${idx}`).getContext('2d'), {
+                            type: 'bar',
+                            data: {
+                                labels: Object.keys(perGedung),
+                                datasets: [{ label: 'Luas Gedung (m²)', data: Object.values(perGedung), backgroundColor: '#0066FF' }]
+                            },
+                            options: { responsive: true }
+                        });
+
+                        new Chart(document.getElementById(`adminChartPermukaan_${idx}`).getContext('2d'), {
+                            type: 'pie',
+                            data: {
+                                labels: Object.keys(perPermukaan),
+                                datasets: [{ data: Object.values(perPermukaan), backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD', '#1E40AF'] }]
+                            },
+                            options: { responsive: true }
+                        });
+                    });
+
                 } else {
                     container.innerHTML = `<p class='text-red-500 text-center'>${json.message}</p>`;
                 }
