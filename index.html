@@ -160,8 +160,8 @@
                             </div>
                         </div>
 
-                        <!-- Rincian Berdasarkan Gedung & Jenis Permukaan -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Rincian Berdasarkan Gedung, Jenis Permukaan (Dikelompokkan per Gedung), dan Jumlah Jenis Ruang -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="bg-gray-50 p-4 rounded-xl border">
                                 <h4 class="font-bold text-gray-700 mb-3">Total Luas per Gedung</h4>
                                 <div id="statPerGedung" class="space-y-2 text-sm"></div>
@@ -169,6 +169,10 @@
                             <div class="bg-gray-50 p-4 rounded-xl border">
                                 <h4 class="font-bold text-gray-700 mb-3">Total Luas per Jenis Permukaan Lantai</h4>
                                 <div id="statPerPermukaan" class="space-y-2 text-sm"></div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-xl border">
+                                <h4 class="font-bold text-gray-700 mb-3">Jumlah Ruangan per Jenis Ruang</h4>
+                                <div id="statJenisRuang" class="space-y-2 text-sm"></div>
                             </div>
                         </div>
                     </div>
@@ -447,7 +451,8 @@
 
             let totalLuas = 0;
             let perGedung = {};
-            let perPermukaan = {};
+            let perPermukaanGedung = {};
+            let perJenisRuang = {};
 
             filtered.forEach(r => {
                 let luas = parseFloat(r.luas_ruang) || 0;
@@ -457,7 +462,11 @@
                 perGedung[gedung] = (perGedung[gedung] || 0) + luas;
 
                 let perm = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Lainnya";
-                perPermukaan[perm] = (perPermukaan[perm] || 0) + luas;
+                if (!perPermukaanGedung[gedung]) perPermukaanGedung[gedung] = {};
+                perPermukaanGedung[gedung][perm] = (perPermukaanGedung[gedung][perm] || 0) + luas;
+
+                let namaRuang = r.nama_ruang ? r.nama_ruang.trim() : "Lainnya";
+                perJenisRuang[namaRuang] = (perJenisRuang[namaRuang] || 0) + 1;
             });
 
             document.getElementById("statTotalLuas").innerText = totalLuas.toFixed(2) + " m²";
@@ -471,13 +480,22 @@
             }
             document.getElementById("statPerGedung").innerHTML = htmlGedung || "<p class='text-gray-500'>Belum ada data</p>";
 
-            // Render per Permukaan
+            // Render per Permukaan Lantai (Dikelompokkan per Gedung)
             let htmlPerm = "";
-            for (let p in perPermukaan) {
-                let prop = totalLuas > 0 ? ((perPermukaan[p] / totalLuas) * 100).toFixed(1) : 0;
-                htmlPerm += `<div class="flex justify-between border-b pb-1"><span>${p}</span><span class="font-semibold">${perPermukaan[p].toFixed(2)} m² (${prop}%)</span></div>`;
+            for (let g in perPermukaanGedung) {
+                htmlPerm += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
+                for (let p in perPermukaanGedung[g]) {
+                    htmlPerm += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${p}</span><span>${perPermukaanGedung[g][p].toFixed(2)} m²</span></div>`;
+                }
             }
             document.getElementById("statPerPermukaan").innerHTML = htmlPerm || "<p class='text-gray-500'>Belum ada data</p>";
+
+            // Render Jumlah Ruangan berdasarkan Jenis Ruangan
+            let htmlJenisRuang = "";
+            for (let jr in perJenisRuang) {
+                htmlJenisRuang += `<div class="flex justify-between border-b pb-1"><span>${jr}</span><span class="font-semibold">${perJenisRuang[jr]} Ruangan</span></div>`;
+            }
+            document.getElementById("statJenisRuang").innerHTML = htmlJenisRuang || "<p class='text-gray-500'>Belum ada data</p>";
         }
 
         // Fungsionalitas Dashboard Admin
@@ -493,15 +511,30 @@
                 let json = await res.json();
 
                 if (json.status === "success") {
-                    let usersData = json.usersData;
-                    if (usersData.length === 0) {
+                    let rawUsersData = json.usersData;
+                    if (rawUsersData.length === 0) {
                         container.innerHTML = "<p class='text-gray-500 text-center'>Belum ada data dari user manapun.</p>";
                         return;
                     }
 
+                    // Menggabungkan data user yang duplikat agar unik berdasarkan nama user
+                    let mergedMap = {};
+                    rawUsersData.forEach(u => {
+                        if (!mergedMap[u.user]) {
+                            mergedMap[u.user] = { user: u.user, rows: [] };
+                        }
+                        if (u.rows && u.rows.length > 0) {
+                            mergedMap[u.user].rows = mergedMap[u.user].rows.concat(u.rows);
+                        }
+                    });
+
+                    let usersData = Object.values(mergedMap);
+
                     let html = "";
                     usersData.forEach(u => {
-                        let totalLuasUser = u.rows.reduce((acc, cur) => acc + (parseFloat(cur.luas_ruang) || 0), 0);
+                        // Menerapkan propagasi nilai gedung & lantai agar format tabel admin sama persis seperti dashboard user
+                        let propagatedRows = getPropagatedRows(u.rows);
+                        let totalLuasUser = propagatedRows.reduce((acc, cur) => acc + (parseFloat(cur.luas_ruang) || 0), 0);
                         
                         html += `
                             <div class="border rounded-2xl p-4 bg-gray-50 space-y-3">
@@ -513,21 +546,21 @@
                                     <table class="w-full text-left border-collapse text-xs">
                                         <thead>
                                             <tr class="bg-gray-200 text-gray-700">
-                                                <th class="p-2">Gedung</th>
+                                                <th class="p-2">Nama Gedung</th>
                                                 <th class="p-2">Lantai</th>
                                                 <th class="p-2">Nama Ruang</th>
                                                 <th class="p-2">Luas (m²)</th>
-                                                <th class="p-2">Permukaan</th>
+                                                <th class="p-2">Jenis Permukaan</th>
                                                 <th class="p-2">Catatan</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                         `;
 
-                        if (u.rows.length === 0) {
+                        if (propagatedRows.length === 0) {
                             html += `<tr><td colspan="6" class="p-2 text-center text-gray-500">Belum ada input data.</td></tr>`;
                         } else {
-                            u.rows.forEach(r => {
+                            propagatedRows.forEach(r => {
                                 html += `
                                     <tr class="border-b bg-white">
                                         <td class="p-2">${r.gedung || '-'}</td>
