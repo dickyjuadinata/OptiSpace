@@ -707,8 +707,17 @@
             }
 
             const editIndex = document.getElementById("editIndex").value;
+            let rows = getLocalData();
             
+            let rowId = "";
+            if (editIndex === "") {
+                rowId = "ID_" + new Date().getTime() + "_" + Math.random().toString(36).substring(2, 7);
+            } else {
+                rowId = rows[editIndex].id || ("ID_" + new Date().getTime() + "_" + Math.random().toString(36).substring(2, 7));
+            }
+
             const newItem = {
+                id: rowId,
                 gedung: document.getElementById("gedung").value,
                 lantai: document.getElementById("lantai").value,
                 nama_ruang: document.getElementById("nama_ruang").value,
@@ -717,7 +726,6 @@
                 catatan: document.getElementById("catatan").value
             };
 
-            let rows = getLocalData();
             if (editIndex === "") {
                 rows.push(newItem);
             } else {
