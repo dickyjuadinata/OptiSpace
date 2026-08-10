@@ -465,26 +465,62 @@
         };
 
         async function downloadExcel() {
-            if (!currentUser || isAdmin) return;
-            if (!currentProject) {
-                alert("Silakan pilih project terlebih dahulu!");
-                return;
-            }
-            try {
-                let res = await fetch(API_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "getDownloadUrl", username: currentUser, project: currentProject })
-                });
-                let json = await res.json();
-                if (json.status === "success" && json.exportXlsxUrl) {
-                    window.open(json.exportXlsxUrl, "_blank");
-                } else {
-                    alert("Gagal mendapatkan link download Excel.");
-                }
-            } catch (e) {
-                alert("Terjadi kesalahan saat mengunduh file.");
-            }
+    if (!currentUser || isAdmin) return;
+    
+    // Memastikan project aktif dipilih
+    if (!currentProject) {
+        alert("Silakan pilih project terlebih dahulu!");
+        return;
+    }
+
+    try {
+        let res = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ 
+                action: "getDownloadUrl", 
+                username: currentUser, 
+                project: currentProject // Hanya mengirim parameter project yang sedang aktif
+            })
+        });
+        let json = await res.json();
+        
+        if (json.status === "success" && json.exportXlsxUrl) {
+            window.open(json.exportXlsxUrl, "_blank");
+        } else {
+            alert(json.message || "Gagal mendapatkan link download Excel.");
         }
+    } catch (e) {
+        alert("Terjadi kesalahan saat mengunduh file.");
+    }
+}async function downloadExcel() {
+    if (!currentUser || isAdmin) return;
+    
+    // Memastikan project aktif dipilih
+    if (!currentProject) {
+        alert("Silakan pilih project terlebih dahulu!");
+        return;
+    }
+
+    try {
+        let res = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ 
+                action: "getDownloadUrl", 
+                username: currentUser, 
+                project: currentProject // Hanya mengirim parameter project yang sedang aktif
+            })
+        });
+        let json = await res.json();
+        
+        if (json.status === "success" && json.exportXlsxUrl) {
+            window.open(json.exportXlsxUrl, "_blank");
+        } else {
+            alert(json.message || "Gagal mendapatkan link download Excel.");
+        }
+    } catch (e) {
+        alert("Terjadi kesalahan saat mengunduh file.");
+    }
+}
 
         function switchAuthTab(tab) {
             const loginBtn = document.getElementById("tabLoginBtn");
