@@ -127,11 +127,12 @@
                     </div>
                 </div>
 
-                <!-- Form Input / Edit Ruang -->
-                <div class="bg-white p-6 rounded-2xl shadow-md">
+                <!-- Form Input / Edit / Sisip Ruang -->
+                <div class="bg-white p-6 rounded-2xl shadow-md" id="surveyFormCard">
                     <h3 id="formTitle" class="text-xl font-bold text-iss-blue mb-4">Input Data Ruang Baru</h3>
                     <form id="surveyForm" onsubmit="saveRoomData(event)" class="space-y-4">
                         <input type="hidden" id="editIndex" value="">
+                        <input type="hidden" id="insertIndex" value="">
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
@@ -169,7 +170,7 @@
                         </div>
 
                         <div class="flex gap-2">
-                            <button type="submit" class="flex-1 bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition">Simpan Data</button>
+                            <button type="submit" id="submitBtn" class="flex-1 bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition">Simpan Data</button>
                             <button type="button" onclick="resetForm()" id="cancelBtn" class="hidden bg-gray-300 text-gray-700 px-4 py-3 rounded-xl font-semibold hover:bg-gray-400 transition">Batal</button>
                         </div>
                     </form>
@@ -346,7 +347,6 @@
                 dropdown.innerHTML = "";
                 activeIndex = -1;
 
-                // Tampilkan semua opsi jika input sedang di-focus/di-select sepenuhnya
                 const isFullySelected = input.selectionStart === 0 && input.selectionEnd === input.value.length;
                 const filtered = (isFullySelected || !filter) ? options : options.filter(opt => opt.toLowerCase().includes(filter));
 
@@ -396,7 +396,6 @@
                 });
             }
 
-            // Pilih otomatis seluruh teks ketika diklik/focus agar mudah langsung mengetik opsi baru
             input.addEventListener("focus", () => {
                 setTimeout(() => { input.select(); }, 50);
                 renderOptions();
@@ -813,6 +812,7 @@
                         <td class="p-3">${r.jenis_permukaan}</td>
                         <td class="p-3">${r.catatan || '-'}</td>
                         <td class="p-3 text-center space-x-2">
+                            <button onclick="insertRowAfter(${index})" class="text-green-600 font-medium underline">Sisip</button>
                             <button onclick="editRow(${index})" class="text-blue-600 underline">Edit</button>
                             <button onclick="deleteRow(${index})" class="text-red-600 underline">Hapus</button>
                         </td>
@@ -826,6 +826,8 @@
             if (!currentProject) return;
 
             const editIndex = document.getElementById("editIndex").value;
+            const insertIndex = document.getElementById("insertIndex").value;
+
             const newItem = {
                 gedung: document.getElementById("gedung").value,
                 lantai: document.getElementById("lantai").value,
@@ -837,10 +839,17 @@
             };
 
             let rows = getLocalData();
-            if (editIndex === "") {
-                rows.push(newItem);
-            } else {
+            
+            if (editIndex !== "") {
+                // Update mode
                 rows[editIndex] = newItem;
+            } else if (insertIndex !== "") {
+                // Insert / Sisip mode (menyisipkan setelah indeks pilihan)
+                const targetIdx = parseInt(insertIndex, 10) + 1;
+                rows.splice(targetIdx, 0, newItem);
+            } else {
+                // Normal Append mode
+                rows.push(newItem);
             }
 
             saveLocalData(rows);
@@ -849,10 +858,31 @@
             syncOfflineData();
         }
 
+        // Fungsi untuk mengaktifkan mode sisip data setelah baris pilihan
+        function insertRowAfter(index) {
+            const rows = getLocalData();
+            const targetRow = rows[index];
+
+            resetForm();
+            document.getElementById("insertIndex").value = index;
+            document.getElementById("formTitle").innerText = `Sisip Data Baru (Setelah Baris ke-${index + 1}: ${targetRow.nama_ruang})`;
+            document.getElementById("submitBtn").innerText = "Disisipkan Data";
+            document.getElementById("cancelBtn").classList.remove("hidden");
+
+            // Mengisi default gedung & lantai dari baris acuan jika tersedia
+            if (targetRow.gedung) document.getElementById("gedung").value = targetRow.gedung;
+            if (targetRow.lantai) document.getElementById("lantai").value = targetRow.lantai;
+
+            switchView('survey');
+            document.getElementById("surveyFormCard").scrollIntoView({ behavior: 'smooth' });
+            document.getElementById("nama_ruang").focus();
+        }
+
         function editRow(index) {
             const rows = getLocalData();
             const r = rows[index];
 
+            resetForm();
             document.getElementById("editIndex").value = index;
             document.getElementById("gedung").value = r.gedung || "";
             document.getElementById("lantai").value = r.lantai || "";
@@ -862,9 +892,11 @@
             document.getElementById("catatan").value = r.catatan || "";
 
             document.getElementById("formTitle").innerText = "Edit Data Ruang";
+            document.getElementById("submitBtn").innerText = "Simpan Data";
             document.getElementById("cancelBtn").classList.remove("hidden");
             document.getElementById("extraFields").classList.remove("hidden");
             switchView('survey');
+            document.getElementById("surveyFormCard").scrollIntoView({ behavior: 'smooth' });
         }
 
         function deleteRow(index) {
@@ -880,7 +912,9 @@
         function resetForm() {
             document.getElementById("surveyForm").reset();
             document.getElementById("editIndex").value = "";
+            document.getElementById("insertIndex").value = "";
             document.getElementById("formTitle").innerText = "Input Data Ruang Baru";
+            document.getElementById("submitBtn").innerText = "Simpan Data";
             document.getElementById("cancelBtn").classList.add("hidden");
         }
 
