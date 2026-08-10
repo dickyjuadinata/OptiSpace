@@ -3,139 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Room Survey App</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
+    <title>Room Survey App - ISS Style</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'iss-blue': '#003366',
-                        'iss-light': '#e6f0fa'
-                    }
-                }
-            }
-        }
-    </script>
+    <style>
+        .bg-iss-blue { background-color: #0066FF; }
+        .text-iss-blue { color: #0066FF; }
+        .border-iss-blue { border-color: #0066FF; }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Navigation Bar -->
-    <nav class="bg-iss-blue text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <span class="text-2xl">📋</span>
-                <h1 class="text-xl font-bold tracking-wide">Room Survey App</h1>
-            </div>
-            <div class="flex items-center space-x-2">
-                <button id="navUserBtn" onclick="switchView('user')" class="px-3 py-1.5 rounded-lg bg-white text-iss-blue font-semibold text-sm hover:bg-gray-100 transition">User Dashboard</button>
-                <button id="navAdminBtn" onclick="switchView('admin')" class="px-3 py-1.5 rounded-lg text-white font-semibold text-sm hover:bg-blue-800 transition">Admin Dashboard</button>
-            </div>
+    <!-- Navbar -->
+    <header class="bg-iss-blue text-white p-4 shadow-md flex justify-between items-center">
+        <h1 class="font-bold text-lg">Room Survey App</h1>
+        <div id="userInfo" class="text-sm hidden items-center gap-2">
+            <span id="displayUser" class="font-semibold"></span> | 
+            <button onclick="switchView('survey')" id="navSurveyBtn" class="underline hidden">Survey</button>
+            <button onclick="switchView('dashboard')" id="navDashboardBtn" class="underline">Dashboard</button>
+            <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="underline hidden">Download Excel</button>
+            <button onclick="logout()" class="underline ml-2">Keluar</button>
         </div>
-    </nav>
+    </header>
 
     <!-- Main Container -->
-    <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+    <main class="flex-grow p-4 max-w-4xl mx-auto w-full">
 
-        <!-- User Auth & Project Header -->
-        <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-wrap gap-4 justify-between items-center">
-            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <!-- LOGIN / REGISTER SECTION -->
+        <section id="loginSection" class="bg-white p-6 rounded-2xl shadow-lg max-w-md mx-auto mt-10">
+            <div class="flex border-b mb-6">
+                <button type="button" onclick="switchAuthTab('login')" id="tabLoginBtn" class="flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue">Login</button>
+                <button type="button" onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 pb-3 font-medium text-gray-400">Daftar Akun</button>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs text-gray-500 font-semibold mb-1">USER / SURVEYOR</label>
-                    <input type="text" id="currentUser" value="User1" onchange="onUserOrProjectChange()" class="p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue font-semibold bg-gray-50 text-sm">
+                    <label class="block text-sm font-medium text-gray-700">Username / Role</label>
+                    <input type="text" id="username" required oninput="fetchLoginProjects()" onblur="fetchLoginProjects()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
+                </div>
+                <div id="projectInputContainer">
+                    <label class="block text-sm font-medium text-gray-700">Nama Project Awal</label>
+                    <input type="text" id="loginProject" list="loginProjectList" placeholder="Ketik atau pilih nama project..." class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
+                    <datalist id="loginProjectList"></datalist>
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-500 font-semibold mb-1">PROJECT</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="currentProject" list="projectList" value="Gedung Utama" onchange="onUserOrProjectChange()" placeholder="Pilih / Buat Project" class="p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue font-semibold bg-gray-50 text-sm">
-                        <datalist id="projectList"></datalist>
+                    <label class="block text-sm font-medium text-gray-700">PIN Akses</label>
+                    <input type="password" id="pin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Masukkan PIN">
+                </div>
+                <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Masuk</button>
+            </form>
+
+            <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Username Baru</label>
+                    <input type="text" id="regUsername" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Min. 3 karakter">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">PIN Unik Pilihan Anda</label>
+                    <input type="password" id="regPin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Buat PIN rahasia">
+                </div>
+                <p class="text-xs text-gray-500">Catatan: Akun baru memerlukan persetujuan dari Admin.</p>
+                <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Daftar Sekarang</button>
+            </form>
+        </section>
+
+        <!-- DASHBOARD SECTION -->
+        <section id="dashboardSection" class="hidden space-y-6">
+            <div id="netStatus" class="p-2 text-center text-xs font-semibold rounded-lg bg-green-100 text-green-800">
+                Status: Online (Tersinkronisasi)
+            </div>
+
+            <!-- TAB CONTENT: SURVEY / INPUT -->
+            <div id="tabSurvey" class="space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-md">
+                    <h3 class="text-xl font-bold text-iss-blue mb-4">Pilih Project</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Pilih / Ketik Project Tersedia</label>
+                            <div class="flex gap-2 mt-1">
+                                <input type="text" id="selectProject" list="selectProjectList" onchange="handleProjectSelection()" oninput="handleProjectSelection()" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                <datalist id="selectProjectList"></datalist>
+                                <!-- Fitur hapus project dihilangkan dari sini -->
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Atau Buat Project Baru</label>
+                            <div class="flex gap-2 mt-1">
+                                <input type="text" id="newProjectInput" placeholder="Nama project baru..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                                <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition whitespace-nowrap">Tambah</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <span id="syncStatus" class="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full font-medium">Ready</span>
-                <button onclick="syncDataWithServer()" class="bg-iss-blue text-white px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition">🔄 Sync Server</button>
-            </div>
-        </div>
 
-        <!-- USER VIEW SECTION -->
-        <section id="userSection" class="space-y-6">
-            <!-- Form Input -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h2 id="formTitle" class="text-lg font-bold text-iss-blue mb-4">Input Data Ruang Baru</h2>
-                <form id="surveyForm" onsubmit="saveRoomData(event)" class="space-y-4">
-                    <input type="hidden" id="editIndex" value="">
-                    <input type="hidden" id="insertIndex" value="">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Nama Ruang *</label>
-                            <input type="text" id="nama_ruang" list="ruangList" required placeholder="Ketik / pilih ruang..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                            <datalist id="ruangList"></datalist>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Luas Ruang (m²) *</label>
-                            <input type="number" step="0.01" inputmode="decimal" id="luas_ruang" required class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Jenis Permukaan Lantai *</label>
-                            <input type="text" id="jenis_permukaan" list="jenisPermukaanList" required placeholder="Ketik / pilih jenis..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                            <datalist id="jenisPermukaanList">
-                                <option value="Keramik"></option>
-                                <option value="Vinyl"></option>
-                                <option value="Karpet"></option>
-                                <option value="Epoxy"></option>
-                                <option value="Parket"></option>
-                                <option value="Semen/Beton"></option>
-                                <option value="Granit"></option>
-                                <option value="Lainnya"></option>
-                            </datalist>
-                        </div>
-                    </div>
-
-                    <div class="border-t pt-4">
-                        <button type="button" onclick="toggleExtraFields()" class="text-iss-blue text-sm font-semibold flex items-center gap-1">
-                            ⚙️ Tambah Informasi Detail (Gedung, Lantai, Catatan)
-                        </button>
-                        <div id="extraFields" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <!-- Form Input / Edit Ruang -->
+                <div class="bg-white p-6 rounded-2xl shadow-md">
+                    <h3 id="formTitle" class="text-xl font-bold text-iss-blue mb-4">Input Data Ruang Baru</h3>
+                    <form id="surveyForm" onsubmit="saveRoomData(event)" class="space-y-4">
+                        <input type="hidden" id="editIndex" value="">
+                        <input type="hidden" id="insertIndex" value="">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Nama Gedung</label>
-                                <input type="text" id="gedung" list="gedungList" placeholder="Ketik / pilih gedung..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                <datalist id="gedungList"></datalist>
+                                <label class="block text-sm font-medium text-gray-700">Nama Ruang *</label>
+                                <input type="text" id="nama_ruang" list="namaRuangList" required placeholder="Ketik / pilih nama..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                <datalist id="namaRuangList"></datalist>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Lantai</label>
-                                <input type="text" id="lantai" list="lantaiList" placeholder="Ketik / pilih lantai..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                <datalist id="lantaiList"></datalist>
+                                <label class="block text-sm font-medium text-gray-700">Luas Ruang (m²) *</label>
+                                <input type="number" step="0.01" inputmode="decimal" id="luas_ruang" required class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
                             </div>
-                            <div class="md:col-span-3">
-                                <label class="block text-sm font-medium text-gray-700">Catatan</label>
-                                <textarea id="catatan" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue" rows="2"></textarea>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Jenis Permukaan Lantai *</label>
+                                <input type="text" id="jenis_permukaan" list="jenisPermukaanList" required placeholder="Ketik / pilih jenis..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                <datalist id="jenisPermukaanList">
+                                    <option value="Keramik"></option>
+                                    <option value="Vinyl"></option>
+                                    <option value="Karpet"></option>
+                                    <option value="Epoxy"></option>
+                                    <option value="Parket"></option>
+                                    <option value="Semen/Beton"></option>
+                                    <option value="Granit"></option>
+                                    <option value="Lainnya"></option>
+                                </datalist>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="flex gap-2">
-                        <button type="submit" class="flex-1 bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition">Simpan Data</button>
-                        <button type="button" onclick="resetForm()" id="cancelBtn" class="hidden bg-gray-300 text-gray-700 px-4 py-3 rounded-xl font-semibold hover:bg-gray-400 transition">Batal</button>
-                    </div>
-                </form>
-            </div>
+                        <div class="border-t pt-4">
+                            <button type="button" onclick="toggleExtraFields()" class="text-iss-blue text-sm font-semibold flex items-center gap-1">
+                                ⚙️ Tambah Informasi Detail (Gedung, Lantai, Catatan)
+                            </button>
+                            <div id="extraFields" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Nama Gedung</label>
+                                    <input type="text" id="gedung" list="gedungList" placeholder="Ketik / pilih gedung..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                    <datalist id="gedungList"></datalist>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Lantai</label>
+                                    <input type="text" id="lantai" list="lantaiList" placeholder="Ketik / pilih lantai..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                    <datalist id="lantaiList"></datalist>
+                                </div>
+                                <div class="md:col-span-3">
+                                    <label class="block text-sm font-medium text-gray-700">Catatan</label>
+                                    <textarea id="catatan" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
 
-            <!-- User Table View -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
-                    <h3 class="font-bold text-gray-700">Daftar Data Ruang Terinput</h3>
-                    <span id="rowCount" class="text-xs bg-iss-blue text-white px-2.5 py-1 rounded-full font-semibold">0 Ruang</span>
+                        <div class="flex gap-2">
+                            <button type="submit" class="flex-1 bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition">Simpan Data</button>
+                            <button type="button" onclick="resetForm()" id="cancelBtn" class="hidden bg-gray-300 text-gray-700 px-4 py-3 rounded-xl font-semibold hover:bg-gray-400 transition">Batal</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-100 text-gray-600 border-b">
-                            <tr>
-                                <th class="p-3">Gedung</th>
+
+                <div class="bg-white p-6 rounded-2xl shadow-md overflow-x-auto">
+                    <h3 class="text-xl font-bold text-iss-blue mb-4">Daftar Data Ruang Tersimpan</h3>
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-blue-50 text-iss-blue border-b">
+                                <th class="p-3">Nama Gedung</th>
                                 <th class="p-3">Lantai</th>
                                 <th class="p-3">Nama Ruang</th>
                                 <th class="p-3">Luas (m²)</th>
@@ -144,129 +172,532 @@
                                 <th class="p-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="dataTableBody">
-                            <tr><td colspan="7" class="p-4 text-center text-gray-400">Belum ada data. Silakan isi form di atas.</td></tr>
-                        </tbody>
+                        <tbody id="dataTableBody"></tbody>
                     </table>
                 </div>
             </div>
-        </section>
 
-        <!-- ADMIN VIEW SECTION -->
-        <section id="adminSection" class="hidden space-y-6">
-            <div class="flex justify-between items-center">
-                <h2 class="text-xl font-bold text-iss-blue">Admin Dashboard - Monitoring Data User</h2>
-                <button onclick="loadAdminData()" class="bg-iss-blue text-white px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition">🔄 Refresh Admin Data</button>
-            </div>
-            <div id="adminCardsContainer" class="space-y-6">
-                <p class="text-gray-500 italic">Memuat data admin...</p>
+            <!-- TAB CONTENT: ANALYTICS DASHBOARD -->
+            <div id="tabDashboard" class="hidden space-y-6">
+                <div id="userDashboardView" class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-md space-y-6">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4">
+                            <h3 class="text-xl font-bold text-iss-blue">Dashboard Analitik Ruang</h3>
+                            <div class="w-full md:w-64">
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Pilih Project</label>
+                                <input type="text" id="dashboardProjectSelect" list="dashboardProjectList" oninput="renderAnalytics()" placeholder="Ketik / pilih project (Kosongkan = Semua)..." class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
+                                <datalist id="dashboardProjectList"></datalist>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
+                                <p class="text-sm text-gray-600">Total Luas Area Terukur</p>
+                                <h4 id="statTotalLuas" class="text-2xl font-bold text-iss-blue">0.00 m²</h4>
+                            </div>
+                            <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
+                                <p class="text-sm text-gray-600">Jumlah Ruangan</p>
+                                <h4 id="statTotalRuang" class="text-2xl font-bold text-iss-blue">0 Ruang</h4>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-gray-50 p-4 rounded-xl border space-y-2">
+                                <h4 class="font-bold text-gray-700">Total Luas per Gedung</h4>
+                                <div id="statPerGedung" class="space-y-2 text-sm"></div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-xl border space-y-2">
+                                <h4 class="font-bold text-gray-700">Luas Ruangan Nama Sama</h4>
+                                <div id="statNamaSamaGedung" class="space-y-2 text-sm"></div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-xl border space-y-2">
+                                <h4 class="font-bold text-gray-700">Luas per Jenis Lantai</h4>
+                                <div id="statPerPermukaan" class="space-y-2 text-sm"></div>
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-6 space-y-4">
+                            <h4 class="font-bold text-gray-700 text-lg">Visualisasi Grafik</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-gray-50 p-4 rounded-xl border relative h-72">
+                                    <canvas id="chartGedung"></canvas>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl border relative h-72">
+                                    <canvas id="chartLantai"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN DASHBOARD VIEW -->
+                <div id="adminDashboardView" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-md">
+                        <h3 class="text-xl font-bold text-iss-blue mb-4">Manajemen Persetujuan Akun User</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-blue-50 text-iss-blue border-b">
+                                        <th class="p-3">Username</th>
+                                        <th class="p-3">Status Akun</th>
+                                        <th class="p-3 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminUserApprovalBody">
+                                    <tr><td colspan="3" class="p-3 text-center text-gray-500">Memuat daftar user...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-md">
+                        <h3 class="text-xl font-bold text-iss-blue mb-4">Log Waktu Login & Aktivitas User</h3>
+                        <div class="overflow-x-auto max-h-60">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-blue-50 text-iss-blue border-b sticky top-0">
+                                        <th class="p-3">Waktu</th>
+                                        <th class="p-3">Username</th>
+                                        <th class="p-3">Aktivitas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminActivityLogBody">
+                                    <tr><td colspan="3" class="p-3 text-center text-gray-500">Memuat log aktivitas...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-md">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-iss-blue">Dashboard Administrator (Data Survey User)</h3>
+                            <div class="space-x-2">
+                                <button onclick="toggleAllAdminCards(true)" class="bg-iss-blue text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:opacity-90 transition">Expand All</button>
+                                <button onclick="toggleAllAdminCards(false)" class="bg-gray-300 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-400 transition">Collapse All</button>
+                            </div>
+                        </div>
+                        <div id="adminContentContainer" class="space-y-6"></div>
+                    </div>
+                </div>
             </div>
         </section>
-
     </main>
 
-    <!-- Javascript Logic -->
     <script>
-        let currentUser = 'User1';
-        let currentProject = 'Gedung Utama';
+        // Ganti URL di bawah ini dengan URL Web App Google Apps Script terbaru Anda setelah dideploy ulang (Deploy > New Deployment)
+        const API_URL = "https://script.google.com/macros/s/AKfycbwo1qux80FXKobwTX727KuaBtcNoGnxoStbK6JaIBvt6VSrD2Brree4g5tFpD0IE-1V/exec";
 
-        window.onload = function() {
-            currentUser = document.getElementById("currentUser").value.trim() || 'User1';
-            currentProject = document.getElementById("currentProject").value.trim() || 'Gedung Utama';
-            renderTable();
-            syncDataWithServer();
+        let currentUser = localStorage.getItem("survey_user") || null;
+        let isAdmin = localStorage.getItem("survey_is_admin") === "true";
+        let currentProject = localStorage.getItem("survey_project") || "";
+        let chartInstanceGedung = null;
+        let chartInstanceLantai = null;
+        let fetchLoginTimer = null;
+
+        window.onload = () => {
+            if (currentUser) {
+                showDashboard();
+                loadProjectsList();
+                loadData();
+            }
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus();
         };
 
-        function switchView(view) {
-            const userSec = document.getElementById("userSection");
-            const adminSec = document.getElementById("adminSection");
-            const navUserBtn = document.getElementById("navUserBtn");
-            const navAdminBtn = document.getElementById("navAdminBtn");
-
-            if (view === 'user') {
-                userSec.classList.remove("hidden");
-                adminSec.classList.add("hidden");
-                navUserBtn.className = "px-3 py-1.5 rounded-lg bg-white text-iss-blue font-semibold text-sm hover:bg-gray-100 transition";
-                navAdminBtn.className = "px-3 py-1.5 rounded-lg text-white font-semibold text-sm hover:bg-blue-800 transition";
-            } else {
-                userSec.classList.add("hidden");
-                adminSec.classList.remove("hidden");
-                navAdminBtn.className = "px-3 py-1.5 rounded-lg bg-white text-iss-blue font-semibold text-sm hover:bg-gray-100 transition";
-                navUserBtn.className = "px-3 py-1.5 rounded-lg text-white font-semibold text-sm hover:bg-blue-800 transition";
-                loadAdminData();
+        async function downloadExcel() {
+            if (!currentUser || isAdmin) return;
+            if (!currentProject) {
+                alert("Silakan pilih project terlebih dahulu!");
+                return;
+            }
+            try {
+                let res = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "getDownloadUrl", username: currentUser, project: currentProject })
+                });
+                let json = await res.json();
+                if (json.status === "success" && json.exportXlsxUrl) {
+                    window.open(json.exportXlsxUrl, "_blank");
+                } else {
+                    alert("Gagal mendapatkan link download Excel.");
+                }
+            } catch (e) {
+                alert("Terjadi kesalahan saat mengunduh file.");
             }
         }
 
-        function onUserOrProjectChange() {
-            currentUser = document.getElementById("currentUser").value.trim() || 'User1';
-            currentProject = document.getElementById("currentProject").value.trim() || 'Gedung Utama';
-            renderTable();
-            syncDataWithServer();
+        function switchAuthTab(tab) {
+            const loginBtn = document.getElementById("tabLoginBtn");
+            const registerBtn = document.getElementById("tabRegisterBtn");
+            const loginForm = document.getElementById("loginForm");
+            const registerForm = document.getElementById("registerForm");
+            const projContainer = document.getElementById("projectInputContainer");
+
+            if (tab === 'login') {
+                loginBtn.className = "flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue";
+                registerBtn.className = "flex-1 pb-3 font-medium text-gray-400";
+                loginForm.classList.remove("hidden");
+                registerForm.classList.add("hidden");
+                projContainer.classList.remove("hidden");
+            } else {
+                registerBtn.className = "flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue";
+                loginBtn.className = "flex-1 pb-3 font-medium text-gray-400";
+                registerForm.classList.remove("hidden");
+                loginForm.classList.add("hidden");
+                projContainer.classList.add("hidden");
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById("regUsername").value.trim();
+            const pin = document.getElementById("regPin").value;
+
+            try {
+                let response = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "register", username, pin })
+                });
+                let result = await response.json();
+                alert(result.message);
+                if (result.status === "success") {
+                    document.getElementById("registerForm").reset();
+                    switchAuthTab('login');
+                }
+            } catch (err) {
+                alert("Gagal terhubung ke server. Periksa koneksi.");
+            }
+        }
+
+        function updateOnlineStatus() {
+            const statusDiv = document.getElementById("netStatus");
+            if (navigator.onLine) {
+                statusDiv.className = "p-2 text-center text-xs font-semibold rounded-lg bg-green-100 text-green-800";
+                statusDiv.innerText = "Status: Online";
+                syncOfflineData();
+            } else {
+                statusDiv.className = "p-2 text-center text-xs font-semibold rounded-lg bg-yellow-100 text-yellow-800";
+                statusDiv.innerText = "Status: Offline (Mode Lokal)";
+            }
+        }
+
+        function fetchLoginProjects() {
+            clearTimeout(fetchLoginTimer);
+            fetchLoginTimer = setTimeout(async () => {
+                const usernameInput = document.getElementById("username").value.trim();
+                const datalist = document.getElementById("loginProjectList");
+                if (!datalist) return;
+
+                if (usernameInput.toLowerCase() === "admin") {
+                    datalist.innerHTML = '<option value="Admin System">';
+                    return;
+                }
+
+                if (!usernameInput) {
+                    datalist.innerHTML = '';
+                    return;
+                }
+
+                let localProjects = JSON.parse(localStorage.getItem(`projects_${usernameInput}`)) || [];
+                if (localProjects.length > 0) {
+                    datalist.innerHTML = localProjects.map(p => `<option value="${p}">`).join('');
+                }
+
+                if (navigator.onLine) {
+                    try {
+                        let res = await fetch(API_URL, {
+                            method: "POST",
+                            body: JSON.stringify({ action: "getUserProjects", username: usernameInput })
+                        });
+                        let json = await res.json();
+                        if (json.status === "success" && json.projects) {
+                            localStorage.setItem(`projects_${usernameInput}`, JSON.stringify(json.projects));
+                            datalist.innerHTML = json.projects.map(p => `<option value="${p}">`).join('');
+                        }
+                    } catch (e) {}
+                }
+            }, 300);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById("username").value.trim();
+            const pin = document.getElementById("pin").value;
+            
+            let project = "";
+            if (username.toLowerCase() !== "admin") {
+                project = document.getElementById("loginProject").value.trim();
+
+                if (!project) {
+                    alert("Silakan pilih atau ketik nama project terlebih dahulu!");
+                    return;
+                }
+            }
+
+            try {
+                let response = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "login", username, pin, project })
+                });
+                let result = await response.json();
+
+                if (result.status === "success") {
+                    currentUser = username;
+                    isAdmin = result.isAdmin || false;
+                    currentProject = project;
+                    localStorage.setItem("survey_user", username);
+                    localStorage.setItem("survey_is_admin", isAdmin);
+                    localStorage.setItem("survey_project", project);
+                    
+                    if (!isAdmin && project) {
+                        let projects = JSON.parse(localStorage.getItem(`projects_${currentUser}`)) || [];
+                        if (!projects.includes(project)) {
+                            projects.push(project);
+                            localStorage.setItem(`projects_${currentUser}`, JSON.stringify(projects));
+                        }
+                    }
+
+                    showDashboard();
+                    loadProjectsList();
+                    loadData();
+                } else {
+                    alert(result.message);
+                }
+            } catch (err) {
+                alert("Gagal terhubung ke server.");
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        function showDashboard() {
+            document.getElementById("loginSection").classList.add("hidden");
+            document.getElementById("dashboardSection").classList.remove("hidden");
+            document.getElementById("userInfo").classList.remove("hidden");
+            document.getElementById("displayUser").innerText = (isAdmin ? "Admin: " : "User: ") + currentUser;
+            
+            if (isAdmin) {
+                document.getElementById("navSurveyBtn").classList.add("hidden");
+                document.getElementById("navDownloadExcelBtn").classList.add("hidden");
+                switchView('dashboard');
+            } else {
+                document.getElementById("navSurveyBtn").classList.remove("hidden");
+                document.getElementById("navDownloadExcelBtn").classList.remove("hidden");
+                switchView('survey');
+            }
+        }
+
+        function switchView(viewName) {
+            const tabSurvey = document.getElementById("tabSurvey");
+            const tabDashboard = document.getElementById("tabDashboard");
+            const navSurveyBtn = document.getElementById("navSurveyBtn");
+            const navDashboardBtn = document.getElementById("navDashboardBtn");
+
+            if (viewName === 'survey') {
+                tabSurvey.classList.remove("hidden");
+                tabDashboard.classList.add("hidden");
+                navSurveyBtn.classList.add("font-bold");
+                navDashboardBtn.classList.remove("font-bold");
+            } else {
+                tabSurvey.classList.add("hidden");
+                tabDashboard.classList.remove("hidden");
+                navSurveyBtn.classList.remove("font-bold");
+                navDashboardBtn.classList.add("font-bold");
+
+                if (isAdmin) {
+                    document.getElementById("userDashboardView").classList.add("hidden");
+                    document.getElementById("adminDashboardView").classList.remove("hidden");
+                    loadAdminData();
+                } else {
+                    document.getElementById("userDashboardView").classList.remove("hidden");
+                    document.getElementById("adminDashboardView").classList.add("hidden");
+                    populateDashboardProjectDropdown();
+                    renderAnalytics();
+                }
+            }
         }
 
         function toggleExtraFields() {
-            const extra = document.getElementById("extraFields");
-            extra.classList.toggle("hidden");
+            document.getElementById("extraFields").classList.remove("hidden");
+        }
+
+        function toggleAdminCard(idx) {
+            const content = document.getElementById(`adminCardContent_${idx}`);
+            const icon = document.getElementById(`adminCardIcon_${idx}`);
+            content.classList.toggle("hidden");
+            icon.innerText = content.classList.contains("hidden") ? "▼" : "▲";
+        }
+
+        function toggleAllAdminCards(expand) {
+            const contents = document.querySelectorAll('[id^="adminCardContent_"]');
+            const icons = document.querySelectorAll('[id^="adminCardIcon_"]');
+            contents.forEach((el, idx) => {
+                if (expand) {
+                    el.classList.remove("hidden");
+                    icons[idx].innerText = "▲";
+                } else {
+                    el.classList.add("hidden");
+                    icons[idx].innerText = "▼";
+                }
+            });
+        }
+
+        function getProjectsList() {
+            return JSON.parse(localStorage.getItem(`projects_${currentUser}`)) || [];
+        }
+
+        function saveProjectsList(projects) {
+            localStorage.setItem(`projects_${currentUser}`, JSON.stringify(projects));
+        }
+
+        function loadProjectsList() {
+            let projects = getProjectsList();
+            if (!currentProject && projects.length > 0) {
+                currentProject = projects[0];
+                localStorage.setItem("survey_project", currentProject);
+            }
+            
+            const datalist = document.getElementById("selectProjectList");
+            const input = document.getElementById("selectProject");
+            if (input) input.value = currentProject || "";
+            if (datalist) {
+                datalist.innerHTML = projects.map(p => `<option value="${p}">`).join('');
+            }
+        }
+
+        function handleProjectSelection() {
+            const val = document.getElementById("selectProject").value.trim();
+            if (val && val !== currentProject) {
+                currentProject = val;
+                localStorage.setItem("survey_project", currentProject);
+                loadData();
+            }
+        }
+
+        async function createNewProject() {
+            const input = document.getElementById("newProjectInput");
+            const newProj = input.value.trim();
+            if (!newProj) return;
+
+            let projects = getProjectsList();
+            if (projects.includes(newProj)) {
+                alert("Project sudah ada.");
+                return;
+            }
+
+            projects.push(newProj);
+            saveProjectsList(projects);
+            currentProject = newProj;
+            localStorage.setItem("survey_project", currentProject);
+            input.value = "";
+            loadProjectsList();
+            saveLocalData([]);
+            renderTable();
+            syncOfflineData();
         }
 
         function getLocalData() {
-            if (!currentUser || !currentProject) return [];
-            const dataStr = localStorage.getItem(`data_${currentUser}_${currentProject}`);
-            return dataStr ? JSON.parse(dataStr) : [];
+            if (!currentProject) return [];
+            return JSON.parse(localStorage.getItem(`data_${currentUser}_${currentProject}`)) || [];
         }
 
         function saveLocalData(data) {
-            if (!currentUser || !currentProject) return;
-            const stampedData = data.map((item, idx) => ({
+            if (!currentProject) return;
+            const stampedData = data.map(item => ({
                 ...item,
-                updated_at: item.updated_at || Date.now(),
-                order_index: idx
+                updated_at: item.updated_at || Date.now()
             }));
             localStorage.setItem(`data_${currentUser}_${currentProject}`, JSON.stringify(stampedData));
         }
 
-        function updateDatalists() {
-            const rows = getLocalData();
-            const gedungs = [...new Set(rows.map(r => r.gedung).filter(Boolean))];
-            const lantais = [...new Set(rows.map(r => r.lantai).filter(Boolean))];
-            const ruangs = [...new Set(rows.map(r => r.nama_ruang).filter(Boolean))];
-            
-            document.getElementById("gedungList").innerHTML = gedungs.map(g => `<option value="${g}">`).join('');
-            document.getElementById("lantaiList").innerHTML = lantais.map(l => `<option value="${l}">`).join('');
-            document.getElementById("ruangList").innerHTML = ruangs.map(r => `<option value="${r}">`).join('');
+        async function loadData() {
+            if (!currentProject) return;
+            if (navigator.onLine && !isAdmin) {
+                try {
+                    let res = await fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: "getData", username: currentUser, project: currentProject })
+                    });
+                    let json = await res.json();
+                    if (json.status === "success") {
+                        let serverRows = json.rows || [];
+                        let localRows = getLocalData();
+                        let mergedMap = new Map();
+                        
+                        serverRows.forEach(row => mergedMap.set(row.nama_ruang, row));
+                        localRows.forEach(localRow => {
+                            let existing = mergedMap.get(localRow.nama_ruang);
+                            if (!existing || (localRow.updated_at && localRow.updated_at > (existing.updated_at || 0))) {
+                                mergedMap.set(localRow.nama_ruang, localRow);
+                            }
+                        });
+
+                        let finalArr = Array.from(mergedMap.values());
+                        finalArr.sort((a, b) => (a.order || 0) - (b.order || 0));
+                        saveLocalData(finalArr);
+                        
+                        if (json.projects && Array.isArray(json.projects)) {
+                            saveProjectsList(json.projects);
+                            loadProjectsList();
+                        }
+                    }
+                } catch (e) {}
+            }
+            renderTable();
+        }
+
+        function getPropagatedRows(rows) {
+            let lastGedung = "";
+            let lastLantai = "";
+            return rows.map(r => {
+                let gedung = (r.gedung && r.gedung.trim() !== "" && r.gedung !== "-") ? r.gedung.trim() : lastGedung;
+                let lantai = (r.lantai && r.lantai.toString().trim() !== "" && r.lantai !== "-") ? r.lantai.toString().trim() : lastLantai;
+                if (gedung) lastGedung = gedung;
+                if (lantai) lastLantai = lantai;
+                return { ...r, gedung, lantai };
+            });
+        }
+
+        function updateDatalists(rows) {
+            let gedungs = new Set(), lantais = new Set(), ruangs = new Set();
+            rows.forEach(r => {
+                if (r.gedung) gedungs.add(r.gedung.trim());
+                if (r.lantai) lantais.add(r.lantai.toString().trim());
+                if (r.nama_ruang) ruangs.add(r.nama_ruang.trim());
+            });
+            document.getElementById('gedungList').innerHTML = [...gedungs].map(v => `<option value="${v}">`).join('');
+            document.getElementById('lantaiList').innerHTML = [...lantais].map(v => `<option value="${v}">`).join('');
+            document.getElementById('namaRuangList').innerHTML = [...ruangs].map(v => `<option value="${v}">`).join('');
         }
 
         function renderTable() {
             const rows = getLocalData();
+            updateDatalists(rows); 
+            
             const tbody = document.getElementById("dataTableBody");
-            document.getElementById("rowCount").innerText = `${rows.length} Ruang`;
             tbody.innerHTML = "";
-
-            if (rows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400">Belum ada data terinput pada project ini.</td></tr>`;
-                updateDatalists();
-                return;
-            }
 
             rows.forEach((r, index) => {
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-gray-50">
                         <td class="p-3">${r.gedung || '-'}</td>
                         <td class="p-3">${r.lantai || '-'}</td>
-                        <td class="p-3 font-medium text-gray-900">${r.nama_ruang}</td>
-                        <td class="p-3 font-semibold">${r.luas_ruang}</td>
+                        <td class="p-3 font-medium">${r.nama_ruang}</td>
+                        <td class="p-3">${r.luas_ruang}</td>
                         <td class="p-3">${r.jenis_permukaan}</td>
-                        <td class="p-3 text-gray-500">${r.catatan || '-'}</td>
+                        <td class="p-3">${r.catatan || '-'}</td>
                         <td class="p-3 text-center space-x-2">
-                            <button onclick="editRow(${index})" class="text-blue-600 hover:underline font-medium">Edit</button>
-                            <button onclick="insertRow(${index})" class="text-green-600 hover:underline font-medium">Sisip</button>
-                            <button onclick="deleteRow(${index})" class="text-red-600 hover:underline font-medium">Hapus</button>
+                            <button onclick="editRow(${index})" class="text-blue-600 underline">Edit</button>
+                            <button onclick="insertRow(${index})" class="text-green-600 underline whitespace-nowrap">Sisip Bawah</button>
+                            <button onclick="deleteRow(${index})" class="text-red-600 underline">Hapus</button>
                         </td>
                     </tr>
                 `;
             });
-            
-            updateDatalists();
         }
 
         function saveRoomData(e) {
@@ -275,69 +706,81 @@
 
             const editIndex = document.getElementById("editIndex").value;
             const insertIndex = document.getElementById("insertIndex").value;
-            
             const newItem = {
-                gedung: document.getElementById("gedung").value.trim(),
-                lantai: document.getElementById("lantai").value.trim(),
-                nama_ruang: document.getElementById("nama_ruang").value.trim(),
+                gedung: document.getElementById("gedung").value,
+                lantai: document.getElementById("lantai").value,
+                nama_ruang: document.getElementById("nama_ruang").value,
                 luas_ruang: parseFloat(document.getElementById("luas_ruang").value) || 0,
-                jenis_permukaan: document.getElementById("jenis_permukaan").value.trim(),
-                catatan: document.getElementById("catatan").value.trim(),
+                jenis_permukaan: document.getElementById("jenis_permukaan").value,
+                catatan: document.getElementById("catatan").value,
                 updated_at: Date.now()
             };
 
             let rows = getLocalData();
-            
             if (editIndex !== "") {
-                rows[parseInt(editIndex)] = newItem;
+                rows[editIndex] = newItem;
             } else if (insertIndex !== "") {
-                rows.splice(parseInt(insertIndex), 0, newItem);
+                rows.splice(parseInt(insertIndex) + 1, 0, newItem);
             } else {
                 rows.push(newItem);
             }
 
+            // Perbarui urutan / order index dari array yang baru disesuaikan
+            rows.forEach((r, i) => r.order = i);
+
             saveLocalData(rows);
             resetForm();
             renderTable();
-            syncDataWithServer();
+            syncOfflineData();
         }
 
         function editRow(index) {
             const rows = getLocalData();
-            const item = rows[index];
-            if (!item) return;
+            const r = rows[index];
 
             document.getElementById("editIndex").value = index;
             document.getElementById("insertIndex").value = "";
-            document.getElementById("gedung").value = item.gedung || "";
-            document.getElementById("lantai").value = item.lantai || "";
-            document.getElementById("nama_ruang").value = item.nama_ruang || "";
-            document.getElementById("luas_ruang").value = item.luas_ruang || 0;
-            document.getElementById("jenis_permukaan").value = item.jenis_permukaan || "";
-            document.getElementById("catatan").value = item.catatan || "";
+            document.getElementById("gedung").value = r.gedung || "";
+            document.getElementById("lantai").value = r.lantai || "";
+            document.getElementById("nama_ruang").value = r.nama_ruang;
+            document.getElementById("luas_ruang").value = r.luas_ruang;
+            document.getElementById("jenis_permukaan").value = r.jenis_permukaan;
+            document.getElementById("catatan").value = r.catatan || "";
 
-            document.getElementById("formTitle").innerText = `Edit Data Ruang (Baris #${index + 1})`;
+            document.getElementById("formTitle").innerText = "Edit Data Ruang";
             document.getElementById("cancelBtn").classList.remove("hidden");
             document.getElementById("extraFields").classList.remove("hidden");
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            switchView('survey');
+            window.scrollTo(0, 0);
         }
 
         function insertRow(index) {
             resetForm();
             document.getElementById("insertIndex").value = index;
-            document.getElementById("formTitle").innerText = `Sisipkan Data Sebelum Baris #${index + 1}`;
+            document.getElementById("formTitle").innerText = `Sisipkan Data Setelah Baris ${index + 1}`;
             document.getElementById("cancelBtn").classList.remove("hidden");
             document.getElementById("extraFields").classList.remove("hidden");
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Ambil referensi Gedung & Lantai dari baris sebelumnya
+            const rows = getLocalData();
+            if (rows[index]) {
+                document.getElementById("gedung").value = rows[index].gedung || "";
+                document.getElementById("lantai").value = rows[index].lantai || "";
+            }
+
+            switchView('survey');
+            window.scrollTo(0, 0);
         }
 
         function deleteRow(index) {
-            if (confirm("Apakah Anda yakin ingin menghapus baris data ini?")) {
+            if (confirm("Hapus data ini?")) {
                 let rows = getLocalData();
                 rows.splice(index, 1);
+                // Perbarui ulang urutan (order index)
+                rows.forEach((r, i) => r.order = i);
                 saveLocalData(rows);
                 renderTable();
-                syncDataWithServer();
+                syncOfflineData();
             }
         }
 
@@ -349,199 +792,286 @@
             document.getElementById("cancelBtn").classList.add("hidden");
         }
 
-        function setSyncStatus(msg, type = "info") {
-            const statusEl = document.getElementById("syncStatus");
-            statusEl.innerText = msg;
-            if (type === "success") {
-                statusEl.className = "text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full font-medium";
-            } else if (type === "error") {
-                statusEl.className = "text-xs bg-red-100 text-red-700 px-3 py-1.5 rounded-full font-medium";
-            } else {
-                statusEl.className = "text-xs bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full font-medium";
-            }
-        }
-
-        function syncDataWithServer() {
-            if (typeof google === 'undefined' || !google.script) {
-                setSyncStatus("Mode Lokal / Pratinjau", "info");
-                return;
-            }
-
-            setSyncStatus("Menyinkronkan...", "info");
-            const localRows = getLocalData();
-
-            const payload = {
-                action: 'saveData',
-                username: currentUser,
-                project: currentProject,
-                rows: localRows
-            };
-
-            google.script.run
-                .withSuccessHandler(function(res) {
-                    if (res && res.status === 'success') {
-                        setSyncStatus("Tersinkronisasi", "success");
-                        google.script.run
-                            .withSuccessHandler(function(getRes) {
-                                if (getRes && getRes.status === 'success') {
-                                    if (getRes.projects) {
-                                        document.getElementById("projectList").innerHTML = getRes.projects.map(p => `<option value="${p}">`).join('');
-                                    }
-                                    if (getRes.rows) {
-                                        saveLocalData(getRes.rows);
-                                        renderTable();
-                                    }
-                                }
-                            })
-                            .apiPost({ action: 'getData', username: currentUser, project: currentProject });
-                    } else {
-                        setSyncStatus("Gagal Sync", "error");
-                    }
-                })
-                .withFailureHandler(function(err) {
-                    setSyncStatus("Offline / Error", "error");
-                })
-                .apiPost(payload);
-        }
-
-        function loadAdminData() {
-            const container = document.getElementById("adminCardsContainer");
-            container.innerHTML = "<p class='text-gray-500 italic'>Memuat data seluruh user...</p>";
-
-            if (typeof google === 'undefined' || !google.script) {
-                container.innerHTML = "<p class='text-amber-600 font-semibold'>Mode Pratinjau: Hubungkan dengan Google Apps Script backend untuk melihat data admin nyata.</p>";
-                return;
-            }
-
-            google.script.run
-                .withSuccessHandler(function(res) {
-                    if (res && res.status === 'success') {
-                        renderAdminDashboard(res.usersData || []);
-                    } else {
-                        container.innerHTML = "<p class='text-red-500 font-semibold'>Gagal memuat data admin.</p>";
-                    }
-                })
-                .withFailureHandler(function(err) {
-                    container.innerHTML = `<p class='text-red-500 font-semibold'>Error: ${err.message}</p>`;
-                })
-                .apiPost({ action: 'getAdminData' });
-        }
-
-        function toggleAdminCard(idx) {
-            const content = document.getElementById(`adminCardContent_${idx}`);
-            const icon = document.getElementById(`adminCardIcon_${idx}`);
-            if (content.classList.contains("hidden")) {
-                content.classList.remove("hidden");
-                icon.innerText = "▲";
-            } else {
-                content.classList.add("hidden");
-                icon.innerText = "▼";
-            }
-        }
-
-        function renderAdminDashboard(usersData) {
-            const container = document.getElementById("adminCardsContainer");
-            if (usersData.length === 0) {
-                container.innerHTML = "<p class='text-gray-500'>Belum ada data user tersimpan.</p>";
-                return;
-            }
-
-            let html = "";
-            usersData.forEach((u, idx) => {
-                let propagatedRows = u.rows || [];
-                
-                let totalLuas = 0;
-                let perGedung = {};
-                let namaSamaPerGedung = {}; 
-                let perPermukaanGedung = {}; 
-
-                propagatedRows.forEach(r => {
-                    let luas = parseFloat(r.luas_ruang) || 0;
-                    totalLuas += luas;
-
-                    let gedung = r.gedung ? r.gedung.trim() : "Tanpa Gedung";
-                    perGedung[gedung] = (perGedung[gedung] || 0) + luas;
-
-                    let namaRuang = r.nama_ruang ? r.nama_ruang.trim() : "Lainnya";
-                    if (!namaSamaPerGedung[gedung]) namaSamaPerGedung[gedung] = {};
-                    if (!namaSamaPerGedung[gedung][namaRuang]) {
-                        namaSamaPerGedung[gedung][namaRuang] = { totalLuas: 0, count: 0 };
-                    }
-                    namaSamaPerGedung[gedung][namaRuang].totalLuas += luas;
-                    namaSamaPerGedung[gedung][namaRuang].count += 1;
-
-                    let perm = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Lainnya";
-                    if (!perPermukaanGedung[gedung]) perPermukaanGedung[gedung] = {};
-                    perPermukaanGedung[gedung][perm] = (perPermukaanGedung[gedung][perm] || 0) + luas;
+        async function syncOfflineData() {
+            if (!navigator.onLine || !currentUser || isAdmin || !currentProject) return;
+            const rows = getLocalData();
+            try {
+                await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ 
+                        action: "saveData", 
+                        username: currentUser, 
+                        project: currentProject, 
+                        rows: rows,
+                        clientTimestamp: Date.now()
+                    })
                 });
+            } catch (e) {}
+        }
 
-                let htmlGedung = "";
-                for (let g in perGedung) {
-                    let prop = totalLuas > 0 ? ((perGedung[g] / totalLuas) * 100).toFixed(1) : 0;
-                    htmlGedung += `<div class="flex justify-between border-b pb-1"><span>${g}</span><span class="font-semibold">${perGedung[g].toFixed(2)} m² (${prop}%)</span></div>`;
+        function populateDashboardProjectDropdown() {
+            let projects = getProjectsList();
+            const datalist = document.getElementById("dashboardProjectList");
+            const input = document.getElementById("dashboardProjectSelect");
+            if (input) input.value = currentProject || "";
+            if (datalist) {
+                datalist.innerHTML = projects.map(p => `<option value="${p}">`).join('');
+            }
+        }
+
+        function renderAnalytics() {
+            const selectedProj = document.getElementById("dashboardProjectSelect").value.trim();
+            let rawRows = [];
+            if (selectedProj) {
+                rawRows = JSON.parse(localStorage.getItem(`data_${currentUser}_${selectedProj}`)) || [];
+            } else {
+                let projects = getProjectsList();
+                projects.forEach(p => {
+                    let pRows = JSON.parse(localStorage.getItem(`data_${currentUser}_${p}`)) || [];
+                    rawRows = rawRows.concat(pRows);
+                });
+            }
+
+            const rows = getPropagatedRows(rawRows);
+            let totalLuas = 0;
+            let perGedung = {};
+            let namaSamaPerGedung = {}; 
+            let perPermukaanGedung = {}; 
+
+            rows.forEach(r => {
+                let luas = parseFloat(r.luas_ruang) || 0;
+                totalLuas += luas;
+
+                let gedung = r.gedung ? r.gedung.trim() : "Tanpa Gedung";
+                perGedung[gedung] = (perGedung[gedung] || 0) + luas;
+
+                let namaRuang = r.nama_ruang ? r.nama_ruang.trim() : "Lainnya";
+                if (!namaSamaPerGedung[gedung]) namaSamaPerGedung[gedung] = {};
+                if (!namaSamaPerGedung[gedung][namaRuang]) {
+                    namaSamaPerGedung[gedung][namaRuang] = { totalLuas: 0, count: 0 };
                 }
+                namaSamaPerGedung[gedung][namaRuang].totalLuas += luas;
+                namaSamaPerGedung[gedung][namaRuang].count += 1;
 
-                let htmlNamaSama = "";
-                for (let g in namaSamaPerGedung) {
-                    htmlNamaSama += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
-                    for (let nr in namaSamaPerGedung[g]) {
-                        htmlNamaSama += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${nr} (${namaSamaPerGedung[g][nr].count} ruang)</span><span>${namaSamaPerGedung[g][nr].totalLuas.toFixed(2)} m²</span></div>`;
-                    }
-                }
-
-                let htmlPerm = "";
-                for (let g in perPermukaanGedung) {
-                    htmlPerm += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
-                    let totalGedungLuas = perGedung[g] || 1;
-                    for (let p in perPermukaanGedung[g]) {
-                        let propPerm = ((perPermukaanGedung[g][p] / totalGedungLuas) * 100).toFixed(1);
-                        htmlPerm += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${p}</span><span>${perPermukaanGedung[g][p].toFixed(2)} m² (${propPerm}%)</span></div>`;
-                    }
-                }
-
-                html += `
-                    <div class="border rounded-2xl p-6 bg-white shadow-sm space-y-4">
-                        <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleAdminCard(${idx})">
-                            <div class="flex items-center gap-3">
-                                <h4 class="font-bold text-xl text-iss-blue">User: ${u.user}</h4>
-                                <span id="adminCardIcon_${idx}" class="text-sm font-bold text-iss-blue">▼</span>
-                            </div>
-                            <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold">Total Luas: ${totalLuas.toFixed(2)} m² | Ruangan: ${propagatedRows.length}</span>
-                        </div>
-                        <div id="adminCardContent_${idx}" class="hidden space-y-4">
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl shadow-sm">
-                                    <p class="text-sm text-gray-600">Total Luas Area Terukur</p>
-                                    <h4 class="text-2xl font-bold text-iss-blue">${totalLuas.toFixed(2)} m²</h4>
-                                </div>
-                                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl shadow-sm">
-                                    <p class="text-sm text-gray-600">Jumlah Ruangan</p>
-                                    <h4 class="text-2xl font-bold text-iss-blue">${propagatedRows.length} Ruang</h4>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div class="bg-gray-50 p-4 rounded-xl border shadow-sm space-y-2">
-                                    <h4 class="font-bold text-gray-700 border-b pb-1">Total Luas per Gedung</h4>
-                                    <div class="space-y-2 text-sm">${htmlGedung || "<p class='text-gray-500'>Belum ada data</p>"}</div>
-                                </div>
-                                <div class="bg-gray-50 p-4 rounded-xl border shadow-sm space-y-2">
-                                    <h4 class="font-bold text-gray-700 border-b pb-1">Luas Ruangan Nama Sama</h4>
-                                    <div class="space-y-2 text-sm">${htmlNamaSama || "<p class='text-gray-500'>Belum ada data</p>"}</div>
-                                </div>
-                                <div class="bg-gray-50 p-4 rounded-xl border shadow-sm space-y-2">
-                                    <h4 class="font-bold text-gray-700 border-b pb-1">Luas per Jenis Lantai</h4>
-                                    <div class="space-y-2 text-sm">${htmlPerm || "<p class='text-gray-500'>Belum ada data</p>"}</div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                `;
+                let perm = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Lainnya";
+                if (!perPermukaanGedung[gedung]) perPermukaanGedung[gedung] = {};
+                perPermukaanGedung[gedung][perm] = (perPermukaanGedung[gedung][perm] || 0) + luas;
             });
 
-            container.innerHTML = html;
+            document.getElementById("statTotalLuas").innerText = totalLuas.toFixed(2) + " m²";
+            document.getElementById("statTotalRuang").innerText = rows.length + " Ruang";
+
+            let htmlGedung = "";
+            let labelsGedung = [];
+            let dataChartGedung = [];
+            for (let g in perGedung) {
+                let prop = totalLuas > 0 ? ((perGedung[g] / totalLuas) * 100).toFixed(1) : 0;
+                htmlGedung += `<div class="flex justify-between border-b pb-1"><span>${g}</span><span class="font-semibold">${perGedung[g].toFixed(2)} m² (${prop}%)</span></div>`;
+                labelsGedung.push(g);
+                dataChartGedung.push(perGedung[g]);
+            }
+            document.getElementById("statPerGedung").innerHTML = htmlGedung || "<p class='text-gray-500'>Belum ada data</p>";
+
+            let htmlNamaSama = "";
+            for (let g in namaSamaPerGedung) {
+                htmlNamaSama += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
+                for (let nr in namaSamaPerGedung[g]) {
+                    htmlNamaSama += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${nr} (${namaSamaPerGedung[g][nr].count} ruang)</span><span>${namaSamaPerGedung[g][nr].totalLuas.toFixed(2)} m²</span></div>`;
+                }
+            }
+            document.getElementById("statNamaSamaGedung").innerHTML = htmlNamaSama || "<p class='text-gray-500'>Belum ada data</p>";
+
+            let htmlPerm = "";
+            let totalPermukaanGlobal = {};
+            for (let g in perPermukaanGedung) {
+                htmlPerm += `<div class="font-semibold text-iss-blue mt-2 mb-1">Gedung: ${g}</div>`;
+                let totalGedungLuas = perGedung[g] || 1;
+                for (let p in perPermukaanGedung[g]) {
+                    let propPerm = ((perPermukaanGedung[g][p] / totalGedungLuas) * 100).toFixed(1);
+                    htmlPerm += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>${p}</span><span>${perPermukaanGedung[g][p].toFixed(2)} m² (${propPerm}%)</span></div>`;
+                    totalPermukaanGlobal[p] = (totalPermukaanGlobal[p] || 0) + perPermukaanGedung[g][p];
+                }
+            }
+            document.getElementById("statPerPermukaan").innerHTML = htmlPerm || "<p class='text-gray-500'>Belum ada data</p>";
+
+            renderCharts(labelsGedung, dataChartGedung, totalPermukaanGlobal);
+        }
+
+        function renderCharts(labelsGedung, dataChartGedung, totalPermukaanGlobal) {
+            const ctxGedung = document.getElementById('chartGedung').getContext('2d');
+            if (chartInstanceGedung) chartInstanceGedung.destroy();
+            chartInstanceGedung = new Chart(ctxGedung, {
+                type: 'bar',
+                data: {
+                    labels: labelsGedung,
+                    datasets: [{ label: 'Luas per Gedung (m²)', data: dataChartGedung, backgroundColor: '#0066FF', borderRadius: 6 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const labelsLantai = Object.keys(totalPermukaanGlobal);
+            const dataLantai = Object.values(totalPermukaanGlobal);
+            const ctxLantai = document.getElementById('chartLantai').getContext('2d');
+            if (chartInstanceLantai) chartInstanceLantai.destroy();
+            chartInstanceLantai = new Chart(ctxLantai, {
+                type: 'doughnut',
+                data: {
+                    labels: labelsLantai,
+                    datasets: [{ label: 'Luas Jenis Lantai (m²)', data: dataLantai, backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#1E40AF', '#1D4ED8'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        async function loadAdminData() {
+            const container = document.getElementById("adminContentContainer");
+            const approvalBody = document.getElementById("adminUserApprovalBody");
+            const logBody = document.getElementById("adminActivityLogBody");
+            
+            try {
+                let res = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "getAdminData", username: currentUser })
+                });
+                let json = await res.json();
+
+                if (json.status === "success") {
+                    let activityLogs = json.activityLogs || [];
+                    let logHtml = "";
+                    activityLogs.reverse().forEach(l => {
+                        let formattedTime = new Date(l.time).toLocaleString("id-ID");
+                        logHtml += `<tr class="border-b"><td class="p-3 text-xs text-gray-600">${formattedTime}</td><td class="p-3 font-semibold">${l.user}</td><td class="p-3 text-xs">${l.activity}</td></tr>`;
+                    });
+                    logBody.innerHTML = logHtml || "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Belum ada aktivitas.</td></tr>";
+
+                    let usersMeta = json.usersMeta || [];
+                    let approvalHtml = "";
+                    usersMeta.forEach(m => {
+                        let statusBadge = m.status === "ACTIVE" ? `<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">ACTIVE</span>` : `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">PENDING</span>`;
+                        let actionBtn = m.status === "PENDING" ? `<button onclick="approveUser('${m.user}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-semibold">Setujui</button>` : `-`;
+                        let deleteBtn = `<button onclick="deleteUser('${m.user}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold ml-2">Hapus</button>`;
+                        approvalHtml += `<tr class="border-b"><td class="p-3 font-semibold">${m.user}</td><td class="p-3">${statusBadge}</td><td class="p-3 text-center">${actionBtn} ${deleteBtn}</td></tr>`;
+                    });
+                    approvalBody.innerHTML = approvalHtml || "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Belum ada user.</td></tr>";
+
+                    let rawUsersData = json.usersData || [];
+                    let mergedMap = {};
+                    rawUsersData.forEach(u => {
+                        if (!mergedMap[u.user]) mergedMap[u.user] = { user: u.user, rows: [] };
+                        if (u.rows) mergedMap[u.user].rows = mergedMap[u.user].rows.concat(u.rows);
+                    });
+
+                    let usersData = Object.values(mergedMap);
+                    let html = "";
+                    usersData.forEach((u, idx) => {
+                        // Urutkan data berdasarkan order seperti di tabel User
+                        u.rows.sort((a, b) => (a.order || 0) - (b.order || 0));
+                        let propagatedRows = getPropagatedRows(u.rows);
+                        let totalLuasUser = propagatedRows.reduce((acc, cur) => acc + (parseFloat(cur.luas_ruang) || 0), 0);
+
+                        // Membangun Tabel Data seperti di Dashboard User
+                        let tableHTML = `
+                        <div class="mt-6 overflow-x-auto bg-white rounded-xl shadow-sm border">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-blue-50 text-iss-blue border-b">
+                                        <th class="p-3">Nama Gedung</th>
+                                        <th class="p-3">Lantai</th>
+                                        <th class="p-3">Nama Ruang</th>
+                                        <th class="p-3">Luas (m²)</th>
+                                        <th class="p-3">Jenis Permukaan</th>
+                                        <th class="p-3">Catatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+                        propagatedRows.forEach(r => {
+                            tableHTML += `
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-3">${r.gedung || '-'}</td>
+                                    <td class="p-3">${r.lantai || '-'}</td>
+                                    <td class="p-3 font-medium">${r.nama_ruang}</td>
+                                    <td class="p-3">${r.luas_ruang}</td>
+                                    <td class="p-3">${r.jenis_permukaan}</td>
+                                    <td class="p-3">${r.catatan || '-'}</td>
+                                </tr>
+                            `;
+                        });
+                        tableHTML += `</tbody></table></div>`;
+
+                        html += `
+                            <div class="border rounded-2xl p-6 bg-gray-50 space-y-4">
+                                <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleAdminCard(${idx})">
+                                    <div class="flex items-center gap-3">
+                                        <h4 class="font-bold text-xl text-iss-blue">User: ${u.user}</h4>
+                                        <span id="adminCardIcon_${idx}" class="text-sm font-bold text-iss-blue">▼</span>
+                                    </div>
+                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold">Total Luas: ${totalLuasUser.toFixed(2)} m² | Ruangan: ${propagatedRows.length}</span>
+                                </div>
+                                <div id="adminCardContent_${idx}" class="hidden space-y-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                        <div class="bg-white p-4 rounded-xl border relative h-64"><canvas id="adminChartGedung_${idx}"></canvas></div>
+                                        <div class="bg-white p-4 rounded-xl border relative h-64"><canvas id="adminChartLantai_${idx}"></canvas></div>
+                                    </div>
+                                    ${tableHTML}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html || "<p class='text-gray-500 text-center'>Belum ada data survey.</p>";
+
+                    usersData.forEach((u, idx) => {
+                        let propagatedRows = getPropagatedRows(u.rows);
+                        let perGedung = {};
+                        let totalPermukaanAdminGlobal = {};
+                        propagatedRows.forEach(r => {
+                            let luas = parseFloat(r.luas_ruang) || 0;
+                            let gedung = r.gedung ? r.gedung.trim() : "Tanpa Gedung";
+                            perGedung[gedung] = (perGedung[gedung] || 0) + luas;
+                            let perm = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Lainnya";
+                            totalPermukaanAdminGlobal[perm] = (totalPermukaanAdminGlobal[perm] || 0) + luas;
+                        });
+
+                        new Chart(document.getElementById(`adminChartGedung_${idx}`).getContext('2d'), {
+                            type: 'bar',
+                            data: { labels: Object.keys(perGedung), datasets: [{ label: 'Luas (m²)', data: Object.values(perGedung), backgroundColor: '#0066FF' }] },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+
+                        new Chart(document.getElementById(`adminChartLantai_${idx}`).getContext('2d'), {
+                            type: 'doughnut',
+                            data: { labels: Object.keys(totalPermukaanAdminGlobal), datasets: [{ data: Object.values(totalPermukaanAdminGlobal), backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD'] }] },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+                    });
+                }
+            } catch (e) {}
+        }
+
+        async function approveUser(targetUser) {
+            try {
+                let res = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "approveUser", adminUser: currentUser, targetUser: targetUser })
+                });
+                let json = await res.json();
+                alert(json.message);
+                if (json.status === "success") loadAdminData();
+            } catch (e) {}
+        }
+
+        async function deleteUser(targetUser) {
+            if (confirm(`Hapus user ${targetUser}?`)) {
+                try {
+                    let res = await fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: "deleteUser", adminUser: currentUser, targetUser: targetUser })
+                    });
+                    let json = await res.json();
+                    alert(json.message);
+                    if (json.status === "success") loadAdminData();
+                } catch (e) {}
+            }
         }
     </script>
 </body>
