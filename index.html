@@ -301,7 +301,6 @@
     </main>
 
     <script>
-        // Ganti URL di bawah ini dengan URL Web App Google Apps Script terbaru Anda setelah dideploy ulang (Deploy > New Deployment)
         const API_URL = "https://script.google.com/macros/s/AKfycbwo1qux80FXKobwTX727KuaBtcNoGnxoStbK6JaIBvt6VSrD2Brree4g5tFpD0IE-1V/exec";
 
         let currentUser = localStorage.getItem("survey_user") || null;
@@ -311,12 +310,11 @@
         let chartInstanceLantai = null;
         let fetchLoginTimer = null;
 
-        // Static Options untuk Jenis Permukaan Lantai
         const jenisPermukaanOptions = [
             "Keramik", "Vinyl", "Karpet", "Epoxy", "Parket", "Semen/Beton", "Granit", "Lainnya"
         ];
 
-        // Engine Searchable Dropdown Kustom dengan Navigasi Keyboard
+        // Engine Searchable Dropdown Kustom dengan Penutupan Otomatis
         function setupCustomDropdown(inputId, getOptionsFn, onSelectCallback = null) {
             const input = document.getElementById(inputId);
             if (!input) return;
@@ -339,8 +337,11 @@
             wrapper.appendChild(dropdown);
 
             let activeIndex = -1;
+            let isSelecting = false; // Flag penanda seleksi
 
             function renderOptions() {
+                if (isSelecting) return; // Jangan render ulang bila sedang memilih item
+
                 const options = getOptionsFn() || [];
                 const filter = input.value.trim().toLowerCase();
                 dropdown.innerHTML = "";
@@ -375,14 +376,17 @@
             }
 
             function selectOption(val) {
+                isSelecting = true;
                 input.value = val;
                 dropdown.style.display = "none";
                 activeIndex = -1;
-                input.dispatchEvent(new Event('input', { bubbles: true }));
+                
                 input.dispatchEvent(new Event('change', { bubbles: true }));
                 if (typeof onSelectCallback === 'function') {
                     onSelectCallback(val);
                 }
+                
+                setTimeout(() => { isSelecting = false; }, 100);
             }
 
             function updateActiveItem(items) {
@@ -405,11 +409,11 @@
                 if (dropdown.style.display === "block" && items.length > 0) {
                     if (e.key === "Enter" || e.key === "Tab") {
                         if (items.length === 1) {
+                            e.preventDefault();
                             selectOption(items[0].innerText);
-                            if (e.key === "Enter") e.preventDefault();
                         } else if (activeIndex >= 0 && activeIndex < items.length) {
+                            e.preventDefault();
                             selectOption(items[activeIndex].innerText);
-                            if (e.key === "Enter") e.preventDefault();
                         }
                     } else if (e.key === "ArrowDown") {
                         e.preventDefault();
