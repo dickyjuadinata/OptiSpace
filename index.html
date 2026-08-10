@@ -18,7 +18,7 @@
         }
         .searchable-dropdown-list {
             position: absolute;
-            z-index: 50;
+            z-index: 9999;
             top: 100%;
             left: 0;
             right: 0;
@@ -38,7 +38,7 @@
             color: #374151;
             transition: background-color 0.15s ease;
         }
-        .searchable-dropdown-item:hover, .searchable-dropdown-item.active {
+        .searchable-dropdown-item:hover {
             background-color: #eff6ff;
             color: #0066FF;
             font-weight: 500;
@@ -76,8 +76,7 @@
                 </div>
                 <div id="projectInputContainer">
                     <label class="block text-sm font-medium text-gray-700">Nama Project Awal</label>
-                    <input type="text" id="loginProject" list="loginProjectList" autocomplete="off" placeholder="Ketik atau pilih nama project..." class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
-                    <datalist id="loginProjectList"></datalist>
+                    <input type="text" id="loginProject" autocomplete="off" placeholder="Ketik atau pilih nama project..." class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">PIN Akses</label>
@@ -114,8 +113,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Pilih / Ketik Project Tersedia</label>
                             <div class="flex gap-2 mt-1">
-                                <input type="text" id="selectProject" list="selectProjectList" autocomplete="off" onchange="handleProjectSelection()" oninput="handleProjectSelection()" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                <datalist id="selectProjectList"></datalist>
+                                <input type="text" id="selectProject" autocomplete="off" onchange="handleProjectSelection()" oninput="handleProjectSelection()" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
                                 <button type="button" onclick="deleteCurrentProject()" class="bg-red-500 text-white px-4 py-3 rounded-xl font-semibold hover:bg-red-600 transition whitespace-nowrap" title="Hapus Project Ini">Hapus</button>
                             </div>
                         </div>
@@ -146,17 +144,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Jenis Permukaan Lantai *</label>
-                                <input type="text" id="jenis_permukaan" list="jenisPermukaanList" autocomplete="off" required placeholder="Ketik / pilih jenis..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                <datalist id="jenisPermukaanList">
-                                    <option value="Keramik"></option>
-                                    <option value="Vinyl"></option>
-                                    <option value="Karpet"></option>
-                                    <option value="Epoxy"></option>
-                                    <option value="Parket"></option>
-                                    <option value="Semen/Beton"></option>
-                                    <option value="Granit"></option>
-                                    <option value="Lainnya"></option>
-                                </datalist>
+                                <input type="text" id="jenis_permukaan" autocomplete="off" required placeholder="Ketik / pilih jenis..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
                             </div>
                         </div>
 
@@ -214,8 +202,7 @@
                             <h3 class="text-xl font-bold text-iss-blue">Dashboard Analitik Ruang</h3>
                             <div class="w-full md:w-64">
                                 <label class="block text-xs font-medium text-gray-700 mb-1">Pilih Project</label>
-                                <input type="text" id="dashboardProjectSelect" list="dashboardProjectList" autocomplete="off" oninput="renderAnalytics()" placeholder="Ketik / pilih project (Kosongkan = Semua)..." class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
-                                <datalist id="dashboardProjectList"></datalist>
+                                <input type="text" id="dashboardProjectSelect" autocomplete="off" oninput="renderAnalytics()" placeholder="Ketik / pilih project (Kosongkan = Semua)..." class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
                             </div>
                         </div>
                         
@@ -322,8 +309,16 @@
         let chartInstanceLantai = null;
         let fetchLoginTimer = null;
 
+        // Data statis untuk dropdown jenis permukaan
+        const JENIS_PERMUKAAN_OPTIONS = ["Keramik", "Vinyl", "Karpet", "Epoxy", "Parket", "Semen/Beton", "Granit", "Lainnya"];
+        let loginProjectOptions = [];
+
         window.onload = () => {
-            initSearchableDropdowns();
+            setupCustomDropdown("loginProject", () => loginProjectOptions);
+            setupCustomDropdown("selectProject", () => getProjectsList());
+            setupCustomDropdown("dashboardProjectSelect", () => getProjectsList());
+            setupCustomDropdown("jenis_permukaan", () => JENIS_PERMUKAAN_OPTIONS);
+
             if (currentUser) {
                 showDashboard();
                 loadProjectsList();
@@ -334,79 +329,57 @@
             updateOnlineStatus();
         };
 
-        // Fungsi inisialisasi Searchable Dropdown yang menonaktifkan list native agar tidak tumpang tindih
-        function initSearchableDropdowns() {
-            const inputs = document.querySelectorAll("input[list]");
-            inputs.forEach(input => {
-                const listId = input.getAttribute("list");
-                const datalist = document.getElementById(listId);
-                if (!datalist) return;
+        // Engine Searchable Dropdown Murni JavaScript (Tanpa datalist HTML)
+        function setupCustomDropdown(inputId, getOptionsFn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
 
-                // Mencegah popup native browser bawaan
-                input.setAttribute("autocomplete", "off");
-                input.removeAttribute("list");
-                input.dataset.targetList = listId;
+            input.setAttribute("autocomplete", "off");
 
-                // Bungkus input dengan kontainer relatif
-                const wrapper = document.createElement("div");
-                wrapper.className = "searchable-dropdown-container";
-                input.parentNode.insertBefore(wrapper, input);
-                wrapper.appendChild(input);
+            // Wrap input dalam container relatif
+            const wrapper = document.createElement("div");
+            wrapper.className = "searchable-dropdown-container";
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
 
-                // Buat elemen dropdown list kustom
-                const dropdown = document.createElement("div");
-                dropdown.className = "searchable-dropdown-list";
-                wrapper.appendChild(dropdown);
+            // Buat menu dropdown kustom
+            const dropdown = document.createElement("div");
+            dropdown.className = "searchable-dropdown-list";
+            wrapper.appendChild(dropdown);
 
-                function updateDropdownOptions(filterText = "") {
-                    const targetDatalist = document.getElementById(input.dataset.targetList);
-                    if (!targetDatalist) return;
+            function renderOptions() {
+                const options = getOptionsFn() || [];
+                const filter = input.value.trim().toLowerCase();
+                dropdown.innerHTML = "";
 
-                    const options = targetDatalist.querySelectorAll("option");
-                    dropdown.innerHTML = "";
-                    let count = 0;
-                    
-                    options.forEach(opt => {
-                        const val = opt.value;
-                        if (val.toLowerCase().includes(filterText.toLowerCase())) {
-                            const item = document.createElement("div");
-                            item.className = "searchable-dropdown-item";
-                            item.innerText = val;
-                            item.addEventListener("mousedown", (e) => {
-                                e.preventDefault();
-                                input.value = val;
-                                input.dispatchEvent(new Event('input', { bubbles: true }));
-                                input.dispatchEvent(new Event('change', { bubbles: true }));
-                                dropdown.style.display = "none";
-                            });
-                            dropdown.appendChild(item);
-                            count++;
-                        }
-                    });
+                const filtered = options.filter(opt => opt.toLowerCase().includes(filter));
 
-                    dropdown.style.display = count > 0 ? "block" : "none";
+                if (filtered.length === 0) {
+                    dropdown.style.display = "none";
+                    return;
                 }
 
-                input.addEventListener("focus", () => {
-                    updateDropdownOptions(input.value);
-                });
-
-                input.addEventListener("input", () => {
-                    updateDropdownOptions(input.value);
-                });
-
-                input.addEventListener("blur", () => {
-                    setTimeout(() => {
+                filtered.forEach(opt => {
+                    const item = document.createElement("div");
+                    item.className = "searchable-dropdown-item";
+                    item.innerText = opt;
+                    item.onmousedown = (e) => {
+                        e.preventDefault();
+                        input.value = opt;
                         dropdown.style.display = "none";
-                    }, 200);
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                    };
+                    dropdown.appendChild(item);
                 });
 
-                const observer = new MutationObserver(() => {
-                    if (document.activeElement === input) {
-                        updateDropdownOptions(input.value);
-                    }
-                });
-                observer.observe(datalist, { childList: true, subtree: true });
+                dropdown.style.display = "block";
+            }
+
+            input.addEventListener("focus", renderOptions);
+            input.addEventListener("input", renderOptions);
+            input.addEventListener("blur", () => {
+                setTimeout(() => { dropdown.style.display = "none"; }, 200);
             });
         }
 
@@ -491,23 +464,19 @@
             clearTimeout(fetchLoginTimer);
             fetchLoginTimer = setTimeout(async () => {
                 const usernameInput = document.getElementById("username").value.trim();
-                const datalist = document.getElementById("loginProjectList");
-                if (!datalist) return;
 
                 if (usernameInput.toLowerCase() === "admin") {
-                    datalist.innerHTML = '<option value="Admin System">';
+                    loginProjectOptions = ["Admin System"];
                     return;
                 }
 
                 if (!usernameInput) {
-                    datalist.innerHTML = '';
+                    loginProjectOptions = [];
                     return;
                 }
 
                 let localProjects = JSON.parse(localStorage.getItem(`projects_${usernameInput}`)) || [];
-                if (localProjects.length > 0) {
-                    datalist.innerHTML = localProjects.map(p => `<option value="${p}">`).join('');
-                }
+                loginProjectOptions = localProjects;
 
                 if (navigator.onLine) {
                     try {
@@ -518,7 +487,7 @@
                         let json = await res.json();
                         if (json.status === "success" && json.projects) {
                             localStorage.setItem(`projects_${usernameInput}`, JSON.stringify(json.projects));
-                            datalist.innerHTML = json.projects.map(p => `<option value="${p}">`).join('');
+                            loginProjectOptions = json.projects;
                         }
                     } catch (e) {}
                 }
@@ -666,12 +635,8 @@
                 localStorage.setItem("survey_project", currentProject);
             }
             
-            const datalist = document.getElementById("selectProjectList");
             const input = document.getElementById("selectProject");
             if (input) input.value = currentProject || "";
-            if (datalist) {
-                datalist.innerHTML = projects.map(p => `<option value="${p}">`).join('');
-            }
         }
 
         function handleProjectSelection() {
@@ -901,13 +866,8 @@
         }
 
         function populateDashboardProjectDropdown() {
-            let projects = getProjectsList();
-            const datalist = document.getElementById("dashboardProjectList");
             const input = document.getElementById("dashboardProjectSelect");
             if (input) input.value = currentProject || "";
-            if (datalist) {
-                datalist.innerHTML = projects.map(p => `<option value="${p}">`).join('');
-            }
         }
 
         function renderAnalytics() {
