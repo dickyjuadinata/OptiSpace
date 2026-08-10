@@ -660,11 +660,17 @@
                         let localRows = getLocalData();
                         let mergedMap = new Map();
                         
-                        serverRows.forEach(row => mergedMap.set(row.nama_ruang, row));
+                        // Perbaikan: Kunci unik menggunakan kombinasi Gedung, Lantai, dan Nama Ruang
+                        serverRows.forEach(row => {
+                            let key = `${(row.gedung||'').trim()}_${(row.lantai||'').toString().trim()}_${(row.nama_ruang||'').trim()}`;
+                            mergedMap.set(key, row);
+                        });
+
                         localRows.forEach(localRow => {
-                            let existing = mergedMap.get(localRow.nama_ruang);
+                            let key = `${(localRow.gedung||'').trim()}_${(localRow.lantai||'').toString().trim()}_${(localRow.nama_ruang||'').trim()}`;
+                            let existing = mergedMap.get(key);
                             if (!existing || (localRow.updated_at && localRow.updated_at > (existing.updated_at || 0))) {
-                                mergedMap.set(localRow.nama_ruang, localRow);
+                                mergedMap.set(key, localRow);
                             }
                         });
 
