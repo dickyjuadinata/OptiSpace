@@ -113,9 +113,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Pilih / Ketik Project Tersedia</label>
-                            <div class="flex gap-2 mt-1">
+                            <div class="mt-1">
                                 <input type="text" id="selectProject" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                <button type="button" onclick="deleteCurrentProject()" class="bg-red-500 text-white px-4 py-3 rounded-xl font-semibold hover:bg-red-600 transition whitespace-nowrap" title="Hapus Project Ini">Hapus</button>
                             </div>
                         </div>
                         <div>
@@ -314,7 +313,7 @@
             "Keramik", "Vinyl", "Karpet", "Epoxy", "Parket", "Semen/Beton", "Granit", "Lainnya"
         ];
 
-        // Engine Searchable Dropdown Kustom dengan Penutupan Otomatis
+        // Engine Searchable Dropdown Kustom dengan Auto-Select saat Klik/Focus
         function setupCustomDropdown(inputId, getOptionsFn, onSelectCallback = null) {
             const input = document.getElementById(inputId);
             if (!input) return;
@@ -337,22 +336,19 @@
             wrapper.appendChild(dropdown);
 
             let activeIndex = -1;
-            let isSelecting = false; // Flag penanda seleksi
+            let isSelecting = false;
 
             function renderOptions() {
-                if (isSelecting) return; // Jangan render ulang bila sedang memilih item
+                if (isSelecting) return;
 
                 const options = getOptionsFn() || [];
                 const filter = input.value.trim().toLowerCase();
                 dropdown.innerHTML = "";
                 activeIndex = -1;
 
-                if (!filter && document.activeElement !== input) {
-                    dropdown.style.display = "none";
-                    return;
-                }
-
-                const filtered = options.filter(opt => opt.toLowerCase().includes(filter));
+                // Tampilkan semua opsi jika input sedang di-focus/di-select sepenuhnya
+                const isFullySelected = input.selectionStart === 0 && input.selectionEnd === input.value.length;
+                const filtered = (isFullySelected || !filter) ? options : options.filter(opt => opt.toLowerCase().includes(filter));
 
                 if (filtered.length === 0) {
                     dropdown.style.display = "none";
@@ -400,7 +396,17 @@
                 });
             }
 
-            input.addEventListener("focus", renderOptions);
+            // Pilih otomatis seluruh teks ketika diklik/focus agar mudah langsung mengetik opsi baru
+            input.addEventListener("focus", () => {
+                setTimeout(() => { input.select(); }, 50);
+                renderOptions();
+            });
+
+            input.addEventListener("click", () => {
+                input.select();
+                renderOptions();
+            });
+
             input.addEventListener("input", renderOptions);
 
             input.addEventListener("keydown", (e) => {
@@ -733,39 +739,6 @@
             syncOfflineData();
         }
 
-        async function deleteCurrentProject() {
-            if (!currentProject) return;
-            let projects = getProjectsList();
-            if (projects.length <= 1) {
-                alert("Harus menyisakan minimal satu project.");
-                return;
-            }
-
-            if (confirm(`Hapus project "${currentProject}"?`)) {
-                localStorage.removeItem(`data_${currentUser}_${currentProject}`);
-                projects = projects.filter(p => p !== currentProject);
-                saveProjectsList(projects);
-                
-                if (navigator.onLine) {
-                    try {
-                        let res = await fetch(API_URL, {
-                            method: "POST",
-                            body: JSON.stringify({ action: "deleteProject", username: currentUser, project: currentProject })
-                        });
-                        let json = await res.json();
-                        if (json.status === "success" && json.projects) {
-                            saveProjectsList(json.projects);
-                        }
-                    } catch (e) {}
-                }
-
-                currentProject = projects[0];
-                localStorage.setItem("survey_project", currentProject);
-                loadProjectsList();
-                loadData();
-            }
-        }
-
         function getLocalData() {
             if (!currentProject) return [];
             return JSON.parse(localStorage.getItem(`data_${currentUser}_${currentProject}`)) || [];
@@ -1063,7 +1036,7 @@
                     usersMeta.forEach(m => {
                         let statusBadge = m.status === "ACTIVE" ? `<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">ACTIVE</span>` : `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">PENDING</span>`;
                         let actionBtn = m.status === "PENDING" ? `<button onclick="approveUser('${m.user}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-semibold">Setujui</button>` : `-`;
-                        let deleteBtn = `<button onclick="deleteUser('${m.user}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold ml-2">Hapus</button>`;
+                        let deleteBtn = `<button onclick="deleteUser('${m.user}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold ml-2">Hapus User</button>`;
                         approvalHtml += `<tr class="border-b"><td class="p-3 font-semibold">${m.user}</td><td class="p-3">${statusBadge}</td><td class="p-3 text-center">${actionBtn} ${deleteBtn}</td></tr>`;
                     });
                     approvalBody.innerHTML = approvalHtml || "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Belum ada user.</td></tr>";
