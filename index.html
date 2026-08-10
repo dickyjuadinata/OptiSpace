@@ -10,38 +10,39 @@
         .bg-iss-blue { background-color: #0066FF; }
         .text-iss-blue { color: #0066FF; }
         .border-iss-blue { border-color: #0066FF; }
-        
-        /* Style Custom Searchable Dropdown */
+
+        /* Styling untuk Custom Searchable Dropdown */
         .searchable-dropdown-container {
             position: relative;
             width: 100%;
         }
         .searchable-dropdown-list {
             position: absolute;
-            z-index: 9999;
             top: 100%;
             left: 0;
             right: 0;
-            max-height: 200px;
-            overflow-y: auto;
-            background: #ffffff;
+            z-index: 50;
+            background-color: #ffffff;
             border: 1px solid #e5e7eb;
             border-radius: 0.75rem;
+            margin-top: 0.25rem;
+            max-height: 200px;
+            overflow-y: auto;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            margin-top: 4px;
             display: none;
         }
         .searchable-dropdown-item {
-            padding: 10px 14px;
+            padding: 0.75rem 1rem;
             cursor: pointer;
             font-size: 0.875rem;
             color: #374151;
             transition: background-color 0.15s ease;
         }
-        .searchable-dropdown-item:hover {
+        .searchable-dropdown-item:hover,
+        .searchable-dropdown-item.active-item {
             background-color: #eff6ff;
             color: #0066FF;
-            font-weight: 500;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -69,30 +70,30 @@
                 <button type="button" onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 pb-3 font-medium text-gray-400">Daftar Akun</button>
             </div>
 
-            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4" autocomplete="off">
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username / Role</label>
-                    <input type="text" id="username" required oninput="fetchLoginProjects()" onblur="fetchLoginProjects()" autocomplete="off" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
+                    <input type="text" id="username" required oninput="fetchLoginProjects()" onblur="fetchLoginProjects()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
                 </div>
                 <div id="projectInputContainer">
                     <label class="block text-sm font-medium text-gray-700">Nama Project Awal</label>
-                    <input type="text" id="loginProject" autocomplete="off" placeholder="Ketik atau pilih nama project..." class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
+                    <input type="text" id="loginProject" placeholder="Ketik atau pilih nama project..." class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">PIN Akses</label>
-                    <input type="password" id="pin" inputmode="numeric" pattern="[0-9]*" required autocomplete="current-password" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Masukkan PIN">
+                    <input type="password" id="pin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Masukkan PIN">
                 </div>
                 <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Masuk</button>
             </form>
 
-            <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden" autocomplete="off">
+            <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username Baru</label>
-                    <input type="text" id="regUsername" required autocomplete="off" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Min. 3 karakter">
+                    <input type="text" id="regUsername" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Min. 3 karakter">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">PIN Unik Pilihan Anda</label>
-                    <input type="password" id="regPin" inputmode="numeric" pattern="[0-9]*" required autocomplete="new-password" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Buat PIN rahasia">
+                    <input type="password" id="regPin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Buat PIN rahasia">
                 </div>
                 <p class="text-xs text-gray-500">Catatan: Akun baru memerlukan persetujuan dari Admin.</p>
                 <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Daftar Sekarang</button>
@@ -113,14 +114,14 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Pilih / Ketik Project Tersedia</label>
                             <div class="flex gap-2 mt-1">
-                                <input type="text" id="selectProject" autocomplete="off" onchange="handleProjectSelection()" oninput="handleProjectSelection()" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                <input type="text" id="selectProject" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
                                 <button type="button" onclick="deleteCurrentProject()" class="bg-red-500 text-white px-4 py-3 rounded-xl font-semibold hover:bg-red-600 transition whitespace-nowrap" title="Hapus Project Ini">Hapus</button>
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Atau Buat Project Baru</label>
                             <div class="flex gap-2 mt-1">
-                                <input type="text" id="newProjectInput" autocomplete="off" placeholder="Nama project baru..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                                <input type="text" id="newProjectInput" placeholder="Nama project baru..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
                                 <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition whitespace-nowrap">Tambah</button>
                             </div>
                         </div>
@@ -130,21 +131,21 @@
                 <!-- Form Input / Edit Ruang -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
                     <h3 id="formTitle" class="text-xl font-bold text-iss-blue mb-4">Input Data Ruang Baru</h3>
-                    <form id="surveyForm" onsubmit="saveRoomData(event)" class="space-y-4" autocomplete="off">
+                    <form id="surveyForm" onsubmit="saveRoomData(event)" class="space-y-4">
                         <input type="hidden" id="editIndex" value="">
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Nama Ruang *</label>
-                                <input type="text" id="nama_ruang" required autocomplete="off" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                                <input type="text" id="nama_ruang" required class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Luas Ruang (m²) *</label>
-                                <input type="number" step="0.01" inputmode="decimal" id="luas_ruang" required autocomplete="off" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                                <input type="number" step="0.01" inputmode="decimal" id="luas_ruang" required class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Jenis Permukaan Lantai *</label>
-                                <input type="text" id="jenis_permukaan" autocomplete="off" required placeholder="Ketik / pilih jenis..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                <input type="text" id="jenis_permukaan" required placeholder="Ketik / pilih jenis..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
                             </div>
                         </div>
 
@@ -155,11 +156,11 @@
                             <div id="extraFields" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Nama Gedung</label>
-                                    <input type="text" id="gedung" autocomplete="off" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                                    <input type="text" id="gedung" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Lantai</label>
-                                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="lantai" autocomplete="off" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="lantai" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
                                 </div>
                                 <div class="md:col-span-3">
                                     <label class="block text-sm font-medium text-gray-700">Catatan</label>
@@ -202,7 +203,7 @@
                             <h3 class="text-xl font-bold text-iss-blue">Dashboard Analitik Ruang</h3>
                             <div class="w-full md:w-64">
                                 <label class="block text-xs font-medium text-gray-700 mb-1">Pilih Project</label>
-                                <input type="text" id="dashboardProjectSelect" autocomplete="off" oninput="renderAnalytics()" placeholder="Ketik / pilih project (Kosongkan = Semua)..." class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
+                                <input type="text" id="dashboardProjectSelect" placeholder="Ketik / pilih project (Kosongkan = Semua)..." class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
                             </div>
                         </div>
                         
@@ -300,6 +301,7 @@
     </main>
 
     <script>
+        // Ganti URL di bawah ini dengan URL Web App Google Apps Script terbaru Anda setelah dideploy ulang (Deploy > New Deployment)
         const API_URL = "https://script.google.com/macros/s/AKfycbwo1qux80FXKobwTX727KuaBtcNoGnxoStbK6JaIBvt6VSrD2Brree4g5tFpD0IE-1V/exec";
 
         let currentUser = localStorage.getItem("survey_user") || null;
@@ -309,16 +311,140 @@
         let chartInstanceLantai = null;
         let fetchLoginTimer = null;
 
-        // Data statis untuk dropdown jenis permukaan
-        const JENIS_PERMUKAAN_OPTIONS = ["Keramik", "Vinyl", "Karpet", "Epoxy", "Parket", "Semen/Beton", "Granit", "Lainnya"];
-        let loginProjectOptions = [];
+        // Static Options untuk Jenis Permukaan Lantai
+        const jenisPermukaanOptions = [
+            "Keramik", "Vinyl", "Karpet", "Epoxy", "Parket", "Semen/Beton", "Granit", "Lainnya"
+        ];
+
+        // Engine Searchable Dropdown Kustom dengan Navigasi Keyboard
+        function setupCustomDropdown(inputId, getOptionsFn, onSelectCallback = null) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            input.setAttribute("autocomplete", "off");
+
+            let wrapper = input.parentElement;
+            if (!wrapper.classList.contains("searchable-dropdown-container")) {
+                wrapper = document.createElement("div");
+                wrapper.className = "searchable-dropdown-container";
+                input.parentNode.insertBefore(wrapper, input);
+                wrapper.appendChild(input);
+            }
+
+            let oldDropdown = wrapper.querySelector(".searchable-dropdown-list");
+            if (oldDropdown) oldDropdown.remove();
+
+            const dropdown = document.createElement("div");
+            dropdown.className = "searchable-dropdown-list";
+            wrapper.appendChild(dropdown);
+
+            let activeIndex = -1;
+
+            function renderOptions() {
+                const options = getOptionsFn() || [];
+                const filter = input.value.trim().toLowerCase();
+                dropdown.innerHTML = "";
+                activeIndex = -1;
+
+                if (!filter && document.activeElement !== input) {
+                    dropdown.style.display = "none";
+                    return;
+                }
+
+                const filtered = options.filter(opt => opt.toLowerCase().includes(filter));
+
+                if (filtered.length === 0) {
+                    dropdown.style.display = "none";
+                    return;
+                }
+
+                filtered.forEach((opt, idx) => {
+                    const item = document.createElement("div");
+                    item.className = "searchable-dropdown-item";
+                    item.innerText = opt;
+                    item.dataset.index = idx;
+                    
+                    item.onmousedown = (e) => {
+                        e.preventDefault();
+                        selectOption(opt);
+                    };
+                    dropdown.appendChild(item);
+                });
+
+                dropdown.style.display = "block";
+            }
+
+            function selectOption(val) {
+                input.value = val;
+                dropdown.style.display = "none";
+                activeIndex = -1;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                if (typeof onSelectCallback === 'function') {
+                    onSelectCallback(val);
+                }
+            }
+
+            function updateActiveItem(items) {
+                items.forEach((item, index) => {
+                    if (index === activeIndex) {
+                        item.classList.add("active-item");
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove("active-item");
+                    }
+                });
+            }
+
+            input.addEventListener("focus", renderOptions);
+            input.addEventListener("input", renderOptions);
+
+            input.addEventListener("keydown", (e) => {
+                const items = dropdown.querySelectorAll(".searchable-dropdown-item");
+                
+                if (dropdown.style.display === "block" && items.length > 0) {
+                    if (e.key === "Enter" || e.key === "Tab") {
+                        if (items.length === 1) {
+                            selectOption(items[0].innerText);
+                            if (e.key === "Enter") e.preventDefault();
+                        } else if (activeIndex >= 0 && activeIndex < items.length) {
+                            selectOption(items[activeIndex].innerText);
+                            if (e.key === "Enter") e.preventDefault();
+                        }
+                    } else if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        activeIndex = (activeIndex + 1) % items.length;
+                        updateActiveItem(items);
+                    } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        activeIndex = (activeIndex - 1 + items.length) % items.length;
+                        updateActiveItem(items);
+                    } else if (e.key === "Escape") {
+                        dropdown.style.display = "none";
+                    }
+                }
+            });
+
+            input.addEventListener("blur", () => {
+                setTimeout(() => { dropdown.style.display = "none"; }, 200);
+            });
+        }
+
+        function initCustomDropdowns() {
+            let getLoginProjects = () => {
+                const usernameInput = (document.getElementById("username")?.value || "").trim();
+                if (usernameInput.toLowerCase() === "admin") return ["Admin System"];
+                return JSON.parse(localStorage.getItem(`projects_${usernameInput}`)) || [];
+            };
+
+            setupCustomDropdown("loginProject", getLoginProjects);
+            setupCustomDropdown("selectProject", getProjectsList, handleProjectSelection);
+            setupCustomDropdown("jenis_permukaan", () => jenisPermukaanOptions);
+            setupCustomDropdown("dashboardProjectSelect", getProjectsList, renderAnalytics);
+        }
 
         window.onload = () => {
-            setupCustomDropdown("loginProject", () => loginProjectOptions);
-            setupCustomDropdown("selectProject", () => getProjectsList());
-            setupCustomDropdown("dashboardProjectSelect", () => getProjectsList());
-            setupCustomDropdown("jenis_permukaan", () => JENIS_PERMUKAAN_OPTIONS);
-
+            initCustomDropdowns();
             if (currentUser) {
                 showDashboard();
                 loadProjectsList();
@@ -328,60 +454,6 @@
             window.addEventListener('offline', updateOnlineStatus);
             updateOnlineStatus();
         };
-
-        // Engine Searchable Dropdown Murni JavaScript (Tanpa datalist HTML)
-        function setupCustomDropdown(inputId, getOptionsFn) {
-            const input = document.getElementById(inputId);
-            if (!input) return;
-
-            input.setAttribute("autocomplete", "off");
-
-            // Wrap input dalam container relatif
-            const wrapper = document.createElement("div");
-            wrapper.className = "searchable-dropdown-container";
-            input.parentNode.insertBefore(wrapper, input);
-            wrapper.appendChild(input);
-
-            // Buat menu dropdown kustom
-            const dropdown = document.createElement("div");
-            dropdown.className = "searchable-dropdown-list";
-            wrapper.appendChild(dropdown);
-
-            function renderOptions() {
-                const options = getOptionsFn() || [];
-                const filter = input.value.trim().toLowerCase();
-                dropdown.innerHTML = "";
-
-                const filtered = options.filter(opt => opt.toLowerCase().includes(filter));
-
-                if (filtered.length === 0) {
-                    dropdown.style.display = "none";
-                    return;
-                }
-
-                filtered.forEach(opt => {
-                    const item = document.createElement("div");
-                    item.className = "searchable-dropdown-item";
-                    item.innerText = opt;
-                    item.onmousedown = (e) => {
-                        e.preventDefault();
-                        input.value = opt;
-                        dropdown.style.display = "none";
-                        input.dispatchEvent(new Event('input', { bubbles: true }));
-                        input.dispatchEvent(new Event('change', { bubbles: true }));
-                    };
-                    dropdown.appendChild(item);
-                });
-
-                dropdown.style.display = "block";
-            }
-
-            input.addEventListener("focus", renderOptions);
-            input.addEventListener("input", renderOptions);
-            input.addEventListener("blur", () => {
-                setTimeout(() => { dropdown.style.display = "none"; }, 200);
-            });
-        }
 
         async function downloadExcel() {
             if (!currentUser || isAdmin) return;
@@ -464,21 +536,9 @@
             clearTimeout(fetchLoginTimer);
             fetchLoginTimer = setTimeout(async () => {
                 const usernameInput = document.getElementById("username").value.trim();
+                if (!usernameInput) return;
 
-                if (usernameInput.toLowerCase() === "admin") {
-                    loginProjectOptions = ["Admin System"];
-                    return;
-                }
-
-                if (!usernameInput) {
-                    loginProjectOptions = [];
-                    return;
-                }
-
-                let localProjects = JSON.parse(localStorage.getItem(`projects_${usernameInput}`)) || [];
-                loginProjectOptions = localProjects;
-
-                if (navigator.onLine) {
+                if (navigator.onLine && usernameInput.toLowerCase() !== "admin") {
                     try {
                         let res = await fetch(API_URL, {
                             method: "POST",
@@ -487,7 +547,6 @@
                         let json = await res.json();
                         if (json.status === "success" && json.projects) {
                             localStorage.setItem(`projects_${usernameInput}`, JSON.stringify(json.projects));
-                            loginProjectOptions = json.projects;
                         }
                     } catch (e) {}
                 }
