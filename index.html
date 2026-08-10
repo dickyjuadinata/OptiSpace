@@ -41,10 +41,12 @@
                     <label class="block text-sm font-medium text-gray-700">Username / Role</label>
                     <input type="text" id="username" required oninput="fetchLoginProjects()" onblur="fetchLoginProjects()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
                 </div>
-                <div id="projectInputContainer">
+                <div id="projectInputContainer" class="relative">
                     <label class="block text-sm font-medium text-gray-700">Nama Project Awal</label>
-                    <input type="text" id="loginProject" list="loginProjectList" placeholder="Ketik atau pilih nama project..." class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
-                    <datalist id="loginProjectList"></datalist>
+                    <div class="relative mt-1">
+                        <input type="text" id="loginProject" autocomplete="off" placeholder="Ketik atau pilih nama project..." class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
+                        <div id="loginProjectList" class="absolute z-50 left-0 right-0 mt-1 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto hidden"></div>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">PIN Akses</label>
@@ -81,8 +83,10 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Pilih / Ketik Project Tersedia</label>
                             <div class="flex gap-2 mt-1">
-                                <input type="text" id="selectProject" list="selectProjectList" onchange="handleProjectSelection()" oninput="handleProjectSelection()" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                <datalist id="selectProjectList"></datalist>
+                                <div class="relative w-full">
+                                    <input type="text" id="selectProject" autocomplete="off" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                    <div id="selectProjectList" class="absolute z-50 left-0 right-0 mt-1 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto hidden"></div>
+                                </div>
                             </div>
                         </div>
                         <div>
@@ -97,121 +101,51 @@
 
                 <!-- Form Input / Edit Ruang -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <h3 id="formTitle" class="text-xl font-bold text-iss-blue mb-4">Job Costing Management</h3>
+                    <h3 id="formTitle" class="text-xl font-bold text-iss-blue mb-4">Input Data Ruang Baru</h3>
                     <form id="surveyForm" onsubmit="saveRoomData(event)" class="space-y-4">
                         <input type="hidden" id="editIndex" value="">
                         <input type="hidden" id="insertIndex" value="">
                         
-                        <!-- Bagian General -->
-                        <div class="border-b pb-4 mb-4">
-                            <h4 class="font-bold text-gray-700 text-md mb-3">General</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Client Position (Service)</label>
-                                        <input type="text" id="client_position" placeholder="Jenis Service" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Province</label>
-                                        <select id="province" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                            <option value="">- select one -</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">City</label>
-                                        <select id="city" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                            <option value="">- select one -</option>
-                                            <option value="Ambon">Ambon</option>
-                                            <option value="Asahan">Asahan</option>
-                                            <option value="Balikpapan">Balikpapan</option>
-                                            <option value="Banda Aceh">Banda Aceh</option>
-                                            <option value="Bandar Lampung">Bandar Lampung</option>
-                                            <option value="Bandung">Bandung</option>
-                                        </select>
-                                    </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700">Nama Ruang *</label>
+                                <input type="text" id="nama_ruang" autocomplete="off" required placeholder="Ketik / pilih nama..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                <div id="namaRuangList" class="absolute z-50 left-0 right-0 mt-1 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto hidden"></div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Luas Ruang (m²) *</label>
+                                <input type="number" step="0.01" inputmode="decimal" id="luas_ruang" required class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                            </div>
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700">Jenis Permukaan Lantai *</label>
+                                <input type="text" id="jenis_permukaan" autocomplete="off" required placeholder="Ketik / pilih jenis..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                <div id="jenisPermukaanList" class="absolute z-50 left-0 right-0 mt-1 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto hidden"></div>
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-4">
+                            <button type="button" onclick="toggleExtraFields()" class="text-iss-blue text-sm font-semibold flex items-center gap-1">
+                                ⚙️ Tambah Informasi Detail (Gedung, Lantai, Catatan)
+                            </button>
+                            <div id="extraFields" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                <div class="relative">
+                                    <label class="block text-sm font-medium text-gray-700">Nama Gedung</label>
+                                    <input type="text" id="gedung" autocomplete="off" placeholder="Ketik / pilih gedung..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                    <div id="gedungList" class="absolute z-50 left-0 right-0 mt-1 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto hidden"></div>
                                 </div>
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Job Position</label>
-                                        <select id="job_position" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                            <option value="">- select one -</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Competency Level</label>
-                                        <select id="competency_level" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                            <option value="">- select one -</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Job Title</label>
-                                        <select id="job_title" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                            <option value="">- select one -</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Service Tower</label>
-                                        <input type="text" id="service_tower" placeholder="Service Tower" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-gray-100" readonly>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">% UP Basic Wages</label>
-                                        <input type="number" step="0.01" id="up_basic_wages" value="0.00" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue text-right">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Basic Wages</label>
-                                        <input type="text" id="basic_wages" value="4,421,777.00" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue text-right bg-gray-50">
-                                    </div>
+                                <div class="relative">
+                                    <label class="block text-sm font-medium text-gray-700">Lantai</label>
+                                    <input type="text" id="lantai" autocomplete="off" placeholder="Ketik / pilih lantai..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                    <div id="lantaiList" class="absolute z-50 left-0 right-0 mt-1 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto hidden"></div>
+                                </div>
+                                <div class="md:col-span-3">
+                                    <label class="block text-sm font-medium text-gray-700">Catatan</label>
+                                    <textarea id="catatan" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue" rows="2"></textarea>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Tab Navigasi Kecil di dalam Form -->
-                        <div class="bg-blue-600 text-white rounded-t-xl p-2 flex gap-4 text-sm font-semibold overflow-x-auto">
-                            <span class="border-b-2 border-white pb-1 cursor-pointer">TASK/POST</span>
-                            <span class="opacity-80 cursor-pointer">Basic O/T Leave & Holiday Pay</span>
-                            <span class="opacity-80 cursor-pointer">Allowances</span>
-                            <span class="opacity-80 cursor-pointer">Personnel Administration</span>
-                        </div>
-
-                        <!-- Bagian Task/Post Input Grid -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Man Power Shift 1</label>
-                                <input type="number" id="mp_shift_1" value="0" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue text-right">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Shift Durasi (Hours)</label>
-                                <input type="number" id="shift_duration" value="0" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue text-right">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Annual sick, leave, & absence</label>
-                                <input type="number" id="annual_leave" value="0" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue text-right">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Man Power Shift 2</label>
-                                <input type="number" id="mp_shift_2" value="0" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue text-right">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Days/Week The Post Is Manned</label>
-                                <input type="number" id="days_per_week" value="0" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue text-right">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Working Days Available</label>
-                                <input type="number" id="working_days_available" value="365" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue text-right bg-gray-50" readonly>
-                            </div>
-                        </div>
-
-                        <!-- Input Utama Asli yang disembunyikan/dipertahankan agar logika penyimpanan tetap berfungsi -->
-                        <div class="hidden">
-                            <input type="text" id="nama_ruang" value="Ruang JCM">
-                            <input type="number" id="luas_ruang" value="1">
-                            <input type="text" id="jenis_permukaan" value="Keramik">
-                            <input type="text" id="gedung" value="Gedung Utama">
-                            <input type="text" id="lantai" value="1">
-                            <textarea id="catatan"></textarea>
-                        </div>
-
-                        <div class="flex gap-2 pt-4">
+                        <div class="flex gap-2">
                             <button type="submit" class="flex-1 bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition">Simpan Data</button>
                             <button type="button" onclick="resetForm()" id="cancelBtn" class="hidden bg-gray-300 text-gray-700 px-4 py-3 rounded-xl font-semibold hover:bg-gray-400 transition">Batal</button>
                         </div>
@@ -243,10 +177,10 @@
                     <div class="bg-white p-6 rounded-2xl shadow-md space-y-6">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4">
                             <h3 class="text-xl font-bold text-iss-blue">Dashboard Analitik Ruang</h3>
-                            <div class="w-full md:w-64">
+                            <div class="w-full md:w-64 relative">
                                 <label class="block text-xs font-medium text-gray-700 mb-1">Pilih Project</label>
-                                <input type="text" id="dashboardProjectSelect" list="dashboardProjectList" oninput="renderAnalytics()" placeholder="Ketik / pilih project (Kosongkan = Semua)..." class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
-                                <datalist id="dashboardProjectList"></datalist>
+                                <input type="text" id="dashboardProjectSelect" autocomplete="off" placeholder="Ketik / pilih project (Kosongkan = Semua)..." class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
+                                <div id="dashboardProjectList" class="absolute z-50 left-0 right-0 mt-1 bg-white border rounded-xl shadow-lg max-h-48 overflow-y-auto hidden"></div>
                             </div>
                         </div>
                         
@@ -354,7 +288,78 @@
         let chartInstanceLantai = null;
         let fetchLoginTimer = null;
 
+        // Fungsi helper untuk inisialisasi Searchable Dropdown kustom
+        function initSearchableDropdown(inputId, listId, onSelectCallback) {
+            const input = document.getElementById(inputId);
+            const listContainer = document.getElementById(listId);
+            if (!input || !listContainer) return;
+
+            let currentItems = [];
+
+            window['setOptions_' + inputId] = function(items) {
+                currentItems = items;
+                renderList(items);
+            };
+
+            function renderList(items) {
+                if (items.length === 0) {
+                    listContainer.innerHTML = '<div class="p-2 text-xs text-gray-400">Tidak ada pilihan</div>';
+                    return;
+                }
+                listContainer.innerHTML = items.map(item => `
+                    <div class="p-2.5 hover:bg-blue-50 cursor-pointer text-sm text-gray-700 border-b last:border-b-0" onclick="selectOption_${inputId}('${item.replace(/'/g, "\\'")}')">
+                        ${item}
+                    </div>
+                `).join('');
+            }
+
+            window['selectOption_' + inputId] = function(value) {
+                input.value = value;
+                listContainer.classList.add("hidden");
+                if (typeof onSelectCallback === 'function') {
+                    onSelectCallback(value);
+                }
+            };
+
+            input.addEventListener("focus", () => {
+                listContainer.classList.remove("hidden");
+                renderList(currentItems);
+            });
+
+            input.addEventListener("input", () => {
+                const query = input.value.toLowerCase();
+                const filtered = currentItems.filter(item => item.toLowerCase().includes(query));
+                renderList(filtered);
+                listContainer.classList.remove("hidden");
+                if (typeof onSelectCallback === 'function') {
+                    onSelectCallback(input.value);
+                }
+            });
+
+            document.addEventListener("click", (e) => {
+                if (!input.contains(e.target) && !listContainer.contains(e.target)) {
+                    listContainer.classList.add("hidden");
+                }
+            });
+        }
+
         window.onload = () => {
+            // Setup searchable dropdowns
+            initSearchableDropdown('loginProject', 'loginProjectList');
+            initSearchableDropdown('selectProject', 'selectProjectList', handleProjectSelection);
+            initSearchableDropdown('nama_ruang', 'namaRuangList');
+            initSearchableDropdown('jenis_permukaan', 'jenisPermukaanList');
+            initSearchableDropdown('gedung', 'gedungList');
+            initSearchableDropdown('lantai', 'lantaiList');
+            initSearchableDropdown('dashboardProjectSelect', 'dashboardProjectList', renderAnalytics);
+
+            // Set default default values for jenis_permukaan dropdown
+            if (window['setOptions_jenis_permukaan']) {
+                window['setOptions_jenis_permukaan']([
+                    "Keramik", "Vinyl", "Karpet", "Epoxy", "Parket", "Semen/Beton", "Granit", "Lainnya"
+                ]);
+            }
+
             if (currentUser) {
                 showDashboard();
                 loadProjectsList();
@@ -446,22 +451,23 @@
             clearTimeout(fetchLoginTimer);
             fetchLoginTimer = setTimeout(async () => {
                 const usernameInput = document.getElementById("username").value.trim();
-                const datalist = document.getElementById("loginProjectList");
-                if (!datalist) return;
+                let projectOptions = [];
 
                 if (usernameInput.toLowerCase() === "admin") {
-                    datalist.innerHTML = '<option value="Admin System">';
+                    projectOptions = ["Admin System"];
+                    if (window['setOptions_loginProject']) window['setOptions_loginProject'](projectOptions);
                     return;
                 }
 
                 if (!usernameInput) {
-                    datalist.innerHTML = '';
+                    if (window['setOptions_loginProject']) window['setOptions_loginProject']([]);
                     return;
                 }
 
                 let localProjects = JSON.parse(localStorage.getItem(`projects_${usernameInput}`)) || [];
                 if (localProjects.length > 0) {
-                    datalist.innerHTML = localProjects.map(p => `<option value="${p}">`).join('');
+                    projectOptions = localProjects;
+                    if (window['setOptions_loginProject']) window['setOptions_loginProject'](projectOptions);
                 }
 
                 if (navigator.onLine) {
@@ -473,7 +479,7 @@
                         let json = await res.json();
                         if (json.status === "success" && json.projects) {
                             localStorage.setItem(`projects_${usernameInput}`, JSON.stringify(json.projects));
-                            datalist.innerHTML = json.projects.map(p => `<option value="${p}">`).join('');
+                            if (window['setOptions_loginProject']) window['setOptions_loginProject'](json.projects);
                         }
                     } catch (e) {}
                 }
@@ -581,6 +587,10 @@
             }
         }
 
+        function toggleExtraFields() {
+            document.getElementById("extraFields").classList.remove("hidden");
+        }
+
         function toggleAdminCard(idx) {
             const content = document.getElementById(`adminCardContent_${idx}`);
             const icon = document.getElementById(`adminCardIcon_${idx}`);
@@ -617,11 +627,10 @@
                 localStorage.setItem("survey_project", currentProject);
             }
             
-            const datalist = document.getElementById("selectProjectList");
             const input = document.getElementById("selectProject");
             if (input) input.value = currentProject || "";
-            if (datalist) {
-                datalist.innerHTML = projects.map(p => `<option value="${p}">`).join('');
+            if (window['setOptions_selectProject']) {
+                window['setOptions_selectProject'](projects);
             }
         }
 
@@ -725,6 +734,9 @@
                 if (r.lantai) lantais.add(r.lantai.toString().trim());
                 if (r.nama_ruang) ruangs.add(r.nama_ruang.trim());
             });
+            if (window['setOptions_gedung']) window['setOptions_gedung']([...gedungs]);
+            if (window['setOptions_lantai']) window['setOptions_lantai']([...lantais]);
+            if (window['setOptions_nama_ruang']) window['setOptions_nama_ruang']([...ruangs]);
         }
 
         function renderTable() {
@@ -778,6 +790,7 @@
                 rows.push(newItem);
             }
 
+            // Perbarui urutan / order index dari array yang baru disesuaikan
             rows.forEach((r, i) => r.order = i);
 
             saveLocalData(rows);
@@ -801,6 +814,7 @@
 
             document.getElementById("formTitle").innerText = "Edit Data Ruang";
             document.getElementById("cancelBtn").classList.remove("hidden");
+            document.getElementById("extraFields").classList.remove("hidden");
             switchView('survey');
             window.scrollTo(0, 0);
         }
@@ -810,7 +824,9 @@
             document.getElementById("insertIndex").value = index;
             document.getElementById("formTitle").innerText = `Sisipkan Data Setelah Baris ${index + 1}`;
             document.getElementById("cancelBtn").classList.remove("hidden");
+            document.getElementById("extraFields").classList.remove("hidden");
 
+            // Ambil referensi Gedung & Lantai dari baris sebelumnya
             const rows = getLocalData();
             if (rows[index]) {
                 document.getElementById("gedung").value = rows[index].gedung || "";
@@ -825,6 +841,7 @@
             if (confirm("Hapus data ini?")) {
                 let rows = getLocalData();
                 rows.splice(index, 1);
+                // Perbarui ulang urutan (order index)
                 rows.forEach((r, i) => r.order = i);
                 saveLocalData(rows);
                 renderTable();
@@ -836,7 +853,7 @@
             document.getElementById("surveyForm").reset();
             document.getElementById("editIndex").value = "";
             document.getElementById("insertIndex").value = "";
-            document.getElementById("formTitle").innerText = "Job Costing Management";
+            document.getElementById("formTitle").innerText = "Input Data Ruang Baru";
             document.getElementById("cancelBtn").classList.add("hidden");
         }
 
@@ -859,11 +876,10 @@
 
         function populateDashboardProjectDropdown() {
             let projects = getProjectsList();
-            const datalist = document.getElementById("dashboardProjectList");
             const input = document.getElementById("dashboardProjectSelect");
             if (input) input.value = currentProject || "";
-            if (datalist) {
-                datalist.innerHTML = projects.map(p => `<option value="${p}">`).join('');
+            if (window['setOptions_dashboardProjectSelect']) {
+                window['setOptions_dashboardProjectSelect'](projects);
             }
         }
 
@@ -1122,3 +1138,4 @@
     </script>
 </body>
 </html>
+```[cite: 7]
