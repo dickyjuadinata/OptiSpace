@@ -10,6 +10,36 @@
         .bg-iss-blue { background-color: #0066FF; }
         .text-iss-blue { color: #0066FF; }
         .border-iss-blue { border-color: #0066FF; }
+        
+        /* Tambahan style untuk Custom Searchable Dropdown */
+        .searchable-dropdown-container {
+            position: relative;
+        }
+        .searchable-dropdown-list {
+            position: absolute;
+            z-index: 50;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-top: 4px;
+            display: none;
+        }
+        .searchable-dropdown-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        .searchable-dropdown-item:hover, .searchable-dropdown-item.active {
+            background-color: #eff6ff;
+            color: #0066FF;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
@@ -299,7 +329,77 @@
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
             updateOnlineStatus();
+            initSearchableDropdowns();
         };
+
+        // Fungsi inisialisasi Searchable Dropdown untuk semua input ber-atribut [list]
+        function initSearchableDropdowns() {
+            const inputs = document.querySelectorAll("input[list]");
+            inputs.forEach(input => {
+                const listId = input.getAttribute("list");
+                const datalist = document.getElementById(listId);
+                if (!datalist) return;
+
+                // Bungkus input dengan kontainer relatif
+                const wrapper = document.createElement("div");
+                wrapper.className = "searchable-dropdown-container";
+                input.parentNode.insertBefore(wrapper, input);
+                wrapper.appendChild(input);
+
+                // Buat elemen dropdown list kustom
+                const dropdown = document.createElement("div");
+                dropdown.className = "searchable-dropdown-list";
+                wrapper.appendChild(dropdown);
+
+                function updateDropdownOptions(filterText = "") {
+                    const options = datalist.querySelectorAll("option");
+                    dropdown.innerHTML = "";
+                    let count = 0;
+                    
+                    options.forEach(opt => {
+                        const val = opt.value;
+                        if (val.toLowerCase().includes(filterText.toLowerCase())) {
+                            const item = document.createElement("div");
+                            item.className = "searchable-dropdown-item";
+                            item.innerText = val;
+                            item.addEventListener("mousedown", (e) => {
+                                e.preventDefault(); // Mencegah blur input sebelum klik tereksekusi
+                                input.value = val;
+                                input.dispatchEvent(new Event('input', { bubbles: true }));
+                                input.dispatchEvent(new Event('change', { bubbles: true }));
+                                dropdown.style.display = "none";
+                            });
+                            dropdown.appendChild(item);
+                            count++;
+                        }
+                    });
+
+                    dropdown.style.display = count > 0 ? "block" : "none";
+                }
+
+                input.addEventListener("focus", () => {
+                    updateDropdownOptions(input.value);
+                });
+
+                input.addEventListener("input", () => {
+                    updateDropdownOptions(input.value);
+                });
+
+                input.addEventListener("blur", () => {
+                    setTimeout(() => {
+                        dropdown.style.display = "none";
+                    }, 200);
+                });
+
+                // Observer untuk memantau perubahan isi <datalist> secara dinamis (misal saat data load dari server)
+                const observer = new MutationObserver(() => {
+                    if (document.activeElement === input) {
+                        updateDropdownOptions(input.value);
+                    }
+                });
+                observer.observe(datalist, { childList: true, subtree: true });
+            });
+        }
 
         async function downloadExcel() {
             if (!currentUser || isAdmin) return;
