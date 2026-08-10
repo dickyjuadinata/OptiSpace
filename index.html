@@ -39,14 +39,12 @@
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username / Role</label>
-                    <input type="text" id="username" required onblur="fetchLoginProjects()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
+                    <input type="text" id="username" required oninput="fetchLoginProjects()" onblur="fetchLoginProjects()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
                 </div>
                 <div id="projectInputContainer">
                     <label class="block text-sm font-medium text-gray-700">Nama Project Awal</label>
-                    <select id="loginProject" onchange="handleLoginProjectChange()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
-                        <option value="">-- Pilih / Masukkan Username Terlebih Dahulu --</option>
-                    </select>
-                    <input type="text" id="loginNewProjectInput" placeholder="Ketik nama project baru..." class="w-full mt-2 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none hidden">
+                    <input type="text" id="loginProject" list="loginProjectList" placeholder="Ketik atau pilih nama project..." class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
+                    <datalist id="loginProjectList"></datalist>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">PIN Akses</label>
@@ -81,11 +79,10 @@
                     <h3 class="text-xl font-bold text-iss-blue mb-4">Pilih Project</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Pilih Project Tersedia</label>
+                            <label class="block text-sm font-medium text-gray-700">Pilih / Ketik Project Tersedia</label>
                             <div class="flex gap-2 mt-1">
-                                <select id="selectProject" onchange="handleProjectSelection()" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                    <option value="">-- Pilih Project --</option>
-                                </select>
+                                <input type="text" id="selectProject" list="selectProjectList" onchange="handleProjectSelection()" oninput="handleProjectSelection()" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                <datalist id="selectProjectList"></datalist>
                                 <button type="button" onclick="deleteCurrentProject()" class="bg-red-500 text-white px-4 py-3 rounded-xl font-semibold hover:bg-red-600 transition whitespace-nowrap" title="Hapus Project Ini">Hapus</button>
                             </div>
                         </div>
@@ -116,17 +113,17 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Jenis Permukaan Lantai *</label>
-                                <select id="jenis_permukaan" required class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                                    <option value="">Pilih Jenis Permukaan...</option>
-                                    <option value="Keramik">Keramik</option>
-                                    <option value="Vinyl">Vinyl</option>
-                                    <option value="Karpet">Karpet</option>
-                                    <option value="Epoxy">Epoxy</option>
-                                    <option value="Parket">Parket</option>
-                                    <option value="Semen/Beton">Semen/Beton</option>
-                                    <option value="Granit">Granit</option>
-                                    <option value="Lainnya">Lainnya</option>
-                                </select>
+                                <input type="text" id="jenis_permukaan" list="jenisPermukaanList" required placeholder="Ketik / pilih jenis..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                <datalist id="jenisPermukaanList">
+                                    <option value="Keramik"></option>
+                                    <option value="Vinyl"></option>
+                                    <option value="Karpet"></option>
+                                    <option value="Epoxy"></option>
+                                    <option value="Parket"></option>
+                                    <option value="Semen/Beton"></option>
+                                    <option value="Granit"></option>
+                                    <option value="Lainnya"></option>
+                                </datalist>
                             </div>
                         </div>
 
@@ -184,9 +181,8 @@
                             <h3 class="text-xl font-bold text-iss-blue">Dashboard Analitik Ruang</h3>
                             <div class="w-full md:w-64">
                                 <label class="block text-xs font-medium text-gray-700 mb-1">Pilih Project</label>
-                                <select id="dashboardProjectSelect" onchange="renderAnalytics()" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
-                                    <option value="">Semua Project</option>
-                                </select>
+                                <input type="text" id="dashboardProjectSelect" list="dashboardProjectList" oninput="renderAnalytics()" placeholder="Ketik / pilih project (Kosongkan = Semua)..." class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
+                                <datalist id="dashboardProjectList"></datalist>
                             </div>
                         </div>
                         
@@ -292,6 +288,7 @@
         let currentProject = localStorage.getItem("survey_project") || "";
         let chartInstanceGedung = null;
         let chartInstanceLantai = null;
+        let fetchLoginTimer = null;
 
         window.onload = () => {
             if (currentUser) {
@@ -382,40 +379,43 @@
         }
 
         function fetchLoginProjects() {
-            const usernameInput = document.getElementById("username").value.trim();
-            const selectProject = document.getElementById("loginProject");
-            
-            if (usernameInput === "admin") {
-                selectProject.innerHTML = '<option value="admin">Admin System</option>';
-                return;
-            }
+            clearTimeout(fetchLoginTimer);
+            fetchLoginTimer = setTimeout(async () => {
+                const usernameInput = document.getElementById("username").value.trim();
+                const datalist = document.getElementById("loginProjectList");
+                if (!datalist) return;
 
-            if (!usernameInput) {
-                selectProject.innerHTML = '<option value="">-- Pilih Username Terlebih Dahulu --</option>';
-                return;
-            }
+                if (usernameInput.toLowerCase() === "admin") {
+                    datalist.innerHTML = '<option value="Admin System">';
+                    return;
+                }
 
-            let projects = JSON.parse(localStorage.getItem(`projects_${usernameInput}`)) || [];
-            selectProject.innerHTML = '<option value="">-- Pilih Project --</option>';
-            projects.forEach(p => {
-                selectProject.innerHTML += `<option value="${p}">${p}</option>`;
-            });
-            selectProject.innerHTML += '<option value="__new__">➕ Buat Project Baru...</option>';
-        }
+                if (!usernameInput) {
+                    datalist.innerHTML = '';
+                    return;
+                }
 
-        function handleLoginProjectChange() {
-            const selectProject = document.getElementById("loginProject");
-            const newInput = document.getElementById("loginNewProjectInput");
-            
-            if (selectProject.value === "__new__") {
-                newInput.classList.remove("hidden");
-                newInput.required = true;
-                newInput.focus();
-            } else {
-                newInput.classList.add("hidden");
-                newInput.required = false;
-                newInput.value = "";
-            }
+                // Cek data lokal terlebih dahulu
+                let localProjects = JSON.parse(localStorage.getItem(`projects_${usernameInput}`)) || [];
+                if (localProjects.length > 0) {
+                    datalist.innerHTML = localProjects.map(p => `<option value="${p}">`).join('');
+                }
+
+                // Ambil daftar project terbaru milik username dari Google Drive/Server
+                if (navigator.onLine) {
+                    try {
+                        let res = await fetch(API_URL, {
+                            method: "POST",
+                            body: JSON.stringify({ action: "getUserProjects", username: usernameInput })
+                        });
+                        let json = await res.json();
+                        if (json.status === "success" && json.projects) {
+                            localStorage.setItem(`projects_${usernameInput}`, JSON.stringify(json.projects));
+                            datalist.innerHTML = json.projects.map(p => `<option value="${p}">`).join('');
+                        }
+                    } catch (e) {}
+                }
+            }, 300);
         }
 
         async function handleLogin(e) {
@@ -424,13 +424,11 @@
             const pin = document.getElementById("pin").value;
             
             let project = "";
-            if (username !== "admin") {
-                const selectProjectVal = document.getElementById("loginProject").value;
-                const newInputVal = document.getElementById("loginNewProjectInput").value.trim();
-                project = selectProjectVal === "__new__" ? newInputVal : selectProjectVal;
+            if (username.toLowerCase() !== "admin") {
+                project = document.getElementById("loginProject").value.trim();
 
                 if (!project) {
-                    alert("Silakan pilih atau buat nama project terlebih dahulu!");
+                    alert("Silakan pilih atau ketik nama project terlebih dahulu!");
                     return;
                 }
             }
@@ -561,16 +559,17 @@
                 localStorage.setItem("survey_project", currentProject);
             }
             
-            const select = document.getElementById("selectProject");
-            select.innerHTML = '<option value="">-- Pilih Project --</option>';
-            projects.forEach(p => {
-                select.innerHTML += `<option value="${p}" ${p === currentProject ? 'selected' : ''}>${p}</option>`;
-            });
+            const datalist = document.getElementById("selectProjectList");
+            const input = document.getElementById("selectProject");
+            if (input) input.value = currentProject || "";
+            if (datalist) {
+                datalist.innerHTML = projects.map(p => `<option value="${p}">`).join('');
+            }
         }
 
         function handleProjectSelection() {
-            const val = document.getElementById("selectProject").value;
-            if (val) {
+            const val = document.getElementById("selectProject").value.trim();
+            if (val && val !== currentProject) {
                 currentProject = val;
                 localStorage.setItem("survey_project", currentProject);
                 loadData();
@@ -660,17 +659,11 @@
                         let localRows = getLocalData();
                         let mergedMap = new Map();
                         
-                        // Perbaikan: Kunci unik menggunakan kombinasi Gedung, Lantai, dan Nama Ruang
-                        serverRows.forEach(row => {
-                            let key = `${(row.gedung||'').trim()}_${(row.lantai||'').toString().trim()}_${(row.nama_ruang||'').trim()}`;
-                            mergedMap.set(key, row);
-                        });
-
+                        serverRows.forEach(row => mergedMap.set(row.nama_ruang, row));
                         localRows.forEach(localRow => {
-                            let key = `${(localRow.gedung||'').trim()}_${(localRow.lantai||'').toString().trim()}_${(localRow.nama_ruang||'').trim()}`;
-                            let existing = mergedMap.get(key);
+                            let existing = mergedMap.get(localRow.nama_ruang);
                             if (!existing || (localRow.updated_at && localRow.updated_at > (existing.updated_at || 0))) {
-                                mergedMap.set(key, localRow);
+                                mergedMap.set(localRow.nama_ruang, localRow);
                             }
                         });
 
@@ -802,15 +795,16 @@
 
         function populateDashboardProjectDropdown() {
             let projects = getProjectsList();
-            const select = document.getElementById("dashboardProjectSelect");
-            select.innerHTML = '<option value="">Semua Project</option>';
-            projects.forEach(p => {
-                select.innerHTML += `<option value="${p}" ${p === currentProject ? 'selected' : ''}>${p}</option>`;
-            });
+            const datalist = document.getElementById("dashboardProjectList");
+            const input = document.getElementById("dashboardProjectSelect");
+            if (input) input.value = currentProject || "";
+            if (datalist) {
+                datalist.innerHTML = projects.map(p => `<option value="${p}">`).join('');
+            }
         }
 
         function renderAnalytics() {
-            const selectedProj = document.getElementById("dashboardProjectSelect").value;
+            const selectedProj = document.getElementById("dashboardProjectSelect").value.trim();
             let rawRows = [];
             if (selectedProj) {
                 rawRows = JSON.parse(localStorage.getItem(`data_${currentUser}_${selectedProj}`)) || [];
