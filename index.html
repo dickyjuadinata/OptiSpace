@@ -1285,6 +1285,7 @@
                     logBody.innerHTML = logHtml || "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Belum ada aktivitas.</td></tr>";
 
                     let usersMeta = json.usersMeta || [];
+                    let registeredUsersList = usersMeta.map(m => m.user);
                     let approvalHtml = "";
                     usersMeta.forEach(m => {
                         let statusBadge = m.status === "ACTIVE" ? `<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">ACTIVE</span>` : `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">PENDING</span>`;
@@ -1308,20 +1309,40 @@
                     });
 
                     let usersData = Object.values(mergedMap);
-                    let html = "";
+
+                    // Fitur 3: Tombol hapus data user yang akunnya sudah tidak terdaftar
+                    let orphanedUsers = usersData.filter(u => !registeredUsersList.includes(u.user));
+                    let orphanCleanBanner = "";
+                    if (orphanedUsers.length > 0) {
+                        orphanCleanBanner = `
+                            <div class="bg-red-50 border border-red-200 p-4 rounded-xl flex justify-between items-center mb-4">
+                                <div class="text-sm text-red-700 font-semibold">
+                                    ⚠️ Terdapat data survey dari ${orphanedUsers.length} user yang akunnya telah dihapus.
+                                </div>
+                                <button onclick="deleteOrphanedUserData()" class="bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-red-700 transition">
+                                    Hapus Data User Terhapus
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    let html = orphanCleanBanner;
                     usersData.forEach((u, idx) => {
                         let analyticsData = processStructuredAnalytics(u.projectsMap);
 
                         let htmlAdmin1 = "";
                         for (let p in analyticsData.projectSummary) {
-                            htmlAdmin1 += `<div class="flex justify-between border-b pb-1 text-xs"><span>${p}</span><span class="font-bold text-iss-blue">${analyticsData.projectSummary[p].gedungSet.size} Gedung</span></div>`;
+                            let deleteProjectBtn = `<button onclick="adminDeleteProject('${u.user}', '${p}')" class="text-red-600 hover:underline ml-2 text-xs font-bold">[Hapus Project]</button>`;
+                            let gCount = analyticsData.projectSummary[p].gedungSet.size;
+                            htmlAdmin1 += `<div class="flex justify-between items-center border-b pb-1 text-xs"><span>${p} ${deleteProjectBtn}</span><span class="font-bold text-iss-blue">${gCount} Gedung</span></div>`;
                         }
 
                         let htmlAdmin2 = "";
                         for (let p in analyticsData.projectSummary) {
                             htmlAdmin2 += `<div class="font-bold text-iss-blue mt-1 text-xs">${p} (Total: ${formatLuas(analyticsData.projectSummary[p].totalLuas)} m²)</div>`;
                             for (let g in analyticsData.projectSummary[p].gedungLuas) {
-                                htmlAdmin2 += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>Gedung: ${g}</span><span>${formatLuas(analyticsData.projectSummary[p].gedungLuas[g])} m²</span></div>`;
+                                let deleteGedungBtn = `<button onclick="adminDeleteGedung('${u.user}', '${p}', '${g}')" class="text-red-600 hover:underline ml-2 font-bold">[Hapus Gedung]</button>`;
+                                htmlAdmin2 += `<div class="flex justify-between items-center border-b pb-1 pl-2 text-xs"><span>Gedung: ${g} ${deleteGedungBtn}</span><span>${formatLuas(analyticsData.projectSummary[p].gedungLuas[g])} m²</span></div>`;
                             }
                         }
 
@@ -1438,6 +1459,72 @@
                     alert(json.message);
                     if (json.status === "success") loadAdminData();
                 } catch (e) {
+                } finally {
+                    hideLoading();
+                }
+            }
+        }
+
+        // Fitur Tambahan 1: Admin dapat menghapus project milik user
+        async function adminDeleteProject(targetUser, projectName) {
+            if (confirm(`Hapus seluruh project "${projectName}" milik user ${targetUser}?`)) {
+                showLoading("Menghapus project user...");
+                try {
+                    let res = await fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: "adminDeleteProject", adminUser: currentUser, targetUser: targetUser, project: projectName })
+                    });
+                    let json = await res.json();
+                    alert(json.message || "Project berhasil dihapus.");
+                    if (json.status === "success") {
+                        loadAdminData();
+                    }
+                } catch (e) {
+                    alert("Terjadi kesalahan saat menghapus project.");
+                } finally {
+                    hideLoading();
+                }
+            }
+        }
+
+        // Fitur Tambahan 2: Admin dapat menghapus gedung pada project users
+        async function adminDeleteGedung(targetUser, projectName, gedungName) {
+            if (confirm(`Hapus Gedung "${gedungName}" pada project "${projectName}" milik user ${targetUser}?`)) {
+                showLoading("Menghapus gedung...");
+                try {
+                    let res = await fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: "adminDeleteGedung", adminUser: currentUser, targetUser: targetUser, project: projectName, gedung: gedungName })
+                    });
+                    let json = await res.json();
+                    alert(json.message || "Gedung berhasil dihapus.");
+                    if (json.status === "success") {
+                        loadAdminData();
+                    }
+                } catch (e) {
+                    alert("Terjadi kesalahan saat menghapus gedung.");
+                } finally {
+                    hideLoading();
+                }
+            }
+        }
+
+        // Fitur Tambahan 3: Admin dapat menghapus data users yang user-nya telah dihapus
+        async function deleteOrphanedUserData() {
+            if (confirm("Hapus seluruh data survey dari user yang akunnya sudah dihapus?")) {
+                showLoading("Membersihkan data user terhapus...");
+                try {
+                    let res = await fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: "deleteOrphanedUserData", adminUser: currentUser })
+                    });
+                    let json = await res.json();
+                    alert(json.message || "Data berhasil dibersihkan.");
+                    if (json.status === "success") {
+                        loadAdminData();
+                    }
+                } catch (e) {
+                    alert("Terjadi kesalahan saat membersihkan data.");
                 } finally {
                     hideLoading();
                 }
