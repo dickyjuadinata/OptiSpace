@@ -114,7 +114,6 @@
         <div id="userInfo" class="text-sm hidden items-center gap-2">
             <span id="displayUser" class="font-semibold"></span> | 
             <button onclick="switchView('dashboard')" id="navDashboardBtn" class="underline">Dashboard</button>
-            <!-- Diubah dari "Survey (Pilih Project)" menjadi "Project" -->
             <button onclick="switchView('survey'); toggleProjectModal(true);" id="navSurveyBtn" class="underline hidden">Project</button>
             <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="underline hidden">Download Excel</button>
             <button onclick="downloadPpt()" id="navDownloadPptBtn" class="underline hidden">Download PPT</button>
@@ -218,7 +217,6 @@
                 <!-- Daftar Ruang dengan Fitur Expand & Collapse (Default Collapse/Hidden) -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
                     <div class="flex justify-between items-center mb-4">
-                        <!-- Judul diganti dinamis menampilkan Nama Project yang aktif -->
                         <h3 id="tableTitle" class="text-xl font-bold text-iss-blue">Project: -</h3>
                         <div class="space-x-2">
                             <button type="button" onclick="toggleTableCollapse()" id="collapseTableBtn" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-300 transition">Collapse / Expand</button>
@@ -827,7 +825,6 @@
                 activeBadge.innerText = currentProject || "Belum dipilih";
             }
             
-            // Update judul tabel data ruang menjadi nama project yang aktif
             const tableTitle = document.getElementById("tableTitle");
             if (tableTitle) {
                 tableTitle.innerText = currentProject ? `Project: ${currentProject}` : "Project: -";
@@ -1011,6 +1008,13 @@
             resetForm();
             renderTable();
             syncOfflineData();
+
+            // Otomatis arahkan kursor kembali ke kolom Nama Ruang setelah data tersimpan
+            const namaRuangInput = document.getElementById("nama_ruang");
+            if (namaRuangInput) {
+                namaRuangInput.focus();
+                namaRuangInput.select();
+            }
         }
 
         function insertRowAfter(index) {
