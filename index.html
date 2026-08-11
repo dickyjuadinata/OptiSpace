@@ -418,7 +418,13 @@
                 activeIndex = -1;
 
                 const isFullySelected = input.selectionStart === 0 && input.selectionEnd === input.value.length;
-                const filtered = (isFullySelected || !filter) ? options : options.filter(opt => opt.toLowerCase().includes(filter));
+                
+Model dropdown pada gambar tersebut adalah Searchable Dropdown (atau sering juga disebut Select with Search / Autocomplete Dropdown / Filterable Select).
+
+Dropdown ini memungkinkan pengguna untuk:
+
+* Memilih opsi dari daftar yang tersedia secara langsung. 
+* Mengetik teks tertentu (misalnya huruf "a") di dalam kolom pencarian internal untuk memfilter atau mempersempit pilihan secara instan tanpa harus menggulir (scroll) seluruh daftar yang panjang.;
 
                 if (filtered.length === 0) {
                     dropdown.style.display = "none";
