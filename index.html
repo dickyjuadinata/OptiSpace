@@ -116,6 +116,10 @@
                             <div class="mt-1">
                                 <input type="text" id="selectProject" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
                             </div>
+                            <!-- Indikator Visual Project Aktif -->
+                            <p class="mt-2 text-xs font-semibold text-gray-500 flex items-center gap-1">
+                                📌 Project Aktif: <span id="activeProjectBadge" class="text-iss-blue font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">-</span>
+                            </p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Atau Buat Project Baru</label>
@@ -656,6 +660,7 @@
                 tabDashboard.classList.add("hidden");
                 navSurveyBtn.classList.add("font-bold");
                 navDashboardBtn.classList.remove("font-bold");
+                loadProjectsList();
             } else {
                 tabSurvey.classList.add("hidden");
                 tabDashboard.classList.remove("hidden");
@@ -708,6 +713,13 @@
             localStorage.setItem(`projects_${currentUser}`, JSON.stringify(projects));
         }
 
+        function updateActiveProjectUI() {
+            const activeBadge = document.getElementById("activeProjectBadge");
+            if (activeBadge) {
+                activeBadge.innerText = currentProject || "Belum dipilih";
+            }
+        }
+
         function loadProjectsList() {
             let projects = getProjectsList();
             if (!currentProject && projects.length > 0) {
@@ -717,6 +729,7 @@
             
             const input = document.getElementById("selectProject");
             if (input) input.value = currentProject || "";
+            updateActiveProjectUI();
         }
 
         function handleProjectSelection() {
@@ -724,6 +737,7 @@
             if (val && val !== currentProject) {
                 currentProject = val;
                 localStorage.setItem("survey_project", currentProject);
+                updateActiveProjectUI();
                 loadData();
             }
         }
@@ -959,7 +973,7 @@
 
         function populateDashboardProjectDropdown() {
             const input = document.getElementById("dashboardProjectSelect");
-            if (input) input.value = ""; // Default diawali dengan BLANK untuk menampilkan agregat seluruh project
+            if (input) input.value = ""; // Default diawali dengan BLANK pada dashboard analitik
         }
 
         function renderAnalytics() {
