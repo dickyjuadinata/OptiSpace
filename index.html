@@ -526,16 +526,33 @@
                 showDashboard();
                 await fetchUserProjectsList();
                 loadProjectsList();
-                if (currentProject) {
-                    await loadData();
-                } else {
-                    renderTable();
-                }
+                await syncAllProjectsData(); // Sinkronisasi data project agar dashboard langsung terisi
             }
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
             updateOnlineStatus();
         };
+
+        async function syncAllProjectsData() {
+            let projects = getProjectsList();
+            if (navigator.onLine && !isAdmin && projects.length > 0) {
+                for (let proj of projects) {
+                    try {
+                        let res = await fetch(API_URL, {
+                            method: "POST",
+                            body: JSON.stringify({ action: "getData", username: currentUser, project: proj })
+                        });
+                        let json = await res.json();
+                        if (json.status === "success" && json.rows) {
+                            localStorage.setItem(`data_${currentUser}_${proj}`, JSON.stringify(json.rows));
+                        }
+                    } catch (e) {}
+                }
+            }
+            if (!isAdmin) {
+                renderAnalytics(); // Langsung render dashboard setelah data disinkronkan
+            }
+        }
 
         async function downloadExcel() {
             if (!currentUser || isAdmin) return;
@@ -659,18 +676,13 @@
                 if (result.status === "success") {
                     currentUser = username;
                     isAdmin = result.isAdmin || false;
-                    currentProject = ""; // Dikosongkan saat pertama masuk agar halaman survey kosong
                     localStorage.setItem("survey_user", username);
                     localStorage.setItem("survey_is_admin", isAdmin);
-                    localStorage.removeItem("survey_project");
 
                     showDashboard();
                     await fetchUserProjectsList();
                     loadProjectsList();
-                    
-                    if (!isAdmin) {
-                        switchView('survey'); // Masuk ke halaman survey secara kosong
-                    }
+                    await syncAllProjectsData(); // Langsung tarik data dan segarkan dashboard
                 } else {
                     alert(result.message);
                 }
@@ -700,7 +712,7 @@
                 document.getElementById("navSurveyBtn").classList.remove("hidden");
             }
             
-            switchView('dashboard');
+            switchView('dashboard'); // Halaman awal setelah login diatur ke dashboard
         }
 
         function switchView(viewName) {
@@ -742,7 +754,7 @@
                     document.getElementById("userDashboardView").classList.remove("hidden");
                     document.getElementById("adminDashboardView").classList.add("hidden");
                     populateDashboardProjectDropdown();
-                    renderAnalytics(); // Langsung memuat analitik tanpa menunggu refresh
+                    renderAnalytics(); // Segarkan analitik dashboard saat dibuka
                 }
             }
         }
