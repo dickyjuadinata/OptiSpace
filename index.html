@@ -82,8 +82,8 @@
         <h1 class="font-bold text-lg">Room Survey App</h1>
         <div id="userInfo" class="text-sm hidden items-center gap-2">
             <span id="displayUser" class="font-semibold"></span> | 
-            <button onclick="switchView('dashboard')" id="navDashboardBtn" class="underline">Dashboard</button>
             <button onclick="switchView('survey')" id="navSurveyBtn" class="underline hidden">Survey</button>
+            <button onclick="switchView('dashboard')" id="navDashboardBtn" class="underline">Dashboard</button>
             <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="underline hidden">Download Excel</button>
             <button onclick="downloadPpt()" id="navDownloadPptBtn" class="underline hidden">Download PPT</button>
             <button onclick="logout()" class="underline ml-2">Keluar</button>
@@ -103,11 +103,7 @@
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username / Role</label>
-                    <input type="text" id="username" required oninput="fetchLoginProjects()" onblur="fetchLoginProjects()" class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
-                </div>
-                <div id="projectInputContainer">
-                    <label class="block text-sm font-medium text-gray-700">Nama Project Awal</label>
-                    <input type="text" id="loginProject" placeholder="Ketik atau pilih nama project..." class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none bg-white">
+                    <input type="text" id="username" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">PIN Akses</label>
@@ -346,7 +342,6 @@
         let currentProject = localStorage.getItem("survey_project") || "";
         let chartInstanceGedung = null;
         let chartInstanceLantai = null;
-        let fetchLoginTimer = null;
 
         const jenisPermukaanOptions = [
             "Keramik", "Vinyl", "Karpet", "Epoxy", "Parket", "Semen/Beton", "Granit", "Lainnya"
@@ -520,24 +515,22 @@
         }
 
         function initCustomDropdowns() {
-            let getLoginProjects = () => {
-                const usernameInput = (document.getElementById("username")?.value || "").trim();
-                if (usernameInput.toLowerCase() === "admin") return ["Admin System"];
-                return JSON.parse(localStorage.getItem(`projects_${usernameInput}`)) || [];
-            };
-
-            setupCustomDropdown("loginProject", getLoginProjects);
             setupCustomDropdown("selectProject", getProjectsList, handleProjectSelection);
             setupCustomDropdown("jenis_permukaan", () => jenisPermukaanOptions);
             setupCustomDropdown("dashboardProjectSelect", getProjectsList, renderAnalytics);
         }
 
-        window.onload = () => {
+        window.onload = async () => {
             initCustomDropdowns();
             if (currentUser) {
                 showDashboard();
+                await fetchUserProjectsList();
                 loadProjectsList();
-                loadData();
+                if (currentProject) {
+                    await loadData();
+                } else {
+                    renderTable();
+                }
             }
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
@@ -576,7 +569,6 @@
             }
         }
 
-        // Placeholder fungsi download PPT (sesuaikan dengan endpoint backend jika ada)
         function downloadPpt() {
             if (!currentUser) return;
             alert("Fitur Download PPT sedang disiapkan.");
@@ -587,20 +579,17 @@
             const registerBtn = document.getElementById("tabRegisterBtn");
             const loginForm = document.getElementById("loginForm");
             const registerForm = document.getElementById("registerForm");
-            const projContainer = document.getElementById("projectInputContainer");
 
             if (tab === 'login') {
                 loginBtn.className = "flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue";
                 registerBtn.className = "flex-1 pb-3 font-medium text-gray-400";
                 loginForm.classList.remove("hidden");
                 registerForm.classList.add("hidden");
-                projContainer.classList.remove("hidden");
             } else {
                 registerBtn.className = "flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue";
                 loginBtn.className = "flex-1 pb-3 font-medium text-gray-400";
                 registerForm.classList.remove("hidden");
                 loginForm.classList.add("hidden");
-                projContainer.classList.add("hidden");
             }
         }
 
@@ -640,69 +629,48 @@
             }
         }
 
-        function fetchLoginProjects() {
-            clearTimeout(fetchLoginTimer);
-            fetchLoginTimer = setTimeout(async () => {
-                const usernameInput = document.getElementById("username").value.trim();
-                if (!usernameInput) return;
-
-                if (navigator.onLine && usernameInput.toLowerCase() !== "admin") {
-                    try {
-                        let res = await fetch(API_URL, {
-                            method: "POST",
-                            body: JSON.stringify({ action: "getUserProjects", username: usernameInput })
-                        });
-                        let json = await res.json();
-                        if (json.status === "success" && json.projects) {
-                            localStorage.setItem(`projects_${usernameInput}`, JSON.stringify(json.projects));
-                        }
-                    } catch (e) {}
+        async function fetchUserProjectsList() {
+            if (!navigator.onLine || !currentUser || currentUser.toLowerCase() === "admin") return;
+            try {
+                let res = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "getUserProjects", username: currentUser })
+                });
+                let json = await res.json();
+                if (json.status === "success" && json.projects) {
+                    saveProjectsList(json.projects);
                 }
-            }, 300);
+            } catch (e) {}
         }
 
         async function handleLogin(e) {
             e.preventDefault();
             const username = document.getElementById("username").value.trim();
             const pin = document.getElementById("pin").value;
-            
-            let project = "";
-            if (username.toLowerCase() !== "admin") {
-                project = document.getElementById("loginProject").value.trim();
-
-                if (!project) {
-                    alert("Silakan pilih atau ketik nama project terlebih dahulu!");
-                    return;
-                }
-            }
 
             showLoading("Memverifikasi login...");
             try {
                 let response = await fetch(API_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action: "login", username, pin, project })
+                    body: JSON.stringify({ action: "login", username, pin })
                 });
                 let result = await response.json();
 
                 if (result.status === "success") {
                     currentUser = username;
                     isAdmin = result.isAdmin || false;
-                    currentProject = project;
+                    currentProject = ""; // Dikosongkan saat pertama masuk agar halaman survey kosong
                     localStorage.setItem("survey_user", username);
                     localStorage.setItem("survey_is_admin", isAdmin);
-                    localStorage.setItem("survey_project", project);
-                    
-                    if (!isAdmin && project) {
-                        let projects = JSON.parse(localStorage.getItem(`projects_${currentUser}`)) || [];
-                        if (!projects.includes(project)) {
-                            projects.push(project);
-                            localStorage.setItem(`projects_${currentUser}`, JSON.stringify(projects));
-                        }
-                    }
+                    localStorage.removeItem("survey_project");
 
                     showDashboard();
+                    await fetchUserProjectsList();
                     loadProjectsList();
-                    loadData();
+                    
+                    if (!isAdmin) {
+                        switchView('survey'); // Masuk ke halaman survey secara kosong
+                    }
                 } else {
                     alert(result.message);
                 }
@@ -732,7 +700,6 @@
                 document.getElementById("navSurveyBtn").classList.remove("hidden");
             }
             
-            // Default halaman terbuka adalah Dashboard
             switchView('dashboard');
         }
 
@@ -750,7 +717,6 @@
                 navSurveyBtn.classList.add("font-bold");
                 navDashboardBtn.classList.remove("font-bold");
                 
-                // Aturan Tombol Download berdasarkan Halaman Survey
                 if (!isAdmin) {
                     navDownloadExcelBtn.classList.remove("hidden");
                 }
@@ -763,7 +729,6 @@
                 navSurveyBtn.classList.remove("font-bold");
                 navDashboardBtn.classList.add("font-bold");
 
-                // Aturan Tombol Download berdasarkan Halaman Dashboard
                 navDownloadExcelBtn.classList.add("hidden");
                 if (!isAdmin) {
                     navDownloadPptBtn.classList.remove("hidden");
@@ -777,7 +742,7 @@
                     document.getElementById("userDashboardView").classList.remove("hidden");
                     document.getElementById("adminDashboardView").classList.add("hidden");
                     populateDashboardProjectDropdown();
-                    renderAnalytics();
+                    renderAnalytics(); // Langsung memuat analitik tanpa menunggu refresh
                 }
             }
         }
@@ -824,23 +789,18 @@
 
         function loadProjectsList() {
             let projects = getProjectsList();
-            if (!currentProject && projects.length > 0) {
-                currentProject = projects[0];
-                localStorage.setItem("survey_project", currentProject);
-            }
-            
             const input = document.getElementById("selectProject");
             if (input) input.value = currentProject || "";
             updateActiveProjectUI();
         }
 
-        function handleProjectSelection() {
+        async function handleProjectSelection() {
             const val = document.getElementById("selectProject").value.trim();
-            if (val && val !== currentProject) {
+            if (val) {
                 currentProject = val;
                 localStorage.setItem("survey_project", currentProject);
                 updateActiveProjectUI();
-                loadData();
+                await loadData();
             }
         }
 
@@ -850,20 +810,17 @@
             if (!newProj) return;
 
             let projects = getProjectsList();
-            if (projects.includes(newProj)) {
-                alert("Project sudah ada.");
-                return;
+            if (!projects.includes(newProj)) {
+                projects.push(newProj);
+                saveProjectsList(projects);
             }
-
-            projects.push(newProj);
-            saveProjectsList(projects);
             currentProject = newProj;
             localStorage.setItem("survey_project", currentProject);
             input.value = "";
             loadProjectsList();
             saveLocalData([]);
             renderTable();
-            syncOfflineData();
+            await loadData();
         }
 
         function getLocalData() {
@@ -881,7 +838,10 @@
         }
 
         async function loadData() {
-            if (!currentProject) return;
+            if (!currentProject) {
+                renderTable();
+                return;
+            }
             if (navigator.onLine && !isAdmin) {
                 showLoading("Memuat data survey...");
                 try {
@@ -943,6 +903,11 @@
             const tbody = document.getElementById("dataTableBody");
             tbody.innerHTML = "";
 
+            if (!currentProject || rows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">${currentProject ? "Belum ada data ruang pada project ini." : "Silakan pilih atau buat project terlebih dahulu."}</td></tr>`;
+                return;
+            }
+
             rows.forEach((r, index) => {
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-gray-50">
@@ -964,7 +929,10 @@
 
         function saveRoomData(e) {
             e.preventDefault();
-            if (!currentProject) return;
+            if (!currentProject) {
+                alert("Silakan pilih project terlebih dahulu!");
+                return;
+            }
 
             const editIndex = document.getElementById("editIndex").value;
             const insertIndex = document.getElementById("insertIndex").value;
@@ -1076,7 +1044,6 @@
             if (input) input.value = "";
         }
 
-        // Helper untuk memproses struktur data 5 Poin Revisi Dashboard
         function processStructuredAnalytics(projectRowsMap) {
             let totalProjectsCount = Object.keys(projectRowsMap).length;
             let grandTotalLuas = 0;
@@ -1106,11 +1073,9 @@
                     projectSummary[proj].totalLuas += luas;
                     projectSummary[proj].gedungSet.add(gedung);
 
-                    // 1. Total Luas Gedung per Project
                     projectSummary[proj].gedungLuas[gedung] = (projectSummary[proj].gedungLuas[gedung] || 0) + luas;
                     globalGedungLuas[gedung] = (globalGedungLuas[gedung] || 0) + luas;
 
-                    // 2. Rincian Ruang dan Luas Ruang per Gedung per Project
                     if (!projectSummary[proj].gedungRuangDetails[gedung]) {
                         projectSummary[proj].gedungRuangDetails[gedung] = {};
                     }
@@ -1120,7 +1085,6 @@
                     projectSummary[proj].gedungRuangDetails[gedung][namaRuang].count += 1;
                     projectSummary[proj].gedungRuangDetails[gedung][namaRuang].totalLuas += luas;
 
-                    // 3. Rincian Luas Ruang per Jenis Lantai per Gedung per Project
                     if (!projectSummary[proj].gedungLantaiDetails[gedung]) {
                         projectSummary[proj].gedungLantaiDetails[gedung] = {};
                     }
@@ -1157,7 +1121,6 @@
             document.getElementById("statTotalProject").innerText = data.totalProjectsCount + " Project";
             document.getElementById("statTotalLuas").innerText = formatLuas(data.grandTotalLuas) + " m²";
 
-            // 1. Render Total Gedung per Project
             let html1 = "";
             for (let proj in data.projectSummary) {
                 let gCount = data.projectSummary[proj].gedungSet.size;
@@ -1165,7 +1128,6 @@
             }
             document.getElementById("statTotalGedungPerProject").innerHTML = html1 || "<p class='text-gray-500'>Tidak ada data</p>";
 
-            // 2. Render Total Luas Gedung per Project
             let html2 = "";
             for (let proj in data.projectSummary) {
                 html2 += `<div class="font-bold text-iss-blue mt-1">${proj} (Total: ${formatLuas(data.projectSummary[proj].totalLuas)} m²)</div>`;
@@ -1176,7 +1138,6 @@
             }
             document.getElementById("statTotalLuasGedungPerProject").innerHTML = html2 || "<p class='text-gray-500'>Tidak ada data</p>";
 
-            // 3. Render Rincian Ruang & Luas per Gedung per Project
             let html3 = "";
             for (let proj in data.projectSummary) {
                 html3 += `<div class="font-bold text-iss-blue mt-1">${proj}</div>`;
@@ -1190,7 +1151,6 @@
             }
             document.getElementById("statRincianRuangPerGedung").innerHTML = html3 || "<p class='text-gray-500'>Tidak ada data</p>";
 
-            // 4. Render Rincian Luas Ruang per Jenis Lantai per Gedung per Project
             let html4 = "";
             for (let proj in data.projectSummary) {
                 html4 += `<div class="bg-white p-3 rounded-xl border border-gray-200">
