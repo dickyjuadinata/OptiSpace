@@ -246,7 +246,7 @@
                             </div>
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
                                 <p class="text-sm text-gray-600">Total Luas Area Terukur</p>
-                                <h4 id="statTotalLuas" class="text-2xl font-bold text-iss-blue">0.00 m²</h4>
+                                <h4 id="statTotalLuas" class="text-2xl font-bold text-iss-blue">0.0 m²</h4>
                             </div>
                         </div>
 
@@ -1132,7 +1132,7 @@
             const data = processStructuredAnalytics(projectRowsMap);
 
             document.getElementById("statTotalProject").innerText = data.totalProjectsCount + " Project";
-            document.getElementById("statTotalLuas").innerText = data.grandTotalLuas.toFixed(2) + " m²";
+            document.getElementById("statTotalLuas").innerText = formatLuas(data.grandTotalLuas) + " m²";
 
             // 1. Render Total Gedung per Project
             let html1 = "";
@@ -1145,10 +1145,10 @@
             // 2. Render Total Luas Gedung per Project
             let html2 = "";
             for (let proj in data.projectSummary) {
-                html2 += `<div class="font-bold text-iss-blue mt-1">${proj} (Total: ${data.projectSummary[proj].totalLuas.toFixed(2)} m²)</div>`;
+                html2 += `<div class="font-bold text-iss-blue mt-1">${proj} (Total: ${formatLuas(data.projectSummary[proj].totalLuas)} m²)</div>`;
                 for (let g in data.projectSummary[proj].gedungLuas) {
                     let gLuas = data.projectSummary[proj].gedungLuas[g];
-                    html2 += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>Gedung: ${g}</span><span class="font-semibold">${gLuas.toFixed(2)} m²</span></div>`;
+                    html2 += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>Gedung: ${g}</span><span class="font-semibold">${formatLuas(gLuas)} m²</span></div>`;
                 }
             }
             document.getElementById("statTotalLuasGedungPerProject").innerHTML = html2 || "<p class='text-gray-500'>Tidak ada data</p>";
@@ -1161,7 +1161,7 @@
                     html3 += `<div class="font-semibold text-gray-700 text-xs pl-2 mt-1">Gedung: ${g}</div>`;
                     for (let rName in data.projectSummary[proj].gedungRuangDetails[g]) {
                         let rData = data.projectSummary[proj].gedungRuangDetails[g][rName];
-                        html3 += `<div class="flex justify-between border-b pb-1 pl-4 text-xs"><span>${rName} (${rData.count} ruang)</span><span>${rData.totalLuas.toFixed(2)} m²</span></div>`;
+                        html3 += `<div class="flex justify-between border-b pb-1 pl-4 text-xs"><span>${rName} (${rData.count} ruang)</span><span>${formatLuas(rData.totalLuas)} m²</span></div>`;
                     }
                 }
             }
@@ -1176,7 +1176,7 @@
                     html4 += `<div class="font-semibold text-gray-700 text-xs mb-1">Gedung: ${g}</div>`;
                     for (let lType in data.projectSummary[proj].gedungLantaiDetails[g]) {
                         let lLuas = data.projectSummary[proj].gedungLantaiDetails[g][lType];
-                        html4 += `<div class="flex justify-between border-b border-dashed pb-1 pl-2 text-xs mb-1"><span>${lType}</span><span class="font-semibold">${lLuas.toFixed(2)} m²</span></div>`;
+                        html4 += `<div class="flex justify-between border-b border-dashed pb-1 pl-2 text-xs mb-1"><span>${lType}</span><span class="font-semibold">${formatLuas(lLuas)} m²</span></div>`;
                     }
                 }
                 html4 += `</div>`;
@@ -1269,9 +1269,9 @@
 
                         let htmlAdmin2 = "";
                         for (let p in analyticsData.projectSummary) {
-                            htmlAdmin2 += `<div class="font-bold text-iss-blue mt-1 text-xs">${p} (Total: ${analyticsData.projectSummary[p].totalLuas.toFixed(2)} m²)</div>`;
+                            htmlAdmin2 += `<div class="font-bold text-iss-blue mt-1 text-xs">${p} (Total: ${formatLuas(analyticsData.projectSummary[p].totalLuas)} m²)</div>`;
                             for (let g in analyticsData.projectSummary[p].gedungLuas) {
-                                htmlAdmin2 += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>Gedung: ${g}</span><span>${analyticsData.projectSummary[p].gedungLuas[g].toFixed(2)} m²</span></div>`;
+                                htmlAdmin2 += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>Gedung: ${g}</span><span>${formatLuas(analyticsData.projectSummary[p].gedungLuas[g])} m²</span></div>`;
                             }
                         }
 
@@ -1282,7 +1282,7 @@
                                 htmlAdmin3 += `<div class="font-semibold text-gray-700 text-xs pl-2 mt-1">Gedung: ${g}</div>`;
                                 for (let rName in analyticsData.projectSummary[p].gedungRuangDetails[g]) {
                                     let rData = analyticsData.projectSummary[p].gedungRuangDetails[g][rName];
-                                    htmlAdmin3 += `<div class="flex justify-between border-b pb-1 pl-4 text-xs"><span>${rName} (${rData.count} ruang)</span><span>${rData.totalLuas.toFixed(2)} m²</span></div>`;
+                                    htmlAdmin3 += `<div class="flex justify-between border-b pb-1 pl-4 text-xs"><span>${rName} (${rData.count} ruang)</span><span>${formatLuas(rData.totalLuas)} m²</span></div>`;
                                 }
                             }
                         }
@@ -1294,7 +1294,7 @@
                             for (let g in analyticsData.projectSummary[p].gedungLantaiDetails) {
                                 htmlAdmin4 += `<div class="font-semibold text-gray-700 text-xs mb-1">Gedung: ${g}</div>`;
                                 for (let lType in analyticsData.projectSummary[p].gedungLantaiDetails[g]) {
-                                    htmlAdmin4 += `<div class="flex justify-between border-b border-dashed pb-1 pl-2 text-xs"><span>${lType}</span><span>${analyticsData.projectSummary[p].gedungLantaiDetails[g][lType].toFixed(2)} m²</span></div>`;
+                                    htmlAdmin4 += `<div class="flex justify-between border-b border-dashed pb-1 pl-2 text-xs"><span>${lType}</span><span>${formatLuas(analyticsData.projectSummary[p].gedungLantaiDetails[g][lType])} m²</span></div>`;
                                 }
                             }
                             htmlAdmin4 += `</div>`;
@@ -1307,7 +1307,7 @@
                                         <h4 class="font-bold text-xl text-iss-blue">User: ${u.user}</h4>
                                         <span id="adminCardIcon_${idx}" class="text-sm font-bold text-iss-blue">▼</span>
                                     </div>
-                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold">Total Projects: ${analyticsData.totalProjectsCount} | Luas: ${analyticsData.grandTotalLuas.toFixed(2)} m²</span>
+                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold">Total Projects: ${analyticsData.totalProjectsCount} | Luas: ${formatLuas(analyticsData.grandTotalLuas)} m²</span>
                                 </div>
                                 <div id="adminCardContent_${idx}" class="hidden space-y-4">
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
