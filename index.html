@@ -525,31 +525,49 @@
             setupCustomDropdown("dashboardProjectSelect", getProjectsList, renderAnalytics, true);
         }
 
-        function checkAndSubmitOnEnter() {
-            const namaRuang = document.getElementById("nama_ruang").value.trim();
-            const luasRuang = document.getElementById("luas_ruang").value.trim();
-            const jenisPermukaan = document.getElementById("jenis_permukaan").value.trim();
-
-            if (namaRuang !== "" && luasRuang !== "" && jenisPermukaan !== "") {
-                const fakeEvent = { preventDefault: () => {} };
-                saveRoomData(fakeEvent);
-            }
-        }
-
         window.onload = async () => {
             initCustomDropdowns();
 
-            ["nama_ruang", "luas_ruang", "jenis_permukaan"].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener("keydown", (e) => {
-                        if (e.key === "Enter") {
+            // Navigasi Enter antar kolom input utama survey
+            const namaRuangInput = document.getElementById("nama_ruang");
+            const luasRuangInput = document.getElementById("luas_ruang");
+            const jenisPermukaanInput = document.getElementById("jenis_permukaan");
+
+            if (namaRuangInput) {
+                namaRuangInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        luasRuangInput.focus();
+                        luasRuangInput.select();
+                    }
+                });
+            }
+
+            if (luasRuangInput) {
+                luasRuangInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        jenisPermukaanInput.focus();
+                        jenisPermukaanInput.select();
+                    }
+                });
+            }
+
+            if (jenisPermukaanInput) {
+                jenisPermukaanInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        const namaRuang = namaRuangInput.value.trim();
+                        const luasRuang = luasRuangInput.value.trim();
+                        const jenisPermukaan = jenisPermukaanInput.value.trim();
+
+                        if (namaRuang !== "" && luasRuang !== "" && jenisPermukaan !== "") {
                             e.preventDefault();
-                            checkAndSubmitOnEnter();
+                            const fakeEvent = { preventDefault: () => {} };
+                            saveRoomData(fakeEvent);
                         }
-                    });
-                }
-            });
+                    }
+                });
+            }
 
             if (currentUser) {
                 showDashboard();
@@ -1009,7 +1027,7 @@
             renderTable();
             syncOfflineData();
 
-            // Kursor otomatis pindah ke kolom Nama Ruang setelah data tersimpan
+            // Kursor otomatis kembali ke kolom Nama Ruang setelah data tersimpan
             document.getElementById("nama_ruang").focus();
         }
 
