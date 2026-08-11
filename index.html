@@ -214,7 +214,7 @@
                     </form>
                 </div>
 
-                <!-- Daftar Ruang dengan Fitur Expand & Collapse (Default Collapse/Hidden) -->
+                <!-- Daftar Ruang dengan Fitur Expand & Collapse -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
                     <div class="flex justify-between items-center mb-4">
                         <h3 id="tableTitle" class="text-xl font-bold text-iss-blue">Project: -</h3>
@@ -1009,12 +1009,8 @@
             renderTable();
             syncOfflineData();
 
-            // Otomatis arahkan kursor kembali ke kolom Nama Ruang setelah data tersimpan
-            const namaRuangInput = document.getElementById("nama_ruang");
-            if (namaRuangInput) {
-                namaRuangInput.focus();
-                namaRuangInput.select();
-            }
+            // Kursor otomatis pindah ke kolom Nama Ruang setelah data tersimpan
+            document.getElementById("nama_ruang").focus();
         }
 
         function insertRowAfter(index) {
