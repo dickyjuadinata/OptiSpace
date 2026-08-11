@@ -70,6 +70,37 @@
         </div>
     </div>
 
+    <!-- Modal Pop-up Pilih & Tambah Project di Navigasi Atas -->
+    <div id="projectModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-xs z-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-lg w-full mx-4 space-y-4 relative">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-xl font-bold text-iss-blue">Pilih atau Buat Project</h3>
+                <button onclick="toggleProjectModal(false)" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Pilih / Ketik Project Tersedia</label>
+                    <div class="mt-1">
+                        <input type="text" id="selectProject" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                    </div>
+                    <p class="mt-2 text-xs font-semibold text-gray-500 flex items-center gap-1">
+                        📌 Project Aktif: <span id="activeProjectBadge" class="text-iss-blue font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">-</span>
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Atau Buat Project Baru</label>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" id="newProjectInput" placeholder="Nama project baru..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                        <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition whitespace-nowrap">Tambah</button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end pt-2 border-t">
+                <button onclick="toggleProjectModal(false)" class="bg-iss-blue text-white px-5 py-2 rounded-xl text-sm font-semibold">Tutup</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Floating Back to Top Button -->
     <button id="scrollToTopBtn" onclick="scrollToTop()" class="fixed bottom-6 right-6 bg-iss-blue text-white p-3.5 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 hidden opacity-0 z-40 focus:outline-none cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -83,7 +114,7 @@
         <div id="userInfo" class="text-sm hidden items-center gap-2">
             <span id="displayUser" class="font-semibold"></span> | 
             <button onclick="switchView('dashboard')" id="navDashboardBtn" class="underline">Dashboard</button>
-            <button onclick="switchView('survey')" id="navSurveyBtn" class="underline hidden">Survey</button>
+            <button onclick="switchView('survey'); toggleProjectModal(true);" id="navSurveyBtn" class="underline hidden">Survey (Pilih Project)</button>
             <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="underline hidden">Download Excel</button>
             <button onclick="downloadPpt()" id="navDownloadPptBtn" class="underline hidden">Download PPT</button>
             <button onclick="logout()" class="underline ml-2">Keluar</button>
@@ -134,28 +165,6 @@
 
             <!-- TAB CONTENT: SURVEY / INPUT -->
             <div id="tabSurvey" class="hidden space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <h3 class="text-xl font-bold text-iss-blue mb-4">Pilih Project</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Pilih / Ketik Project Tersedia</label>
-                            <div class="mt-1">
-                                <input type="text" id="selectProject" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                            </div>
-                            <p class="mt-2 text-xs font-semibold text-gray-500 flex items-center gap-1">
-                                📌 Project Aktif: <span id="activeProjectBadge" class="text-iss-blue font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">-</span>
-                            </p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Atau Buat Project Baru</label>
-                            <div class="flex gap-2 mt-1">
-                                <input type="text" id="newProjectInput" placeholder="Nama project baru..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
-                                <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition whitespace-nowrap">Tambah</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Form Input / Edit / Sisip Ruang -->
                 <div class="bg-white p-6 rounded-2xl shadow-md" id="surveyFormCard">
                     <h3 id="formTitle" class="text-xl font-bold text-iss-blue mb-4">Input Data Ruang Baru</h3>
@@ -205,22 +214,30 @@
                     </form>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-md overflow-x-auto">
-                    <h3 class="text-xl font-bold text-iss-blue mb-4">Daftar Data Ruang Tersimpan</h3>
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-blue-50 text-iss-blue border-b">
-                                <th class="p-3">Nama Gedung</th>
-                                <th class="p-3">Lantai</th>
-                                <th class="p-3">Nama Ruang</th>
-                                <th class="p-3">Luas (m²)</th>
-                                <th class="p-3">Jenis Permukaan</th>
-                                <th class="p-3">Catatan</th>
-                                <th class="p-3 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dataTableBody"></tbody>
-                    </table>
+                <!-- Daftar Ruang dengan Fitur Expand & Collapse -->
+                <div class="bg-white p-6 rounded-2xl shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-iss-blue">Daftar Data Ruang Tersimpan</h3>
+                        <div class="space-x-2">
+                            <button type="button" onclick="toggleTableCollapse()" id="collapseTableBtn" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-300 transition">Collapse / Expand</button>
+                        </div>
+                    </div>
+                    <div id="tableContainerWrapper" class="overflow-x-auto transition-all duration-300">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-blue-50 text-iss-blue border-b">
+                                    <th class="p-3">Nama Gedung</th>
+                                    <th class="p-3">Lantai</th>
+                                    <th class="p-3">Nama Ruang</th>
+                                    <th class="p-3">Luas (m²)</th>
+                                    <th class="p-3">Jenis Permukaan</th>
+                                    <th class="p-3">Catatan</th>
+                                    <th class="p-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -347,7 +364,6 @@
             "Keramik", "Vinyl", "Karpet", "Epoxy", "Parket", "Semen/Beton", "Granit", "Lainnya"
         ];
 
-        // Memantau scroll layar untuk menampilkan/menyembunyikan tombol Back to Top
         window.addEventListener('scroll', () => {
             const btn = document.getElementById('scrollToTopBtn');
             if (window.scrollY > 300) {
@@ -359,15 +375,10 @@
             }
         });
 
-        // Fungsi scroll ke paling atas
         function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Helper fungsi untuk menampilkan/menyembunyikan Loading
         function showLoading(text = "Memproses data...") {
             const overlay = document.getElementById("loadingOverlay");
             const loadingText = document.getElementById("loadingText");
@@ -384,7 +395,20 @@
             }
         }
 
-        // Engine Searchable Dropdown Kustom dengan Auto-Select saat Klik/Focus
+        function toggleProjectModal(show) {
+            const modal = document.getElementById("projectModal");
+            if (show) {
+                modal.classList.remove("hidden");
+            } else {
+                modal.classList.add("hidden");
+            }
+        }
+
+        function toggleTableCollapse() {
+            const wrapper = document.getElementById("tableContainerWrapper");
+            wrapper.classList.toggle("hidden");
+        }
+
         function setupCustomDropdown(inputId, getOptionsFn, onSelectCallback = null) {
             const input = document.getElementById(inputId);
             if (!input) return;
@@ -483,32 +507,6 @@
                 }
             });
 
-            input.addEventListener("keydown", (e) => {
-                const items = dropdown.querySelectorAll(".searchable-dropdown-item");
-                
-                if (dropdown.style.display === "block" && items.length > 0) {
-                    if (e.key === "Enter" || e.key === "Tab") {
-                        if (items.length === 1) {
-                            e.preventDefault();
-                            selectOption(items[0].innerText);
-                        } else if (activeIndex >= 0 && activeIndex < items.length) {
-                            e.preventDefault();
-                            selectOption(items[activeIndex].innerText);
-                        }
-                    } else if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        activeIndex = (activeIndex + 1) % items.length;
-                        updateActiveItem(items);
-                    } else if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        activeIndex = (activeIndex - 1 + items.length) % items.length;
-                        updateActiveItem(items);
-                    } else if (e.key === "Escape") {
-                        dropdown.style.display = "none";
-                    }
-                }
-            });
-
             input.addEventListener("blur", () => {
                 setTimeout(() => { dropdown.style.display = "none"; }, 200);
             });
@@ -526,7 +524,7 @@
                 showDashboard();
                 await fetchUserProjectsList();
                 loadProjectsList();
-                await syncAllProjectsData(); // Sinkronisasi data project agar dashboard langsung terisi
+                await syncAllProjectsData();
             }
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
@@ -550,7 +548,7 @@
                 }
             }
             if (!isAdmin) {
-                renderAnalytics(); // Langsung render dashboard setelah data disinkronkan
+                renderAnalytics();
             }
         }
 
@@ -566,11 +564,7 @@
             try {
                 let res = await fetch(API_URL, {
                     method: "POST",
-                    body: JSON.stringify({ 
-                        action: "getDownloadUrl", 
-                        username: currentUser, 
-                        project: currentProject 
-                    })
+                    body: JSON.stringify({ action: "getDownloadUrl", username: currentUser, project: currentProject })
                 });
                 let json = await res.json();
                 
@@ -682,7 +676,7 @@
                     showDashboard();
                     await fetchUserProjectsList();
                     loadProjectsList();
-                    await syncAllProjectsData(); // Langsung tarik data dan segarkan dashboard
+                    await syncAllProjectsData();
                 } else {
                     alert(result.message);
                 }
@@ -712,7 +706,7 @@
                 document.getElementById("navSurveyBtn").classList.remove("hidden");
             }
             
-            switchView('dashboard'); // Halaman awal setelah login diatur ke dashboard
+            switchView('dashboard');
         }
 
         function switchView(viewName) {
@@ -754,7 +748,7 @@
                     document.getElementById("userDashboardView").classList.remove("hidden");
                     document.getElementById("adminDashboardView").classList.add("hidden");
                     populateDashboardProjectDropdown();
-                    renderAnalytics(); // Segarkan analitik dashboard saat dibuka
+                    renderAnalytics();
                 }
             }
         }
