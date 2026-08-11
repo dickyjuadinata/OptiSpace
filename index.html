@@ -70,6 +70,13 @@
         </div>
     </div>
 
+    <!-- Floating Back to Top Button -->
+    <button id="scrollToTopBtn" onclick="scrollToTop()" class="fixed bottom-6 right-6 bg-iss-blue text-white p-3.5 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 hidden opacity-0 z-40 focus:outline-none cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+    </button>
+
     <!-- Navbar -->
     <header class="bg-iss-blue text-white p-4 shadow-md flex justify-between items-center">
         <h1 class="font-bold text-lg">Room Survey App</h1>
@@ -338,6 +345,26 @@
         const jenisPermukaanOptions = [
             "Keramik", "Vinyl", "Karpet", "Epoxy", "Parket", "Semen/Beton", "Granit", "Lainnya"
         ];
+
+        // Memantau scroll layar untuk menampilkan/menyembunyikan tombol Back to Top
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scrollToTopBtn');
+            if (window.scrollY > 300) {
+                btn.classList.remove('hidden');
+                setTimeout(() => btn.classList.remove('opacity-0'), 10);
+            } else {
+                btn.classList.add('opacity-0');
+                setTimeout(() => btn.classList.add('hidden'), 300);
+            }
+        });
+
+        // Fungsi scroll ke paling atas
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
 
         // Helper fungsi untuk menampilkan/menyembunyikan Loading
         function showLoading(text = "Memproses data...") {
