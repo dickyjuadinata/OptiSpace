@@ -1312,16 +1312,34 @@
                     usersData.forEach((u, idx) => {
                         let analyticsData = processStructuredAnalytics(u.projectsMap);
 
+                        // Fitur Hapus Data Orphaned
+                        let isUserExists = usersMeta.some(m => m.user === u.user);
+                        let orphanBtn = !isUserExists ? `<button onclick="event.stopPropagation(); adminDeleteAllUserData('${u.user}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-full text-xs font-semibold ml-2 transition shadow-sm">⚠️ Hapus Data Orphan (User Terhapus)</button>` : '';
+
                         let htmlAdmin1 = "";
                         for (let p in analyticsData.projectSummary) {
-                            htmlAdmin1 += `<div class="flex justify-between border-b pb-1 text-xs"><span>${p}</span><span class="font-bold text-iss-blue">${analyticsData.projectSummary[p].gedungSet.size} Gedung</span></div>`;
+                            // Fitur Hapus Project
+                            htmlAdmin1 += `<div class="flex justify-between items-center border-b pb-1 text-xs">
+                                <span>${p}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-iss-blue">${analyticsData.projectSummary[p].gedungSet.size} Gedung</span>
+                                    <button onclick="adminDeleteProject('${u.user}', '${p}')" class="text-red-500 hover:text-red-700 px-1 rounded hover:bg-red-50 transition" title="Hapus Project">✕</button>
+                                </div>
+                            </div>`;
                         }
 
                         let htmlAdmin2 = "";
                         for (let p in analyticsData.projectSummary) {
                             htmlAdmin2 += `<div class="font-bold text-iss-blue mt-1 text-xs">${p} (Total: ${formatLuas(analyticsData.projectSummary[p].totalLuas)} m²)</div>`;
                             for (let g in analyticsData.projectSummary[p].gedungLuas) {
-                                htmlAdmin2 += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>Gedung: ${g}</span><span>${formatLuas(analyticsData.projectSummary[p].gedungLuas[g])} m²</span></div>`;
+                                // Fitur Hapus Gedung
+                                htmlAdmin2 += `<div class="flex justify-between items-center border-b pb-1 pl-2 text-xs">
+                                    <span>Gedung: ${g}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span>${formatLuas(analyticsData.projectSummary[p].gedungLuas[g])} m²</span>
+                                        <button onclick="adminDeleteGedung('${u.user}', '${p}', '${g}')" class="text-red-500 hover:text-red-700 px-1 rounded hover:bg-red-50 transition" title="Hapus Gedung">✕</button>
+                                    </div>
+                                </div>`;
                             }
                         }
 
@@ -1353,11 +1371,12 @@
                         html += `
                             <div class="border rounded-2xl p-6 bg-gray-50 space-y-4">
                                 <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleAdminCard(${idx})">
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-3 flex-wrap">
                                         <h4 class="font-bold text-xl text-iss-blue">User: ${u.user}</h4>
+                                        ${orphanBtn}
                                         <span id="adminCardIcon_${idx}" class="text-sm font-bold text-iss-blue">▼</span>
                                     </div>
-                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold">Total Projects: ${analyticsData.totalProjectsCount} | Luas: ${formatLuas(analyticsData.grandTotalLuas)} m²</span>
+                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2">Total Projects: ${analyticsData.totalProjectsCount} | Luas: ${formatLuas(analyticsData.grandTotalLuas)} m²</span>
                                 </div>
                                 <div id="adminCardContent_${idx}" class="hidden space-y-4">
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1443,6 +1462,55 @@
                 }
             }
         }
+
+        // Fitur Tambahan: Hapus Project via Admin
+        async function adminDeleteProject(targetUser, targetProject) {
+            if(confirm(`Hapus SELURUH data project '${targetProject}' milik user '${targetUser}'?`)) {
+                showLoading("Menghapus project...");
+                try {
+                    let res = await fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: "adminDeleteProject", adminUser: currentUser, targetUser: targetUser, targetProject: targetProject })
+                    });
+                    let json = await res.json();
+                    alert(json.message || "Berhasil dihapus.");
+                    loadAdminData(); // Refresh Data Admin
+                } catch (e) { alert("Gagal koneksi server."); } finally { hideLoading(); }
+            }
+        }
+
+        // Fitur Tambahan: Hapus Gedung via Admin
+        async function adminDeleteGedung(targetUser, targetProject, targetGedung) {
+            if(confirm(`Hapus data gedung '${targetGedung}' pada project '${targetProject}' milik user '${targetUser}'?`)) {
+                showLoading("Menghapus gedung...");
+                try {
+                    let res = await fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: "adminDeleteGedung", adminUser: currentUser, targetUser: targetUser, targetProject: targetProject, targetGedung: targetGedung })
+                    });
+                    let json = await res.json();
+                    alert(json.message || "Berhasil dihapus.");
+                    loadAdminData(); // Refresh Data Admin
+                } catch (e) { alert("Gagal koneksi server."); } finally { hideLoading(); }
+            }
+        }
+
+        // Fitur Tambahan: Hapus Semua Data Survey jika User telah dihapus
+        async function adminDeleteAllUserData(targetUser) {
+            if(confirm(`Akun User '${targetUser}' telah dihapus sebelumnya. Hapus SELURUH sisa data survey milik user ini?`)) {
+                showLoading("Menghapus semua sisa data user...");
+                try {
+                    let res = await fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: "adminDeleteUserData", adminUser: currentUser, targetUser: targetUser })
+                    });
+                    let json = await res.json();
+                    alert(json.message || "Berhasil dihapus.");
+                    loadAdminData(); // Refresh Data Admin
+                } catch (e) { alert("Gagal koneksi server."); } finally { hideLoading(); }
+            }
+        }
+
     </script>
 </body>
 </html>
