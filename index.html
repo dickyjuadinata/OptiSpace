@@ -81,12 +81,13 @@
     <header class="bg-iss-blue text-white p-4 shadow-md flex justify-between items-center">
         <h1 class="font-bold text-lg">Room Survey App</h1>
         <div id="userInfo" class="text-sm hidden items-center gap-2">
-            <span id="displayUser" class="font-semibold"></span> | 
-            <button onclick="switchView('survey')" id="navSurveyBtn" class="underline hidden">Survey</button>
-            <button onclick="switchView('dashboard')" id="navDashboardBtn" class="underline">Dashboard</button>
-            <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="underline hidden">Download Excel</button>
-            <button onclick="logout()" class="underline ml-2">Keluar</button>
-        </div>
+    <span id="displayUser" class="font-semibold"></span> | 
+    <button onclick="switchView('dashboard')" id="navDashboardBtn" class="underline">Dashboard</button>
+    <button onclick="switchView('survey')" id="navSurveyBtn" class="underline hidden">Survey</button>
+    <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="underline hidden">Download Excel</button>
+    <button onclick="downloadPPT()" id="navDownloadPPTBtn" class="underline hidden">Download PPT</button>
+    <button onclick="logout()" class="underline ml-2">Keluar</button>
+</div>
     </header>
 
     <!-- Main Container -->
