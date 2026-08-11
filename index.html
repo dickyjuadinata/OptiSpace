@@ -133,28 +133,45 @@
             </div>
 
             <!-- TAB CONTENT: SURVEY / INPUT -->
-            <div id="tabSurvey" class="hidden space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <h3 class="text-xl font-bold text-iss-blue mb-4">Pilih Project</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Pilih / Ketik Project Tersedia</label>
-                            <div class="mt-1">
-                                <input type="text" id="selectProject" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
-                            </div>
-                            <p class="mt-2 text-xs font-semibold text-gray-500 flex items-center gap-1">
-                                📌 Project Aktif: <span id="activeProjectBadge" class="text-iss-blue font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">-</span>
-                            </p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Atau Buat Project Baru</label>
-                            <div class="flex gap-2 mt-1">
-                                <input type="text" id="newProjectInput" placeholder="Nama project baru..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
-                                <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition whitespace-nowrap">Tambah</button>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Tombol Ringkas Project Aktif -->
+<div class="bg-white p-4 rounded-2xl shadow-md flex justify-between items-center mb-4">
+    <div>
+        <span class="text-xs text-gray-500 block">Project Aktif:</span>
+        <span id="activeProjectLabel" class="font-bold text-iss-blue text-base">Belum dipilih</span>
+    </div>
+    <button type="button" onclick="openProjectModal()" class="bg-iss-blue text-white px-4 py-2 rounded-xl text-sm font-semibold shadow hover:opacity-90">
+        Pilih / Ganti Project
+    </button>
+</div>
+
+<!-- Modal / Pop-up Pilih Project -->
+<div id="projectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50 p-4">
+    <div class="bg-white w-full max-w-lg p-6 rounded-2xl shadow-2xl relative">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="font-bold text-lg text-iss-blue">Pilih atau Buat Project</h2>
+            <button type="button" onclick="closeProjectModal()" class="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Pilih / Ketik Project Tersedia</label>
+                <input type="text" id="selectProject" class="w-full p-3 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-iss-blue" placeholder="Ketik / pilih project...">
+            </div>
+            <div class="text-center text-xs text-gray-400">ATAU</div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Atau Buat Project Baru</label>
+                <div class="flex gap-2">
+                    <input type="text" id="newProjectInput" class="w-full p-3 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-iss-blue" placeholder="Nama project baru...">
+                    <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-4 py-3 rounded-xl text-sm font-semibold">Tambah</button>
                 </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+            <button type="button" onclick="closeProjectModal()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-semibold">Tutup</button>
+        </div>
+    </div>
+</div>
 
                 <!-- Form Input / Edit / Sisip Ruang -->
                 <div class="bg-white p-6 rounded-2xl shadow-md" id="surveyFormCard">
@@ -383,6 +400,21 @@
                 overlay.classList.add("hidden");
             }
         }
+        // Fungsi untuk membuka Modal Project
+function openProjectModal() {
+    const modal = document.getElementById("projectModal");
+    if (modal) {
+        modal.classList.remove("hidden");
+    }
+}
+
+// Fungsi untuk menutup Modal Project
+function closeProjectModal() {
+    const modal = document.getElementById("projectModal");
+    if (modal) {
+        modal.classList.add("hidden");
+    }
+}
 
         // Engine Searchable Dropdown Kustom dengan Auto-Select saat Klik/Focus
         function setupCustomDropdown(inputId, getOptionsFn, onSelectCallback = null) {
