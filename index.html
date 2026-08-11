@@ -406,7 +406,12 @@
                 renderOptions();
             });
 
-            input.addEventListener("input", renderOptions);
+            input.addEventListener("input", () => {
+                renderOptions();
+                if (typeof onSelectCallback === 'function') {
+                    onSelectCallback(input.value.trim());
+                }
+            });
 
             input.addEventListener("keydown", (e) => {
                 const items = dropdown.querySelectorAll(".searchable-dropdown-item");
@@ -954,7 +959,7 @@
 
         function populateDashboardProjectDropdown() {
             const input = document.getElementById("dashboardProjectSelect");
-            if (input) input.value = currentProject || "";
+            if (input) input.value = ""; // Default diawali dengan BLANK untuk menampilkan agregat seluruh project
         }
 
         function renderAnalytics() {
