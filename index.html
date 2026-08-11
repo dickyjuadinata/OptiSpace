@@ -418,7 +418,7 @@
                 activeIndex = -1;
 
                 const isFullySelected = input.selectionStart === 0 && input.selectionEnd === input.value.length;
-                const filtered = (isFullySelected || !filter) ? options : options.filter(opt => opt.toLowerCase().includes(filter));
+                const filtered = (isFullySelected || !filter) ? options : options.filter(opt => opt.toLowerCase().startsWith(filter));
 
                 if (filtered.length === 0) {
                     dropdown.style.display = "none";
