@@ -409,7 +409,7 @@
             wrapper.classList.toggle("hidden");
         }
 
-        function setupCustomDropdown(inputId, getOptionsFn, onSelectCallback = null) {
+        function setupCustomDropdown(inputId, getOptionsFn, onSelectCallback = null, isStrict = false) {
             const input = document.getElementById(inputId);
             if (!input) return;
 
@@ -499,13 +499,18 @@
                 }
             });
 
-            // Otomatis memilih suggestion jika tersisa tepat satu saat menekan tombol Enter
             input.addEventListener("keydown", (e) => {
                 if (e.key === "Enter") {
                     const filtered = getFilteredOptions();
                     if (filtered.length === 1) {
                         e.preventDefault();
                         selectOption(filtered[0]);
+                    } else if (!isStrict) {
+                        // Jika bukan dropdown ketat (seperti project), biarkan user mengetik bebas tanpa otomatis membuat/memilih project jika tidak cocok
+                        dropdown.style.display = "none";
+                        if (typeof onSelectCallback === 'function') {
+                            onSelectCallback(input.value.trim());
+                        }
                     }
                 }
             });
@@ -516,13 +521,40 @@
         }
 
         function initCustomDropdowns() {
-            setupCustomDropdown("selectProject", getProjectsList, handleProjectSelection);
+            // Parameter terakhir (true) membuat project selection strict, tidak auto-generate sheet/project jika ketik bebas
+            setupCustomDropdown("selectProject", getProjectsList, handleProjectSelection, true);
             setupCustomDropdown("jenis_permukaan", () => jenisPermukaanOptions);
-            setupCustomDropdown("dashboardProjectSelect", getProjectsList, renderAnalytics);
+            setupCustomDropdown("dashboardProjectSelect", getProjectsList, renderAnalytics, true);
+        }
+
+        // Fungsi pengecekan apakah 3 kolom utama Edit/Input Ruang sudah terisi lengkap
+        function checkAndSubmitOnEnter() {
+            const namaRuang = document.getElementById("nama_ruang").value.trim();
+            const luasRuang = document.getElementById("luas_ruang").value.trim();
+            const jenisPermukaan = document.getElementById("jenis_permukaan").value.trim();
+
+            if (namaRuang !== "" && luasRuang !== "" && jenisPermukaan !== "") {
+                const fakeEvent = { preventDefault: () => {} };
+                saveRoomData(fakeEvent);
+            }
         }
 
         window.onload = async () => {
             initCustomDropdowns();
+
+            // Tambahkan event keydown pada 3 kolom edit data ruang untuk mendeteksi Enter langsung simpan
+            ["nama_ruang", "luas_ruang", "jenis_permukaan"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener("keydown", (e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            checkAndSubmitOnEnter();
+                        }
+                    });
+                }
+            });
+
             if (currentUser) {
                 showDashboard();
                 await fetchUserProjectsList();
@@ -671,7 +703,6 @@
                 let result = await response.json();
 
                 if (result.status === "success") {
-                    // Update teks loading menjadi memuat dashboard sebelum masuk
                     showLoading("Memuat dashboard...");
                     
                     currentUser = username;
@@ -808,7 +839,10 @@
 
         async function handleProjectSelection() {
             const val = document.getElementById("selectProject").value.trim();
-            if (val) {
+            const projects = getProjectsList();
+            
+            // Validasi: Pastikan project yang dipilih benar-benar ada di dalam daftar project tersimpan
+            if (val && projects.includes(val)) {
                 currentProject = val;
                 localStorage.setItem("survey_project", currentProject);
                 updateActiveProjectUI();
