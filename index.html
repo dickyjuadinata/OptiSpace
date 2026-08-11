@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
         .text-iss-blue { color: #0066FF; }
         .border-iss-blue { border-color: #0066FF; }
 
-        /* Styling untuk Custom Searchable Dropdown */
+        /* Custom Searchable Dropdown Styling */
         .searchable-dropdown-container {
             position: relative;
             width: 100%;
@@ -66,173 +66,173 @@
     <div id="loadingOverlay" class="fixed inset-0 bg-gray-900/40 backdrop-blur-xs z-50 flex flex-col items-center justify-center hidden transition-opacity duration-300">
         <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center gap-3">
             <div class="spinner"></div>
-            <p id="loadingText" class="text-sm font-semibold text-gray-700">Memproses data...</p>
+            <p id="loadingText" class="text-sm font-semibold text-gray-700">Processing data...</p>
         </div>
     </div>
 
-    <!-- Modal Pop-up Pilih & Tambah Project di Navigasi Atas -->
+    <!-- Select & Create Project Modal -->
     <div id="projectModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-xs z-50 flex items-center justify-center hidden">
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-lg w-full mx-4 space-y-4 relative">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="text-xl font-bold text-iss-blue">Pilih atau Buat Project</h3>
+                <h3 class="text-xl font-bold text-iss-blue">Select or Create Project</h3>
                 <button onclick="toggleProjectModal(false)" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
             </div>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Pilih / Ketik Project Tersedia</label>
+                    <label class="block text-sm font-medium text-gray-700">Select Available Project</label>
                     <div class="mt-1">
-                        <input type="text" id="selectProject" placeholder="Ketik / pilih project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                        <input type="text" id="selectProject" placeholder="Type or select project..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
                     </div>
                     <p class="mt-2 text-xs font-semibold text-gray-500 flex items-center gap-1">
-                        📌 Project Aktif: <span id="activeProjectBadge" class="text-iss-blue font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">-</span>
+                        📌 Active Project: <span id="activeProjectBadge" class="text-iss-blue font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">-</span>
                     </p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Atau Buat Project Baru</label>
+                    <label class="block text-sm font-medium text-gray-700">Or Create New Project</label>
                     <div class="flex gap-2 mt-1">
-                        <input type="text" id="newProjectInput" placeholder="Nama project baru..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
-                        <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition whitespace-nowrap">Tambah</button>
+                        <input type="text" id="newProjectInput" placeholder="New project name..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                        <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition whitespace-nowrap">Add Project</button>
                     </div>
                 </div>
             </div>
             <div class="flex justify-end pt-2 border-t">
-                <button onclick="toggleProjectModal(false)" class="bg-iss-blue text-white px-5 py-2 rounded-xl text-sm font-semibold">Tutup</button>
+                <button onclick="toggleProjectModal(false)" class="bg-iss-blue text-white px-5 py-2 rounded-xl text-sm font-semibold">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- Floating Back to Top Button -->
+    <!-- Floating Scroll-to-Top Button -->
     <button id="scrollToTopBtn" onclick="scrollToTop()" class="fixed bottom-6 right-6 bg-iss-blue text-white p-3.5 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 hidden opacity-0 z-40 focus:outline-none cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
         </svg>
     </button>
 
-    <!-- Navbar -->
+    <!-- Navigation Bar -->
     <header class="bg-iss-blue text-white p-4 shadow-md flex justify-between items-center">
         <h1 class="font-bold text-lg">Room Survey App</h1>
         <div id="userInfo" class="text-sm hidden items-center gap-2">
             <span id="displayUser" class="font-semibold"></span> | 
             <button onclick="switchView('dashboard')" id="navDashboardBtn" class="underline">Dashboard</button>
             <button onclick="switchView('survey'); toggleProjectModal(true);" id="navSurveyBtn" class="underline hidden">Project</button>
-            <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="underline hidden">Download Excel</button>
-            <button onclick="downloadPpt()" id="navDownloadPptBtn" class="underline hidden">Download PPT</button>
-            <button onclick="logout()" class="underline ml-2">Keluar</button>
+            <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="underline hidden">Export Excel</button>
+            <button onclick="downloadPpt()" id="navDownloadPptBtn" class="underline hidden">Export PPT</button>
+            <button onclick="logout()" class="underline ml-2">Sign Out</button>
         </div>
     </header>
 
     <!-- Main Container -->
     <main class="flex-grow p-4 max-w-4xl mx-auto w-full">
 
-        <!-- LOGIN / REGISTER SECTION -->
+        <!-- AUTHENTICATION SECTION -->
         <section id="loginSection" class="bg-white p-6 rounded-2xl shadow-lg max-w-md mx-auto mt-10">
             <div class="flex border-b mb-6">
-                <button type="button" onclick="switchAuthTab('login')" id="tabLoginBtn" class="flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue">Login</button>
-                <button type="button" onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 pb-3 font-medium text-gray-400">Daftar Akun</button>
+                <button type="button" onclick="switchAuthTab('login')" id="tabLoginBtn" class="flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue">Sign In</button>
+                <button type="button" onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 pb-3 font-medium text-gray-400">Register</button>
             </div>
 
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username / Role</label>
-                    <input type="text" id="username" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="cth: user1 / admin">
+                    <input type="text" id="username" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="e.g. user1 / admin">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">PIN Akses</label>
-                    <input type="password" id="pin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Masukkan PIN">
+                    <label class="block text-sm font-medium text-gray-700">Access PIN</label>
+                    <input type="password" id="pin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Enter PIN">
                 </div>
-                <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Masuk</button>
+                <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Sign In</button>
             </form>
 
             <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Username Baru</label>
-                    <input type="text" id="regUsername" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Min. 3 karakter">
+                    <label class="block text-sm font-medium text-gray-700">New Username</label>
+                    <input type="text" id="regUsername" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Min. 3 characters">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">PIN Unik Pilihan Anda</label>
-                    <input type="password" id="regPin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Buat PIN rahasia">
+                    <label class="block text-sm font-medium text-gray-700">Unique Access PIN</label>
+                    <input type="password" id="regPin" inputmode="numeric" pattern="[0-9]*" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-iss-blue outline-none" placeholder="Create confidential PIN">
                 </div>
-                <p class="text-xs text-gray-500">Catatan: Akun baru memerlukan persetujuan dari Admin.</p>
-                <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Daftar Sekarang</button>
+                <p class="text-xs text-gray-500">Note: New accounts require administrator approval.</p>
+                <button type="submit" class="w-full bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition active:scale-[0.98]">Register Now</button>
             </form>
         </section>
 
         <!-- DASHBOARD SECTION -->
         <section id="dashboardSection" class="hidden space-y-6">
             <div id="netStatus" class="p-2 text-center text-xs font-semibold rounded-lg bg-green-100 text-green-800">
-                Status: Online (Tersinkronisasi)
+                Status: Online (Synchronized)
             </div>
 
-            <!-- TAB CONTENT: SURVEY / INPUT -->
+            <!-- TAB CONTENT: SURVEY / DATA ENTRY -->
             <div id="tabSurvey" class="hidden space-y-6">
-                <!-- Form Input / Edit / Sisip Ruang -->
+                <!-- Form Input / Edit / Insert Row -->
                 <div class="bg-white p-6 rounded-2xl shadow-md" id="surveyFormCard">
-                    <h3 id="formTitle" class="text-xl font-bold text-iss-blue mb-4">Input Data Ruang Baru</h3>
+                    <h3 id="formTitle" class="text-xl font-bold text-iss-blue mb-4">Add New Room Data</h3>
                     <form id="surveyForm" onsubmit="saveRoomData(event)" class="space-y-4">
                         <input type="hidden" id="editIndex" value="">
                         <input type="hidden" id="insertIndex" value="">
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Nama Ruang *</label>
+                                <label class="block text-sm font-medium text-gray-700">Room Name *</label>
                                 <input type="text" id="nama_ruang" required class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Luas Ruang (m²) *</label>
+                                <label class="block text-sm font-medium text-gray-700">Room Area (sq m) *</label>
                                 <input type="number" step="0.01" inputmode="decimal" id="luas_ruang" required class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Jenis Permukaan Lantai *</label>
-                                <input type="text" id="jenis_permukaan" required placeholder="Ketik / pilih jenis..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
+                                <label class="block text-sm font-medium text-gray-700">Flooring Type *</label>
+                                <input type="text" id="jenis_permukaan" required placeholder="Type or select type..." class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white">
                             </div>
                         </div>
 
                         <div class="border-t pt-4">
                             <button type="button" onclick="toggleExtraFields()" class="text-iss-blue text-sm font-semibold flex items-center gap-1">
-                                ⚙️ Tambah Informasi Detail (Gedung, Lantai, Catatan)
+                                ⚙️ Additional Details (Building, Floor, Notes)
                             </button>
                             <div id="extraFields" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Nama Gedung</label>
+                                    <label class="block text-sm font-medium text-gray-700">Building Name</label>
                                     <input type="text" id="gedung" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Lantai</label>
-                                    <input type="text" id="lantai" placeholder="Contoh: 1, LG, Basement" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
+                                    <label class="block text-sm font-medium text-gray-700">Floor Level</label>
+                                    <input type="text" id="lantai" placeholder="e.g. 1st Floor, LG, Basement" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue">
                                 </div>
                                 <div class="md:col-span-3">
-                                    <label class="block text-sm font-medium text-gray-700">Catatan</label>
+                                    <label class="block text-sm font-medium text-gray-700">Notes / Remarks</label>
                                     <textarea id="catatan" class="w-full mt-1 p-3 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue" rows="2"></textarea>
                                 </div>
                             </div>
                         </div>
 
                         <div class="flex gap-2">
-                            <button type="submit" id="submitBtn" class="flex-1 bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition">Simpan Data</button>
-                            <button type="button" onclick="resetForm()" id="cancelBtn" class="hidden bg-gray-300 text-gray-700 px-4 py-3 rounded-xl font-semibold hover:bg-gray-400 transition">Batal</button>
+                            <button type="submit" id="submitBtn" class="flex-1 bg-iss-blue text-white py-3 rounded-xl font-semibold hover:opacity-90 transition">Save Entry</button>
+                            <button type="button" onclick="resetForm()" id="cancelBtn" class="hidden bg-gray-300 text-gray-700 px-4 py-3 rounded-xl font-semibold hover:bg-gray-400 transition">Cancel</button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Daftar Ruang dengan Fitur Expand & Collapse -->
+                <!-- Room Data Table with Expand & Collapse Features -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
                     <div class="flex justify-between items-center mb-4">
                         <h3 id="tableTitle" class="text-xl font-bold text-iss-blue">Project: -</h3>
                         <div class="space-x-2">
-                            <button type="button" onclick="toggleTableCollapse()" id="collapseTableBtn" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-300 transition">Collapse / Expand</button>
+                            <button type="button" onclick="toggleTableCollapse()" id="collapseTableBtn" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-300 transition">Collapse / Expand Table</button>
                         </div>
                     </div>
                     <div id="tableContainerWrapper" class="overflow-x-auto transition-all duration-300 hidden">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
                                 <tr class="bg-blue-50 text-iss-blue border-b">
-                                    <th class="p-3">Nama Gedung</th>
-                                    <th class="p-3">Lantai</th>
-                                    <th class="p-3">Nama Ruang</th>
-                                    <th class="p-3">Luas (m²)</th>
-                                    <th class="p-3">Jenis Permukaan</th>
-                                    <th class="p-3">Catatan</th>
-                                    <th class="p-3 text-center">Aksi</th>
+                                    <th class="p-3">Building Name</th>
+                                    <th class="p-3">Floor</th>
+                                    <th class="p-3">Room Name</th>
+                                    <th class="p-3">Area (sq m)</th>
+                                    <th class="p-3">Flooring Type</th>
+                                    <th class="p-3">Notes</th>
+                                    <th class="p-3 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="dataTableBody"></tbody>
@@ -246,46 +246,46 @@
                 <div id="userDashboardView" class="space-y-6">
                     <div class="bg-white p-6 rounded-2xl shadow-md space-y-6">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4">
-                            <h3 class="text-xl font-bold text-iss-blue">Dashboard Analitik Ruang</h3>
+                            <h3 class="text-xl font-bold text-iss-blue">Room Survey Analytics Dashboard</h3>
                             <div class="w-full md:w-64">
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Filter Project</label>
-                                <input type="text" id="dashboardProjectSelect" placeholder="Ketik / pilih project (Kosongkan = Semua)..." class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Filter by Project</label>
+                                <input type="text" id="dashboardProjectSelect" placeholder="Select project (Leave empty = All)..." class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-iss-blue bg-white text-sm">
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
-                                <p class="text-sm text-gray-600">Total Project</p>
-                                <h4 id="statTotalProject" class="text-2xl font-bold text-iss-blue">0 Project</h4>
+                                <p class="text-sm text-gray-600">Total Projects</p>
+                                <h4 id="statTotalProject" class="text-2xl font-bold text-iss-blue">0 Projects</h4>
                             </div>
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
-                                <p class="text-sm text-gray-600">Total Luas Area Terukur</p>
-                                <h4 id="statTotalLuas" class="text-2xl font-bold text-iss-blue">0.0 m²</h4>
+                                <p class="text-sm text-gray-600">Total Measured Area</p>
+                                <h4 id="statTotalLuas" class="text-2xl font-bold text-iss-blue">0.0 sq m</h4>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="bg-gray-50 p-4 rounded-xl border space-y-2">
-                                <h4 class="font-bold text-gray-700 border-b pb-2">1. Total Gedung per Project</h4>
+                                <h4 class="font-bold text-gray-700 border-b pb-2">1. Buildings per Project</h4>
                                 <div id="statTotalGedungPerProject" class="space-y-2 text-sm max-h-80 overflow-y-auto"></div>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-xl border space-y-2">
-                                <h4 class="font-bold text-gray-700 border-b pb-2">2. Total Luas Gedung per Project</h4>
+                                <h4 class="font-bold text-gray-700 border-b pb-2">2. Building Area per Project</h4>
                                 <div id="statTotalLuasGedungPerProject" class="space-y-2 text-sm max-h-80 overflow-y-auto"></div>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-xl border space-y-2">
-                                <h4 class="font-bold text-gray-700 border-b pb-2">3. Rincian Ruang & Luas per Gedung</h4>
+                                <h4 class="font-bold text-gray-700 border-b pb-2">3. Room & Area Breakdown per Building</h4>
                                 <div id="statRincianRuangPerGedung" class="space-y-2 text-sm max-h-80 overflow-y-auto"></div>
                             </div>
                         </div>
 
                         <div class="bg-gray-50 p-4 rounded-xl border space-y-2">
-                            <h4 class="font-bold text-gray-700 border-b pb-2">4. Rincian Luas Ruang per Jenis Lantai per Gedung per Project</h4>
+                            <h4 class="font-bold text-gray-700 border-b pb-2">4. Flooring Type Area Breakdown per Building & Project</h4>
                             <div id="statRincianLantaiPerGedung" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm max-h-96 overflow-y-auto pt-2"></div>
                         </div>
 
                         <div class="border-t pt-6 space-y-4">
-                            <h4 class="font-bold text-gray-700 text-lg">Visualisasi Grafik</h4>
+                            <h4 class="font-bold text-gray-700 text-lg">Graphical Visualizations</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="bg-gray-50 p-4 rounded-xl border relative h-72">
                                     <canvas id="chartGedung"></canvas>
@@ -301,36 +301,36 @@
                 <!-- ADMIN DASHBOARD VIEW -->
                 <div id="adminDashboardView" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-2xl shadow-md">
-                        <h3 class="text-xl font-bold text-iss-blue mb-4">Manajemen Persetujuan Akun User</h3>
+                        <h3 class="text-xl font-bold text-iss-blue mb-4">User Account Approval Management</h3>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-sm">
                                 <thead>
                                     <tr class="bg-blue-50 text-iss-blue border-b">
                                         <th class="p-3">Username</th>
-                                        <th class="p-3">Status Akun</th>
-                                        <th class="p-3 text-center">Aksi</th>
+                                        <th class="p-3">Account Status</th>
+                                        <th class="p-3 text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminUserApprovalBody">
-                                    <tr><td colspan="3" class="p-3 text-center text-gray-500">Memuat daftar user...</td></tr>
+                                    <tr><td colspan="3" class="p-3 text-center text-gray-500">Loading user accounts...</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
                     <div class="bg-white p-6 rounded-2xl shadow-md">
-                        <h3 class="text-xl font-bold text-iss-blue mb-4">Log Waktu Login & Aktivitas User</h3>
+                        <h3 class="text-xl font-bold text-iss-blue mb-4">System Access & Activity Logs</h3>
                         <div class="overflow-x-auto max-h-60">
                             <table class="w-full text-left border-collapse text-sm">
                                 <thead>
                                     <tr class="bg-blue-50 text-iss-blue border-b sticky top-0">
-                                        <th class="p-3">Waktu</th>
+                                        <th class="p-3">Timestamp</th>
                                         <th class="p-3">Username</th>
-                                        <th class="p-3">Aktivitas</th>
+                                        <th class="p-3">Activity</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminActivityLogBody">
-                                    <tr><td colspan="3" class="p-3 text-center text-gray-500">Memuat log aktivitas...</td></tr>
+                                    <tr><td colspan="3" class="p-3 text-center text-gray-500">Loading activity logs...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -338,7 +338,7 @@
 
                     <div class="bg-white p-6 rounded-2xl shadow-md">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-xl font-bold text-iss-blue">Dashboard Administrator (Data Survey User)</h3>
+                            <h3 class="text-xl font-bold text-iss-blue">Administrator Dashboard (User Survey Data)</h3>
                             <div class="space-x-2">
                                 <button onclick="toggleAllAdminCards(true)" class="bg-iss-blue text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:opacity-90 transition">Expand All</button>
                                 <button onclick="toggleAllAdminCards(false)" class="bg-gray-300 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-400 transition">Collapse All</button>
@@ -361,7 +361,7 @@
         let chartInstanceLantai = null;
 
         const jenisPermukaanOptions = [
-            "Keramik", "Vinyl", "Karpet", "Epoxy", "Parket", "Semen/Beton", "Granit", "Lainnya"
+            "Ceramic Tile", "Vinyl", "Carpet", "Epoxy", "Parquet", "Concrete/Cement", "Granite", "Other"
         ];
 
         window.addEventListener('scroll', () => {
@@ -379,7 +379,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function showLoading(text = "Memproses data...") {
+        function showLoading(text = "Processing data...") {
             const overlay = document.getElementById("loadingOverlay");
             const loadingText = document.getElementById("loadingText");
             if (overlay) {
@@ -528,7 +528,7 @@
         window.onload = async () => {
             initCustomDropdowns();
 
-            // Navigasi Enter antar kolom input utama survey
+            // Keyboard Enter key navigation for primary input fields
             const namaRuangInput = document.getElementById("nama_ruang");
             const luasRuangInput = document.getElementById("luas_ruang");
             const jenisPermukaanInput = document.getElementById("jenis_permukaan");
@@ -605,11 +605,11 @@
             if (!currentUser || isAdmin) return;
             
             if (!currentProject) {
-                alert("Silakan pilih project terlebih dahulu!");
+                alert("Please select a project first.");
                 return;
             }
 
-            showLoading("Menyiapkan link unduhan Excel...");
+            showLoading("Preparing Excel download link...");
             try {
                 let res = await fetch(API_URL, {
                     method: "POST",
@@ -620,10 +620,10 @@
                 if (json.status === "success" && json.exportXlsxUrl) {
                     window.open(json.exportXlsxUrl, "_blank");
                 } else {
-                    alert(json.message || "Gagal mendapatkan link download Excel.");
+                    alert(json.message || "Failed to retrieve Excel download URL.");
                 }
             } catch (e) {
-                alert("Terjadi kesalahan saat mengunduh file.");
+                alert("An error occurred while downloading the file.");
             } finally {
                 hideLoading();
             }
@@ -631,7 +631,7 @@
 
         function downloadPpt() {
             if (!currentUser) return;
-            alert("Fitur Download PPT sedang disiapkan.");
+            alert("Export to PPT feature will be available soon.");
         }
 
         function switchAuthTab(tab) {
@@ -658,7 +658,7 @@
             const username = document.getElementById("regUsername").value.trim();
             const pin = document.getElementById("regPin").value;
 
-            showLoading("Mendaftarkan akun baru...");
+            showLoading("Registering new account...");
             try {
                 let response = await fetch(API_URL, {
                     method: "POST",
@@ -671,7 +671,7 @@
                     switchAuthTab('login');
                 }
             } catch (err) {
-                alert("Gagal terhubung ke server. Periksa koneksi.");
+                alert("Failed to connect to the server. Please check your connection.");
             } finally {
                 hideLoading();
             }
@@ -681,11 +681,11 @@
             const statusDiv = document.getElementById("netStatus");
             if (navigator.onLine) {
                 statusDiv.className = "p-2 text-center text-xs font-semibold rounded-lg bg-green-100 text-green-800";
-                statusDiv.innerText = "Status: Online";
+                statusDiv.innerText = "Status: Online (Synchronized)";
                 syncOfflineData();
             } else {
                 statusDiv.className = "p-2 text-center text-xs font-semibold rounded-lg bg-yellow-100 text-yellow-800";
-                statusDiv.innerText = "Status: Offline (Mode Lokal)";
+                statusDiv.innerText = "Status: Offline (Local Mode)";
             }
         }
 
@@ -708,7 +708,7 @@
             const username = document.getElementById("username").value.trim();
             const pin = document.getElementById("pin").value;
 
-            showLoading("Memverifikasi login...");
+            showLoading("Verifying credentials...");
             try {
                 let response = await fetch(API_URL, {
                     method: "POST",
@@ -717,7 +717,7 @@
                 let result = await response.json();
 
                 if (result.status === "success") {
-                    showLoading("Memuat dashboard...");
+                    showLoading("Loading dashboard...");
                     
                     currentUser = username;
                     isAdmin = result.isAdmin || false;
@@ -732,7 +732,7 @@
                     alert(result.message);
                 }
             } catch (err) {
-                alert("Gagal terhubung ke server.");
+                alert("Failed to connect to the server.");
             } finally {
                 hideLoading();
             }
@@ -840,7 +840,7 @@
         function updateActiveProjectUI() {
             const activeBadge = document.getElementById("activeProjectBadge");
             if (activeBadge) {
-                activeBadge.innerText = currentProject || "Belum dipilih";
+                activeBadge.innerText = currentProject || "Unselected";
             }
             
             const tableTitle = document.getElementById("tableTitle");
@@ -907,7 +907,7 @@
                 return;
             }
             if (navigator.onLine && !isAdmin) {
-                showLoading("Memuat data survey...");
+                showLoading("Fetching survey data...");
                 try {
                     let res = await fetch(API_URL, {
                         method: "POST",
@@ -956,7 +956,7 @@
         function formatLuas(val) {
             let num = parseFloat(val);
             if (isNaN(num)) return val || "-";
-            return new Intl.NumberFormat('id-ID', {
+            return new Intl.NumberFormat('en-US', {
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 1
             }).format(num);
@@ -974,7 +974,7 @@
             tbody.innerHTML = "";
 
             if (!currentProject || rows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">${currentProject ? "Belum ada data ruang pada project ini." : "Silakan pilih atau buat project terlebih dahulu."}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">${currentProject ? "No room data recorded in this project." : "Please select or create a project first."}</td></tr>`;
                 return;
             }
 
@@ -988,9 +988,9 @@
                         <td class="p-3">${r.jenis_permukaan}</td>
                         <td class="p-3">${r.catatan || '-'}</td>
                         <td class="p-3 text-center space-x-2">
-                            <button onclick="insertRowAfter(${index})" class="text-green-600 font-medium underline">Sisip</button>
+                            <button onclick="insertRowAfter(${index})" class="text-green-600 font-medium underline">Insert</button>
                             <button onclick="editRow(${index})" class="text-blue-600 underline">Edit</button>
-                            <button onclick="deleteRow(${index})" class="text-red-600 underline">Hapus</button>
+                            <button onclick="deleteRow(${index})" class="text-red-600 underline">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -1000,7 +1000,7 @@
         function saveRoomData(e) {
             e.preventDefault();
             if (!currentProject) {
-                alert("Silakan pilih project terlebih dahulu!");
+                alert("Please select a project first.");
                 return;
             }
 
@@ -1033,7 +1033,7 @@
             renderTable();
             syncOfflineData();
 
-            // Kursor otomatis kembali ke kolom Nama Ruang setelah data tersimpan
+            // Automatically refocus on Room Name input field
             document.getElementById("nama_ruang").focus();
         }
 
@@ -1043,8 +1043,8 @@
 
             resetForm();
             document.getElementById("insertIndex").value = index;
-            document.getElementById("formTitle").innerText = `Sisip Data Baru (Setelah Baris ke-${index + 1}: ${targetRow.nama_ruang})`;
-            document.getElementById("submitBtn").innerText = "Disisipkan Data";
+            document.getElementById("formTitle").innerText = `Insert Room Data (After Row #${index + 1}: ${targetRow.nama_ruang})`;
+            document.getElementById("submitBtn").innerText = "Insert Entry";
             document.getElementById("cancelBtn").classList.remove("hidden");
 
             if (targetRow.gedung) document.getElementById("gedung").value = targetRow.gedung;
@@ -1068,8 +1068,8 @@
             document.getElementById("jenis_permukaan").value = r.jenis_permukaan;
             document.getElementById("catatan").value = r.catatan || "";
 
-            document.getElementById("formTitle").innerText = "Edit Data Ruang";
-            document.getElementById("submitBtn").innerText = "Simpan Data";
+            document.getElementById("formTitle").innerText = "Edit Room Data";
+            document.getElementById("submitBtn").innerText = "Save Changes";
             document.getElementById("cancelBtn").classList.remove("hidden");
             document.getElementById("extraFields").classList.remove("hidden");
             switchView('survey');
@@ -1077,7 +1077,7 @@
         }
 
         function deleteRow(index) {
-            if (confirm("Hapus data ini?")) {
+            if (confirm("Are you sure you want to delete this record?")) {
                 let rows = getLocalData();
                 rows.splice(index, 1);
                 saveLocalData(rows);
@@ -1090,8 +1090,8 @@
             document.getElementById("surveyForm").reset();
             document.getElementById("editIndex").value = "";
             document.getElementById("insertIndex").value = "";
-            document.getElementById("formTitle").innerText = "Input Data Ruang Baru";
-            document.getElementById("submitBtn").innerText = "Simpan Data";
+            document.getElementById("formTitle").innerText = "Add New Room Data";
+            document.getElementById("submitBtn").innerText = "Save Entry";
             document.getElementById("cancelBtn").classList.add("hidden");
         }
 
@@ -1138,9 +1138,9 @@
 
                 rows.forEach(r => {
                     let luas = parseFloat(r.luas_ruang) || 0;
-                    let gedung = r.gedung ? r.gedung.trim() : "Tanpa Gedung";
-                    let namaRuang = r.nama_ruang ? r.nama_ruang.trim() : "Lainnya";
-                    let jenisLantai = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Lainnya";
+                    let gedung = r.gedung ? r.gedung.trim() : "Unspecified Building";
+                    let namaRuang = r.nama_ruang ? r.nama_ruang.trim() : "Other";
+                    let jenisLantai = r.jenis_permukaan ? r.jenis_permukaan.trim() : "Other";
 
                     grandTotalLuas += luas;
                     projectSummary[proj].totalLuas += luas;
@@ -1191,8 +1191,8 @@
 
             const data = processStructuredAnalytics(projectRowsMap);
 
-            document.getElementById("statTotalProject").innerText = data.totalProjectsCount + " Project";
-            document.getElementById("statTotalLuas").innerText = formatLuas(data.grandTotalLuas) + " m²";
+            document.getElementById("statTotalProject").innerText = data.totalProjectsCount + (data.totalProjectsCount === 1 ? " Project" : " Projects");
+            document.getElementById("statTotalLuas").innerText = formatLuas(data.grandTotalLuas) + " sq m";
 
             let grandTotalGedung = 0;
             for (let proj in data.projectSummary) {
@@ -1203,37 +1203,37 @@
             for (let proj in data.projectSummary) {
                 let gCount = data.projectSummary[proj].gedungSet.size;
                 let pct = formatPct(gCount, grandTotalGedung);
-                html1 += `<div class="flex justify-between border-b pb-1"><span>${proj}</span><span class="font-bold text-iss-blue">${gCount} Gedung (${pct})</span></div>`;
+                html1 += `<div class="flex justify-between border-b pb-1"><span>${proj}</span><span class="font-bold text-iss-blue">${gCount} Building(s) (${pct})</span></div>`;
             }
-            document.getElementById("statTotalGedungPerProject").innerHTML = html1 || "<p class='text-gray-500'>Tidak ada data</p>";
+            document.getElementById("statTotalGedungPerProject").innerHTML = html1 || "<p class='text-gray-500'>No data available</p>";
 
             let html2 = "";
             for (let proj in data.projectSummary) {
                 let projLuas = data.projectSummary[proj].totalLuas;
                 let projPct = formatPct(projLuas, data.grandTotalLuas);
-                html2 += `<div class="font-bold text-iss-blue mt-1">${proj} (Total: ${formatLuas(projLuas)} m² | ${projPct})</div>`;
+                html2 += `<div class="font-bold text-iss-blue mt-1">${proj} (Total: ${formatLuas(projLuas)} sq m | ${projPct})</div>`;
                 for (let g in data.projectSummary[proj].gedungLuas) {
                     let gLuas = data.projectSummary[proj].gedungLuas[g];
                     let gPct = formatPct(gLuas, projLuas);
-                    html2 += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>Gedung: ${g}</span><span class="font-semibold">${formatLuas(gLuas)} m² (${gPct})</span></div>`;
+                    html2 += `<div class="flex justify-between border-b pb-1 pl-2 text-xs"><span>Building: ${g}</span><span class="font-semibold">${formatLuas(gLuas)} sq m (${gPct})</span></div>`;
                 }
             }
-            document.getElementById("statTotalLuasGedungPerProject").innerHTML = html2 || "<p class='text-gray-500'>Tidak ada data</p>";
+            document.getElementById("statTotalLuasGedungPerProject").innerHTML = html2 || "<p class='text-gray-500'>No data available</p>";
 
             let html3 = "";
             for (let proj in data.projectSummary) {
                 html3 += `<div class="font-bold text-iss-blue mt-1">${proj}</div>`;
                 for (let g in data.projectSummary[proj].gedungRuangDetails) {
                     let gLuas = data.projectSummary[proj].gedungLuas[g] || 0;
-                    html3 += `<div class="font-semibold text-gray-700 text-xs pl-2 mt-1">Gedung: ${g}</div>`;
+                    html3 += `<div class="font-semibold text-gray-700 text-xs pl-2 mt-1">Building: ${g}</div>`;
                     for (let rName in data.projectSummary[proj].gedungRuangDetails[g]) {
                         let rData = data.projectSummary[proj].gedungRuangDetails[g][rName];
                         let rPct = formatPct(rData.totalLuas, gLuas);
-                        html3 += `<div class="flex justify-between border-b pb-1 pl-4 text-xs"><span>${rName} (${rData.count} ruang)</span><span>${formatLuas(rData.totalLuas)} m² (${rPct})</span></div>`;
+                        html3 += `<div class="flex justify-between border-b pb-1 pl-4 text-xs"><span>${rName} (${rData.count} room[s])</span><span>${formatLuas(rData.totalLuas)} sq m (${rPct})</span></div>`;
                     }
                 }
             }
-            document.getElementById("statRincianRuangPerGedung").innerHTML = html3 || "<p class='text-gray-500'>Tidak ada data</p>";
+            document.getElementById("statRincianRuangPerGedung").innerHTML = html3 || "<p class='text-gray-500'>No data available</p>";
 
             let html4 = "";
             for (let proj in data.projectSummary) {
@@ -1241,16 +1241,16 @@
                     <div class="font-bold text-iss-blue border-b pb-1 mb-2">${proj}</div>`;
                 for (let g in data.projectSummary[proj].gedungLantaiDetails) {
                     let gLuas = data.projectSummary[proj].gedungLuas[g] || 0;
-                    html4 += `<div class="font-semibold text-gray-700 text-xs mb-1">Gedung: ${g}</div>`;
+                    html4 += `<div class="font-semibold text-gray-700 text-xs mb-1">Building: ${g}</div>`;
                     for (let lType in data.projectSummary[proj].gedungLantaiDetails[g]) {
                         let lLuas = data.projectSummary[proj].gedungLantaiDetails[g][lType];
                         let lPct = formatPct(lLuas, gLuas);
-                        html4 += `<div class="flex justify-between border-b border-dashed pb-1 pl-2 text-xs mb-1"><span>${lType}</span><span class="font-semibold">${formatLuas(lLuas)} m² (${lPct})</span></div>`;
+                        html4 += `<div class="flex justify-between border-b border-dashed pb-1 pl-2 text-xs mb-1"><span>${lType}</span><span class="font-semibold">${formatLuas(lLuas)} sq m (${lPct})</span></div>`;
                     }
                 }
                 html4 += `</div>`;
             }
-            document.getElementById("statRincianLantaiPerGedung").innerHTML = html4 || "<p class='text-gray-500'>Tidak ada data</p>";
+            document.getElementById("statRincianLantaiPerGedung").innerHTML = html4 || "<p class='text-gray-500'>No data available</p>";
 
             renderCharts(Object.keys(data.globalGedungLuas), Object.values(data.globalGedungLuas), data.globalLantaiLuas);
         }
@@ -1262,7 +1262,7 @@
                 type: 'bar',
                 data: {
                     labels: labelsGedung,
-                    datasets: [{ label: 'Luas per Gedung (m²)', data: dataChartGedung, backgroundColor: '#0066FF', borderRadius: 6 }]
+                    datasets: [{ label: 'Area per Building (sq m)', data: dataChartGedung, backgroundColor: '#0066FF', borderRadius: 6 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
@@ -1275,7 +1275,7 @@
                 type: 'doughnut',
                 data: {
                     labels: labelsLantai,
-                    datasets: [{ label: 'Luas Jenis Lantai (m²)', data: dataLantai, backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#1E40AF', '#1D4ED8'] }]
+                    datasets: [{ label: 'Flooring Type Area (sq m)', data: dataLantai, backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#1E40AF', '#1D4ED8'] }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
@@ -1286,7 +1286,7 @@
             const approvalBody = document.getElementById("adminUserApprovalBody");
             const logBody = document.getElementById("adminActivityLogBody");
             
-            showLoading("Memuat data administrator...");
+            showLoading("Fetching administrator data...");
             try {
                 let res = await fetch(API_URL, {
                     method: "POST",
@@ -1298,20 +1298,20 @@
                     let activityLogs = json.activityLogs || [];
                     let logHtml = "";
                     activityLogs.reverse().forEach(l => {
-                        let formattedTime = new Date(l.time).toLocaleString("id-ID");
+                        let formattedTime = new Date(l.time).toLocaleString("en-US");
                         logHtml += `<tr class="border-b"><td class="p-3 text-xs text-gray-600">${formattedTime}</td><td class="p-3 font-semibold">${l.user}</td><td class="p-3 text-xs">${l.activity}</td></tr>`;
                     });
-                    logBody.innerHTML = logHtml || "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Belum ada aktivitas.</td></tr>";
+                    logBody.innerHTML = logHtml || "<tr><td colspan='3' class='p-3 text-center text-gray-500'>No activity logged yet.</td></tr>";
 
                     let usersMeta = json.usersMeta || [];
                     let approvalHtml = "";
                     usersMeta.forEach(m => {
                         let statusBadge = m.status === "ACTIVE" ? `<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">ACTIVE</span>` : `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">PENDING</span>`;
-                        let actionBtn = m.status === "PENDING" ? `<button onclick="approveUser('${m.user}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-semibold">Setujui</button>` : `-`;
-                        let deleteBtn = `<button onclick="deleteUser('${m.user}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold ml-2">Hapus User</button>`;
+                        let actionBtn = m.status === "PENDING" ? `<button onclick="approveUser('${m.user}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-semibold">Approve</button>` : `-`;
+                        let deleteBtn = `<button onclick="deleteUser('${m.user}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold ml-2">Delete User</button>`;
                         approvalHtml += `<tr class="border-b"><td class="p-3 font-semibold">${m.user}</td><td class="p-3">${statusBadge}</td><td class="p-3 text-center">${actionBtn} ${deleteBtn}</td></tr>`;
                     });
-                    approvalBody.innerHTML = approvalHtml || "<tr><td colspan='3' class='p-3 text-center text-gray-500'>Belum ada user.</td></tr>";
+                    approvalBody.innerHTML = approvalHtml || "<tr><td colspan='3' class='p-3 text-center text-gray-500'>No registered users found.</td></tr>";
 
                     let rawUsersData = json.usersData || [];
                     let mergedMap = {};
@@ -1331,9 +1331,9 @@
                     usersData.forEach((u, idx) => {
                         let analyticsData = processStructuredAnalytics(u.projectsMap);
 
-                        // Fitur Hapus Data Orphaned
+                        // Delete Orphaned Data Feature
                         let isUserExists = usersMeta.some(m => m.user === u.user);
-                        let orphanBtn = !isUserExists ? `<button onclick="event.stopPropagation(); adminDeleteAllUserData('${u.user}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-full text-xs font-semibold ml-2 transition shadow-sm">⚠️ Hapus Data Orphan (User Terhapus)</button>` : '';
+                        let orphanBtn = !isUserExists ? `<button onclick="event.stopPropagation(); adminDeleteAllUserData('${u.user}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-full text-xs font-semibold ml-2 transition shadow-sm">⚠️ Delete Orphaned Data (Deleted Account)</button>` : '';
 
                         let grandTotalAdminGedung = 0;
                         for (let p in analyticsData.projectSummary) {
@@ -1347,8 +1347,8 @@
                             htmlAdmin1 += `<div class="flex justify-between items-center border-b pb-1 text-xs">
                                 <span>${p}</span>
                                 <div class="flex items-center gap-2">
-                                    <span class="font-bold text-iss-blue">${gCount} Gedung (${pct})</span>
-                                    <button onclick="adminDeleteProject('${u.user}', '${p}')" class="text-red-500 hover:text-red-700 px-1 rounded hover:bg-red-50 transition" title="Hapus Project">✕</button>
+                                    <span class="font-bold text-iss-blue">${gCount} Building(s) (${pct})</span>
+                                    <button onclick="adminDeleteProject('${u.user}', '${p}')" class="text-red-500 hover:text-red-700 px-1 rounded hover:bg-red-50 transition" title="Delete Project">✕</button>
                                 </div>
                             </div>`;
                         }
@@ -1357,15 +1357,15 @@
                         for (let p in analyticsData.projectSummary) {
                             let projLuas = analyticsData.projectSummary[p].totalLuas;
                             let projPct = formatPct(projLuas, analyticsData.grandTotalLuas);
-                            htmlAdmin2 += `<div class="font-bold text-iss-blue mt-1 text-xs">${p} (Total: ${formatLuas(projLuas)} m² | ${projPct})</div>`;
+                            htmlAdmin2 += `<div class="font-bold text-iss-blue mt-1 text-xs">${p} (Total: ${formatLuas(projLuas)} sq m | ${projPct})</div>`;
                             for (let g in analyticsData.projectSummary[p].gedungLuas) {
                                 let gLuas = analyticsData.projectSummary[p].gedungLuas[g];
                                 let gPct = formatPct(gLuas, projLuas);
                                 htmlAdmin2 += `<div class="flex justify-between items-center border-b pb-1 pl-2 text-xs">
-                                    <span>Gedung: ${g}</span>
+                                    <span>Building: ${g}</span>
                                     <div class="flex items-center gap-2">
-                                        <span>${formatLuas(gLuas)} m² (${gPct})</span>
-                                        <button onclick="adminDeleteGedung('${u.user}', '${p}', '${g}')" class="text-red-500 hover:text-red-700 px-1 rounded hover:bg-red-50 transition" title="Hapus Gedung">✕</button>
+                                        <span>${formatLuas(gLuas)} sq m (${gPct})</span>
+                                        <button onclick="adminDeleteGedung('${u.user}', '${p}', '${g}')" class="text-red-500 hover:text-red-700 px-1 rounded hover:bg-red-50 transition" title="Delete Building">✕</button>
                                     </div>
                                 </div>`;
                             }
@@ -1376,11 +1376,11 @@
                             htmlAdmin3 += `<div class="font-bold text-iss-blue mt-1 text-xs">${p}</div>`;
                             for (let g in analyticsData.projectSummary[p].gedungRuangDetails) {
                                 let gLuas = analyticsData.projectSummary[p].gedungLuas[g] || 0;
-                                htmlAdmin3 += `<div class="font-semibold text-gray-700 text-xs pl-2 mt-1">Gedung: ${g}</div>`;
+                                htmlAdmin3 += `<div class="font-semibold text-gray-700 text-xs pl-2 mt-1">Building: ${g}</div>`;
                                 for (let rName in analyticsData.projectSummary[p].gedungRuangDetails[g]) {
                                     let rData = analyticsData.projectSummary[p].gedungRuangDetails[g][rName];
                                     let rPct = formatPct(rData.totalLuas, gLuas);
-                                    htmlAdmin3 += `<div class="flex justify-between border-b pb-1 pl-4 text-xs"><span>${rName} (${rData.count} ruang)</span><span>${formatLuas(rData.totalLuas)} m² (${rPct})</span></div>`;
+                                    htmlAdmin3 += `<div class="flex justify-between border-b pb-1 pl-4 text-xs"><span>${rName} (${rData.count} room[s])</span><span>${formatLuas(rData.totalLuas)} sq m (${rPct})</span></div>`;
                                 }
                             }
                         }
@@ -1391,11 +1391,11 @@
                                 <div class="font-bold text-iss-blue border-b pb-1 mb-1 text-xs">${p}</div>`;
                             for (let g in analyticsData.projectSummary[p].gedungLantaiDetails) {
                                 let gLuas = analyticsData.projectSummary[p].gedungLuas[g] || 0;
-                                htmlAdmin4 += `<div class="font-semibold text-gray-700 text-xs mb-1">Gedung: ${g}</div>`;
+                                htmlAdmin4 += `<div class="font-semibold text-gray-700 text-xs mb-1">Building: ${g}</div>`;
                                 for (let lType in analyticsData.projectSummary[p].gedungLantaiDetails[g]) {
                                     let lLuas = analyticsData.projectSummary[p].gedungLantaiDetails[g][lType];
                                     let lPct = formatPct(lLuas, gLuas);
-                                    htmlAdmin4 += `<div class="flex justify-between border-b border-dashed pb-1 pl-2 text-xs"><span>${lType}</span><span>${formatLuas(lLuas)} m² (${lPct})</span></div>`;
+                                    htmlAdmin4 += `<div class="flex justify-between border-b border-dashed pb-1 pl-2 text-xs"><span>${lType}</span><span>${formatLuas(lLuas)} sq m (${lPct})</span></div>`;
                                 }
                             }
                             htmlAdmin4 += `</div>`;
@@ -1409,25 +1409,25 @@
                                         ${orphanBtn}
                                         <span id="adminCardIcon_${idx}" class="text-sm font-bold text-iss-blue">▼</span>
                                     </div>
-                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2">Total Projects: ${analyticsData.totalProjectsCount} | Luas: ${formatLuas(analyticsData.grandTotalLuas)} m²</span>
+                                    <span class="bg-blue-100 text-iss-blue px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2">Total Projects: ${analyticsData.totalProjectsCount} | Area: ${formatLuas(analyticsData.grandTotalLuas)} sq m</span>
                                 </div>
                                 <div id="adminCardContent_${idx}" class="hidden space-y-4">
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div class="bg-white p-3 rounded-xl border">
-                                            <h5 class="font-bold text-gray-700 border-b pb-1 text-xs mb-2">1. Total Gedung per Project</h5>
+                                            <h5 class="font-bold text-gray-700 border-b pb-1 text-xs mb-2">1. Buildings per Project</h5>
                                             <div class="space-y-1 max-h-48 overflow-y-auto">${htmlAdmin1}</div>
                                         </div>
                                         <div class="bg-white p-3 rounded-xl border">
-                                            <h5 class="font-bold text-gray-700 border-b pb-1 text-xs mb-2">2. Total Luas Gedung per Project</h5>
+                                            <h5 class="font-bold text-gray-700 border-b pb-1 text-xs mb-2">2. Building Area per Project</h5>
                                             <div class="space-y-1 max-h-48 overflow-y-auto">${htmlAdmin2}</div>
                                         </div>
                                         <div class="bg-white p-3 rounded-xl border">
-                                            <h5 class="font-bold text-gray-700 border-b pb-1 text-xs mb-2">3. Rincian Ruang per Gedung</h5>
+                                            <h5 class="font-bold text-gray-700 border-b pb-1 text-xs mb-2">3. Room Breakdown per Building</h5>
                                             <div class="space-y-1 max-h-48 overflow-y-auto">${htmlAdmin3}</div>
                                         </div>
                                     </div>
                                     <div class="bg-white p-3 rounded-xl border">
-                                        <h5 class="font-bold text-gray-700 border-b pb-1 text-xs mb-2">4. Rincian Luas Ruang per Jenis Lantai per Gedung per Project</h5>
+                                        <h5 class="font-bold text-gray-700 border-b pb-1 text-xs mb-2">4. Flooring Type Area Breakdown per Building & Project</h5>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto">${htmlAdmin4}</div>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
@@ -1438,14 +1438,14 @@
                             </div>
                         `;
                     });
-                    container.innerHTML = html || "<p class='text-gray-500 text-center'>Belum ada data survey.</p>";
+                    container.innerHTML = html || "<p class='text-gray-500 text-center'>No survey data recorded.</p>";
 
                     usersData.forEach((u, idx) => {
                         let analyticsData = processStructuredAnalytics(u.projectsMap);
 
                         new Chart(document.getElementById(`adminChartGedung_${idx}`).getContext('2d'), {
                             type: 'bar',
-                            data: { labels: Object.keys(analyticsData.globalGedungLuas), datasets: [{ label: 'Luas (m²)', data: Object.values(analyticsData.globalGedungLuas), backgroundColor: '#0066FF' }] },
+                            data: { labels: Object.keys(analyticsData.globalGedungLuas), datasets: [{ label: 'Area (sq m)', data: Object.values(analyticsData.globalGedungLuas), backgroundColor: '#0066FF' }] },
                             options: { responsive: true, maintainAspectRatio: false }
                         });
 
@@ -1463,7 +1463,7 @@
         }
 
         async function approveUser(targetUser) {
-            showLoading("Setujui pendaftaran user...");
+            showLoading("Approving user registration...");
             try {
                 let res = await fetch(API_URL, {
                     method: "POST",
@@ -1479,8 +1479,8 @@
         }
 
         async function deleteUser(targetUser) {
-            if (confirm(`Hapus user ${targetUser}?`)) {
-                showLoading("Menghapus user...");
+            if (confirm(`Are you sure you want to delete user '${targetUser}'?`)) {
+                showLoading("Deleting user...");
                 try {
                     let res = await fetch(API_URL, {
                         method: "POST",
@@ -1496,51 +1496,51 @@
             }
         }
 
-        // Fitur Tambahan: Hapus Project via Admin
+        // Additional Feature: Delete Project via Admin
         async function adminDeleteProject(targetUser, targetProject) {
-            if(confirm(`Hapus SELURUH data project '${targetProject}' milik user '${targetUser}'?`)) {
-                showLoading("Menghapus project...");
+            if(confirm(`Are you sure you want to delete ALL data for project '${targetProject}' belonging to user '${targetUser}'?`)) {
+                showLoading("Deleting project...");
                 try {
                     let res = await fetch(API_URL, {
                         method: "POST",
                         body: JSON.stringify({ action: "adminDeleteProject", adminUser: currentUser, targetUser: targetUser, targetProject: targetProject })
                     });
                     let json = await res.json();
-                    alert(json.message || "Berhasil dihapus.");
-                    loadAdminData(); // Refresh Data Admin
-                } catch (e) { alert("Gagal koneksi server."); } finally { hideLoading(); }
+                    alert(json.message || "Successfully deleted.");
+                    loadAdminData(); // Refresh Admin View
+                } catch (e) { alert("Server connection error."); } finally { hideLoading(); }
             }
         }
 
-        // Fitur Tambahan: Hapus Gedung via Admin
+        // Additional Feature: Delete Building via Admin
         async function adminDeleteGedung(targetUser, targetProject, targetGedung) {
-            if(confirm(`Hapus data gedung '${targetGedung}' pada project '${targetProject}' milik user '${targetUser}'?`)) {
-                showLoading("Menghapus gedung...");
+            if(confirm(`Are you sure you want to delete building '${targetGedung}' in project '${targetProject}' belonging to user '${targetUser}'?`)) {
+                showLoading("Deleting building...");
                 try {
                     let res = await fetch(API_URL, {
                         method: "POST",
                         body: JSON.stringify({ action: "adminDeleteGedung", adminUser: currentUser, targetUser: targetUser, targetProject: targetProject, targetGedung: targetGedung })
                     });
                     let json = await res.json();
-                    alert(json.message || "Berhasil dihapus.");
-                    loadAdminData(); // Refresh Data Admin
-                } catch (e) { alert("Gagal koneksi server."); } finally { hideLoading(); }
+                    alert(json.message || "Successfully deleted.");
+                    loadAdminData(); // Refresh Admin View
+                } catch (e) { alert("Server connection error."); } finally { hideLoading(); }
             }
         }
 
-        // Fitur Tambahan: Hapus Semua Data Survey jika User telah dihapus
+        // Additional Feature: Delete All Survey Data of a Deleted User
         async function adminDeleteAllUserData(targetUser) {
-            if(confirm(`Akun User '${targetUser}' telah dihapus sebelumnya. Hapus SELURUH sisa data survey milik user ini?`)) {
-                showLoading("Menghapus semua sisa data user...");
+            if(confirm(`User account '${targetUser}' was previously deleted. Delete ALL remaining survey data belonging to this user?`)) {
+                showLoading("Deleting orphaned user data...");
                 try {
                     let res = await fetch(API_URL, {
                         method: "POST",
                         body: JSON.stringify({ action: "adminDeleteUserData", adminUser: currentUser, targetUser: targetUser })
                     });
                     let json = await res.json();
-                    alert(json.message || "Berhasil dihapus.");
-                    loadAdminData(); // Refresh Data Admin
-                } catch (e) { alert("Gagal koneksi server."); } finally { hideLoading(); }
+                    alert(json.message || "Successfully deleted.");
+                    loadAdminData(); // Refresh Admin View
+                } catch (e) { alert("Server connection error."); } finally { hideLoading(); }
             }
         }
 
