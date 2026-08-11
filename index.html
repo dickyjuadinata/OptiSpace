@@ -81,13 +81,13 @@
     <header class="bg-iss-blue text-white p-4 shadow-md flex justify-between items-center">
         <h1 class="font-bold text-lg">Room Survey App</h1>
         <div id="userInfo" class="text-sm hidden items-center gap-2">
-    <span id="displayUser" class="font-semibold"></span> | 
-    <button onclick="switchView('dashboard')" id="navDashboardBtn" class="underline">Dashboard</button>
-    <button onclick="switchView('survey')" id="navSurveyBtn" class="underline hidden">Survey</button>
-    <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="underline hidden">Download Excel</button>
-    <button onclick="downloadPPT()" id="navDownloadPPTBtn" class="underline hidden">Download PPT</button>
-    <button onclick="logout()" class="underline ml-2">Keluar</button>
-</div>
+            <span id="displayUser" class="font-semibold"></span> | 
+            <button onclick="switchView('survey')" id="navSurveyBtn" class="underline hidden">Survey</button>
+            <button onclick="switchView('dashboard')" id="navDashboardBtn" class="underline">Dashboard</button>
+            <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="underline hidden">Download Excel</button>
+            <button onclick="downloadPpt()" id="navDownloadPptBtn" class="underline hidden">Download PPT</button>
+            <button onclick="logout()" class="underline ml-2">Keluar</button>
+        </div>
     </header>
 
     <!-- Main Container -->
@@ -137,7 +137,7 @@
             </div>
 
             <!-- TAB CONTENT: SURVEY / INPUT -->
-            <div id="tabSurvey" class="space-y-6">
+            <div id="tabSurvey" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-2xl shadow-md">
                     <h3 class="text-xl font-bold text-iss-blue mb-4">Pilih Project</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -229,7 +229,7 @@
             </div>
 
             <!-- TAB CONTENT: ANALYTICS DASHBOARD -->
-            <div id="tabDashboard" class="hidden space-y-6">
+            <div id="tabDashboard" class="space-y-6">
                 <div id="userDashboardView" class="space-y-6">
                     <div class="bg-white p-6 rounded-2xl shadow-md space-y-6">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4">
@@ -576,6 +576,12 @@
             }
         }
 
+        // Placeholder fungsi download PPT (sesuaikan dengan endpoint backend jika ada)
+        function downloadPpt() {
+            if (!currentUser) return;
+            alert("Fitur Download PPT sedang disiapkan.");
+        }
+
         function switchAuthTab(tab) {
             const loginBtn = document.getElementById("tabLoginBtn");
             const registerBtn = document.getElementById("tabRegisterBtn");
@@ -721,12 +727,13 @@
             if (isAdmin) {
                 document.getElementById("navSurveyBtn").classList.add("hidden");
                 document.getElementById("navDownloadExcelBtn").classList.add("hidden");
-                switchView('dashboard');
+                document.getElementById("navDownloadPptBtn").classList.add("hidden");
             } else {
                 document.getElementById("navSurveyBtn").classList.remove("hidden");
-                document.getElementById("navDownloadExcelBtn").classList.remove("hidden");
-                switchView('survey');
             }
+            
+            // Default halaman terbuka adalah Dashboard
+            switchView('dashboard');
         }
 
         function switchView(viewName) {
@@ -734,18 +741,33 @@
             const tabDashboard = document.getElementById("tabDashboard");
             const navSurveyBtn = document.getElementById("navSurveyBtn");
             const navDashboardBtn = document.getElementById("navDashboardBtn");
+            const navDownloadExcelBtn = document.getElementById("navDownloadExcelBtn");
+            const navDownloadPptBtn = document.getElementById("navDownloadPptBtn");
 
             if (viewName === 'survey') {
                 tabSurvey.classList.remove("hidden");
                 tabDashboard.classList.add("hidden");
                 navSurveyBtn.classList.add("font-bold");
                 navDashboardBtn.classList.remove("font-bold");
+                
+                // Aturan Tombol Download berdasarkan Halaman Survey
+                if (!isAdmin) {
+                    navDownloadExcelBtn.classList.remove("hidden");
+                }
+                navDownloadPptBtn.classList.add("hidden");
+
                 loadProjectsList();
             } else {
                 tabSurvey.classList.add("hidden");
                 tabDashboard.classList.remove("hidden");
                 navSurveyBtn.classList.remove("font-bold");
                 navDashboardBtn.classList.add("font-bold");
+
+                // Aturan Tombol Download berdasarkan Halaman Dashboard
+                navDownloadExcelBtn.classList.add("hidden");
+                if (!isAdmin) {
+                    navDownloadPptBtn.classList.remove("hidden");
+                }
 
                 if (isAdmin) {
                     document.getElementById("userDashboardView").classList.add("hidden");
