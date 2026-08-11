@@ -214,7 +214,7 @@
                     </form>
                 </div>
 
-                <!-- Daftar Ruang dengan Fitur Expand & Collapse -->
+                <!-- Daftar Ruang dengan Fitur Expand & Collapse (Default Collapse/Hidden) -->
                 <div class="bg-white p-6 rounded-2xl shadow-md">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-bold text-iss-blue">Daftar Data Ruang Tersimpan</h3>
@@ -222,7 +222,7 @@
                             <button type="button" onclick="toggleTableCollapse()" id="collapseTableBtn" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-300 transition">Collapse / Expand</button>
                         </div>
                     </div>
-                    <div id="tableContainerWrapper" class="overflow-x-auto transition-all duration-300">
+                    <div id="tableContainerWrapper" class="overflow-x-auto transition-all duration-300 hidden">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
                                 <tr class="bg-blue-50 text-iss-blue border-b">
@@ -433,16 +433,19 @@
             let activeIndex = -1;
             let isSelecting = false;
 
+            function getFilteredOptions() {
+                const options = getOptionsFn() || [];
+                const filter = input.value.trim().toLowerCase();
+                const isFullySelected = input.selectionStart === 0 && input.selectionEnd === input.value.length;
+                return (isFullySelected || !filter) ? options : options.filter(opt => opt.toLowerCase().startsWith(filter));
+            }
+
             function renderOptions() {
                 if (isSelecting) return;
 
-                const options = getOptionsFn() || [];
-                const filter = input.value.trim().toLowerCase();
+                const filtered = getFilteredOptions();
                 dropdown.innerHTML = "";
                 activeIndex = -1;
-
-                const isFullySelected = input.selectionStart === 0 && input.selectionEnd === input.value.length;
-                const filtered = (isFullySelected || !filter) ? options : options.filter(opt => opt.toLowerCase().startsWith(filter));
 
                 if (filtered.length === 0) {
                     dropdown.style.display = "none";
@@ -479,17 +482,6 @@
                 setTimeout(() => { isSelecting = false; }, 100);
             }
 
-            function updateActiveItem(items) {
-                items.forEach((item, index) => {
-                    if (index === activeIndex) {
-                        item.classList.add("active-item");
-                        item.scrollIntoView({ block: 'nearest' });
-                    } else {
-                        item.classList.remove("active-item");
-                    }
-                });
-            }
-
             input.addEventListener("focus", () => {
                 setTimeout(() => { input.select(); }, 50);
                 renderOptions();
@@ -504,6 +496,17 @@
                 renderOptions();
                 if (typeof onSelectCallback === 'function') {
                     onSelectCallback(input.value.trim());
+                }
+            });
+
+            // Otomatis memilih suggestion jika tersisa tepat satu saat menekan tombol Enter
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    const filtered = getFilteredOptions();
+                    if (filtered.length === 1) {
+                        e.preventDefault();
+                        selectOption(filtered[0]);
+                    }
                 }
             });
 
@@ -668,6 +671,9 @@
                 let result = await response.json();
 
                 if (result.status === "success") {
+                    // Update teks loading menjadi memuat dashboard sebelum masuk
+                    showLoading("Memuat dashboard...");
+                    
                     currentUser = username;
                     isAdmin = result.isAdmin || false;
                     localStorage.setItem("survey_user", username);
