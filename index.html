@@ -179,7 +179,7 @@
     </div>
 
     <!-- Floating Scroll-to-Top Button -->
-    <button id="scrollToTopBtn" onclick="scrollToTop()" class="fixed bottom-6 right-6 bg-iss-blue text-white p-3.5 rounded-full shadow-xl hover:bg-blue-700 transition-all duration-300 hidden opacity-0 z-40 focus:outline-none cursor-pointer hover:scale-105">
+    <button id="scrollToTopBtn" class="fixed bottom-6 right-6 bg-iss-blue text-white p-3.5 rounded-full shadow-xl hover:bg-blue-700 transition-all duration-300 hidden opacity-0 z-40 focus:outline-none cursor-pointer hover:scale-105">
         <i data-lucide="arrow-up" class="w-6 h-6 stroke-[2.5]"></i>
     </button>
 
@@ -191,8 +191,8 @@
             </h1>
         </div>
 
-        <!-- Desktop View Controls & Connection Status (Moved to Header Right) -->
-        <div id="userInfo" class="text-sm hidden md:flex items-center gap-3">
+        <!-- Desktop View Controls & Connection Status (Initially hidden on Login page) -->
+        <div id="userInfo" class="text-sm hidden items-center gap-3">
             <!-- Header Connection Indicator -->
             <button id="headerSyncStatusBtn" onclick="toggleSyncModal(true)" class="hidden items-center gap-1.5 text-xs font-normal text-white/90 bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-full transition cursor-pointer select-none">
                 <span id="headerStatusDot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
@@ -208,7 +208,7 @@
             </div>
         </div>
 
-        <!-- Mobile Hamburger Toggle Button -->
+        <!-- Mobile Hamburger Toggle Button (Initially hidden on Login page) -->
         <button id="mobileMenuBtn" onclick="toggleMobileDrawer(true)" class="md:hidden hidden bg-white/10 p-2 rounded-xl text-white hover:bg-white/20 transition focus:outline-none">
             <i data-lucide="menu" class="w-6 h-6"></i>
         </button>
@@ -252,7 +252,7 @@
         <section id="loginSection" class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 max-w-md mx-auto mt-12 transition-all">
             <div class="flex border-b border-gray-100 mb-6">
                 <button type="button" onclick="switchAuthTab('login')" id="tabLoginBtn" class="flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue transition">Sign In</button>
-                <button type="button" onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 pb-3 font-medium text-gray-400 transition">Register</button>
+                <button type="button" onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 pb-3 font-medium text-gray-400 transition">Sign Up</button>
             </div>
 
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
@@ -287,7 +287,7 @@
                     <input type="password" id="regPin" inputmode="numeric" pattern="[0-9]*" required class="w-full p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-iss-blue outline-none transition bg-gray-50/50 focus:bg-white" placeholder="Create confidential PIN">
                 </div>
                 <p class="text-xs text-gray-500 bg-blue-50/50 p-2.5 rounded-lg border border-blue-100">Note: New accounts require administrator approval.</p>
-                <button type="submit" class="w-full bg-iss-blue text-white py-3.5 rounded-xl font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition active:scale-[0.98] mt-2">Register Now</button>
+                <button type="submit" class="w-full bg-iss-blue text-white py-3.5 rounded-xl font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition active:scale-[0.98] mt-2">Sign Up</button>
             </form>
         </section>
 
