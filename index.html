@@ -197,10 +197,10 @@
         </div>
 
         <!-- Desktop View User Info -->
-        <div id="userInfo" class="text-sm hidden md:flex items-center gap-3">
-            <span id="displayUser" class="font-semibold bg-white/10 px-3 py-1 rounded-full text-xs"></span>
+        <div id="userInfo" class="text-sm hidden md:flex items-center gap-3 max-w-[calc(100%-12rem)] md:max-w-none">
+            <span id="displayUser" class="font-semibold bg-white/10 px-3 py-1 rounded-full text-xs truncate max-w-[150px] md:max-w-[200px]" title=""></span>
             <div class="h-4 w-[1px] bg-white/20 hidden md:block"></div>
-            <div class="flex items-center gap-2.5 text-xs md:text-sm font-medium">
+            <div class="hidden md:flex items-center gap-2.5 text-xs md:text-sm font-medium">
                 <button onclick="switchView('dashboard')" id="navDashboardBtn" class="hover:opacity-80 transition py-1">Dashboard</button>
                 <button onclick="switchView('survey'); toggleProjectModal(true);" id="navSurveyBtn" class="hover:opacity-80 transition py-1 hidden">Project</button>
                 <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="hover:opacity-80 transition py-1 hidden">Export Excel</button>
@@ -227,8 +227,8 @@
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
         </div>
-        <div id="mobileUserInfo" class="mb-6 bg-white/10 p-3.5 rounded-xl border border-white/10">
-            <span id="mobileDisplayUser" class="font-bold text-sm block"></span>
+        <div id="mobileUserInfo" class="mb-6 bg-white/10 p-3.5 rounded-xl border border-white/10 max-w-full">
+            <span id="mobileDisplayUser" class="font-bold text-sm block truncate overflow-hidden text-ellipsis"></span>
         </div>
         <div class="flex flex-col gap-3 font-medium text-sm">
             <button onclick="switchView('dashboard'); toggleMobileDrawer(false);" id="mobileNavDashboardBtn" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition text-left">
@@ -244,7 +244,7 @@
                 <i data-lucide="presentation" class="w-5 h-5"></i> Export PPT
             </button>
             <div class="border-t border-white/20 my-2 pt-2"></div>
-            <button onclick="logout()" class="flex items-center gap-3 p-3 rounded-xl bg-red-500/20 text-red-100 hover:bg-red-500/30 transition text-left font-semibold">
+            <button onclick="logout()" class="flex items-center gap-3 p-3 rounded-xl bg-white text-red-600 hover:bg-gray-100 transition text-left font-semibold">
                 <i data-lucide="log-out" class="w-5 h-5"></i> Sign Out
             </button>
         </div>
@@ -357,7 +357,7 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 id="tableTitle" class="text-xl font-bold text-iss-blue">Project: -</h3>
                         <div class="space-x-2">
-                            <button type="button" onclick="toggleTableCollapse()" id="collapseTableBtn" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-200 transition shadow-sm">Collapse / Expand Table</button>
+                            <button type="button" onclick="toggleTableCollapse()" id="collapseTableBtn" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition shadow-sm">Collapse / Expand Table</button>
                         </div>
                     </div>
                     <div id="tableContainerWrapper" class="overflow-x-auto transition-all duration-300 hidden rounded-2xl border border-gray-100">
@@ -504,7 +504,7 @@
                             </h3>
                             <div class="space-x-2">
                                 <button onclick="toggleAllAdminCards(true)" class="bg-iss-blue text-white px-4 py-2 rounded-xl text-xs font-semibold hover:opacity-90 shadow-sm transition">Expand All</button>
-                                <button onclick="toggleAllAdminCards(false)" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-200 transition">Collapse All</button>
+                                <button onclick="toggleAllAdminCards(false)" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition">Collapse All</button>
                             </div>
                         </div>
                         <div id="adminContentContainer" class="space-y-6"></div>
@@ -1076,8 +1076,12 @@
             document.getElementById("mobileMenuBtn").classList.remove("hidden");
             
             const userLabel = (isAdmin ? "Admin: " : "User: ") + currentUser;
-            document.getElementById("displayUser").innerText = userLabel;
-            document.getElementById("mobileDisplayUser").innerText = userLabel;
+            const displayUserEl = document.getElementById("displayUser");
+            const mobileDisplayUserEl = document.getElementById("mobileDisplayUser");
+            
+            displayUserEl.innerText = userLabel;
+            displayUserEl.title = userLabel;
+            mobileDisplayUserEl.innerText = userLabel;
             
             if (isAdmin) {
                 document.getElementById("navSurveyBtn").classList.add("hidden");
