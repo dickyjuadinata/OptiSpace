@@ -71,42 +71,27 @@
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col relative antialiased selection:bg-blue-100 selection:text-iss-blue">
 
-    <!-- Floating Toast Notification -->
-    <div id="toastNotification" class="fixed top-5 right-5 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 pointer-events-none">
-        <div id="toastContent" class="flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl text-xs md:text-sm font-semibold border">
-            <span id="toastIcon"></span>
-            <span id="toastMessage"></span>
+    <!-- Toast Notification (Floating Bottom Right) -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-10 opacity-0 transition-all duration-300 pointer-events-none">
+        <div id="toastContent" class="flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-xs font-semibold text-white bg-amber-600">
+            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+            <span id="toastMessage">You are now offline. Data will be saved locally.</span>
         </div>
     </div>
 
-    <!-- Sync Detail Modal -->
-    <div id="syncDetailModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-xs z-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4 space-y-4 relative transform transition-all">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="text-lg font-bold text-iss-blue flex items-center gap-2">
-                    <i data-lucide="refresh-cw" class="w-5 h-5"></i> Sync Status Details
-                </h3>
-                <button onclick="toggleSyncModal(false)" class="text-gray-400 hover:text-gray-600 font-bold text-lg p-1 rounded-lg hover:bg-gray-100 transition">&times;</button>
+    <!-- Sync Detail Modal / Popover -->
+    <div id="syncDetailModal" class="fixed inset-0 bg-gray-900/30 backdrop-blur-xs z-50 flex items-center justify-center hidden">
+        <div class="bg-white p-5 rounded-2xl shadow-xl max-w-xs w-full mx-4 border border-gray-100 space-y-4 text-center">
+            <h4 class="font-bold text-gray-800 text-sm flex items-center justify-center gap-2">
+                <i data-lucide="refresh-cw" class="w-4 h-4 text-iss-blue"></i> Sync Status Details
+            </h4>
+            <div class="text-xs text-gray-600 space-y-1 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                <p id="modalLastSyncText">Last synced at 00:00</p>
+                <p id="modalPendingText" class="text-gray-400">All data synced</p>
             </div>
-            <div class="space-y-3 text-sm">
-                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
-                    <span class="text-gray-500 font-medium">Network Status:</span>
-                    <span id="modalNetStatus" class="font-bold"></span>
-                </div>
-                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
-                    <span class="text-gray-500 font-medium">Last Synced:</span>
-                    <span id="modalLastSyncTime" class="font-semibold text-gray-700">Last synced at --:--</span>
-                </div>
-                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
-                    <span class="text-gray-500 font-medium">Pending Queue:</span>
-                    <span id="modalPendingQueue" class="font-bold text-gray-700">0 items</span>
-                </div>
-            </div>
-            <div class="pt-2 border-t flex justify-end gap-2">
-                <button onclick="toggleSyncModal(false)" class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-xl text-xs font-semibold transition">Close</button>
-                <button onclick="triggerManualSync()" id="btnSyncNow" class="bg-iss-blue text-white px-4 py-2 rounded-xl text-xs font-semibold hover:opacity-90 shadow-sm transition flex items-center gap-1.5">
-                    <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Sync Now
-                </button>
+            <div class="flex gap-2">
+                <button onclick="manualSync()" class="flex-1 bg-iss-blue text-white py-2 rounded-xl text-xs font-semibold hover:opacity-90 transition">Sync Now</button>
+                <button onclick="toggleSyncModal(false)" class="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-200 transition">Close</button>
             </div>
         </div>
     </div>
@@ -160,19 +145,22 @@
     </button>
 
     <!-- Navigation Bar -->
-    <header class="bg-iss-blue text-white px-6 py-3.5 shadow-md flex justify-between items-center sticky top-0 z-40">
-        <h1 class="font-bold text-base md:text-lg flex items-center gap-2.5 shrink-0">
-            <span class="bg-white/10 p-1.5 rounded-lg flex items-center justify-center"><i data-lucide="building-2" class="w-5 h-5"></i></span> OptiSpace
-        </h1>
-        <div id="userInfo" class="text-sm hidden flex-row items-center gap-3 shrink-0">
-            <!-- Header Sync/Connection Indicator -->
-            <button onclick="toggleSyncModal(true)" id="headerSyncBadge" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap" title="Click for sync details">
-                <span id="headerSyncDot">🟢</span>
-                <span id="headerSyncText">Online · Synced</span>
+    <header class="bg-iss-blue text-white px-6 py-4 shadow-md flex justify-between items-center sticky top-0 z-40">
+        <div class="flex items-center gap-3">
+            <h1 class="font-bold text-base md:text-lg flex items-center gap-2.5">
+                <span class="bg-white/10 p-1.5 rounded-lg flex items-center justify-center"><i data-lucide="building-2" class="w-5 h-5"></i></span> OptiSpace
+            </h1>
+            <!-- Header Connection Indicator (Hidden when not logged in) -->
+            <button id="headerSyncStatusBtn" onclick="toggleSyncModal(true)" class="hidden items-center gap-1.5 text-xs font-normal text-white/90 bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-full transition cursor-pointer select-none">
+                <span id="headerStatusDot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span id="headerStatusText">Online · Synced</span>
             </button>
-            <span id="displayUser" class="font-semibold bg-white/10 px-3 py-1 rounded-full text-xs whitespace-nowrap max-w-[200px] truncate"></span>
-            <div class="h-4 w-[1px] bg-white/20"></div>
-            <div class="flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap">
+        </div>
+
+        <div id="userInfo" class="text-sm hidden items-center gap-3">
+            <span id="displayUser" class="font-semibold bg-white/10 px-3 py-1 rounded-full text-xs"></span>
+            <div class="h-4 w-[1px] bg-white/20 hidden md:block"></div>
+            <div class="flex items-center gap-2.5 text-xs md:text-sm font-medium">
                 <button onclick="switchView('dashboard')" id="navDashboardBtn" class="hover:opacity-80 transition py-1">Dashboard</button>
                 <button onclick="switchView('survey'); toggleProjectModal(true);" id="navSurveyBtn" class="hover:opacity-80 transition py-1 hidden">Project</button>
                 <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="hover:opacity-80 transition py-1 hidden">Export Excel</button>
@@ -461,8 +449,7 @@
         let chartInstanceLantai = null;
         let lastSyncTimestamp = Date.now();
         let isSyncing = false;
-        let toastTimeout = null;
-        let wasOnline = navigator.onLine;
+        let previousOnlineState = navigator.onLine;
 
         const jenisPermukaanOptions = [
             "Ceramic Tile", "Vinyl", "Carpet", "Epoxy", "Parquet", "Concrete/Cement", "Granite", "Other"
@@ -499,6 +486,67 @@
             }
         }
 
+        function showToast(message, isWarning = false) {
+            const toast = document.getElementById("toastNotification");
+            const toastContent = document.getElementById("toastContent");
+            const toastMsg = document.getElementById("toastMessage");
+            if (!toast || !toastMsg) return;
+
+            toastMsg.innerText = message;
+            if (isWarning) {
+                toastContent.className = "flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-xs font-semibold text-white bg-amber-600";
+            } else {
+                toastContent.className = "flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-xs font-semibold text-white bg-emerald-600";
+            }
+
+            toast.classList.remove("opacity-0", "translate-y-10");
+            toast.classList.add("opacity-100", "translate-y-0");
+
+            setTimeout(() => {
+                toast.classList.remove("opacity-100", "translate-y-0");
+                toast.classList.add("opacity-0", "translate-y-10");
+            }, 3000);
+        }
+
+        function toggleSyncModal(show) {
+            const modal = document.getElementById("syncDetailModal");
+            if (!modal) return;
+            if (show) {
+                updateSyncModalInfo();
+                modal.classList.remove("hidden");
+            } else {
+                modal.classList.add("hidden");
+            }
+        }
+
+        function updateSyncModalInfo() {
+            const timeStr = new Date(lastSyncTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const modalLastSync = document.getElementById("modalLastSyncText");
+            const modalPending = document.getElementById("modalPendingText");
+            
+            if (modalLastSync) modalLastSync.innerText = `Last synced at ${timeStr}`;
+            
+            if (!navigator.onLine) {
+                const pendingCount = getLocalData().length;
+                if (modalPending) modalPending.innerText = `${pendingCount} item(s) saved locally`;
+            } else {
+                if (modalPending) modalPending.innerText = "All data synchronized with server";
+            }
+        }
+
+        async function manualSync() {
+            toggleSyncModal(false);
+            if (!navigator.onLine) {
+                showToast("Cannot sync while offline", true);
+                return;
+            }
+            showLoading("Synchronizing data...");
+            await syncOfflineData();
+            await syncAllProjectsData();
+            hideLoading();
+            showToast("Synchronization completed");
+        }
+
         function toggleProjectModal(show) {
             const modal = document.getElementById("projectModal");
             if (show) {
@@ -506,116 +554,6 @@
             } else {
                 modal.classList.add("hidden");
             }
-        }
-
-        function toggleSyncModal(show) {
-            const modal = document.getElementById("syncDetailModal");
-            if (show) {
-                updateSyncModalDetails();
-                modal.classList.remove("hidden");
-            } else {
-                modal.classList.add("hidden");
-            }
-        }
-
-        function updateSyncModalDetails() {
-            const netStatus = document.getElementById("modalNetStatus");
-            const pendingQueue = document.getElementById("modalPendingQueue");
-            const modalTime = document.getElementById("modalLastSyncTime");
-            
-            const pendingCount = getPendingCount();
-
-            if (navigator.onLine) {
-                netStatus.innerText = "🟢 Online";
-                netStatus.className = "font-bold text-green-600";
-            } else {
-                netStatus.innerText = "🟠 Offline";
-                netStatus.className = "font-bold text-amber-600";
-            }
-
-            pendingQueue.innerText = `${pendingCount} item${pendingCount !== 1 ? 's' : ''}`;
-            
-            const formattedTime = new Date(lastSyncTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            modalTime.innerText = `Last synced at ${formattedTime}`;
-        }
-
-        function getPendingCount() {
-            let pendingCount = 0;
-            if (!currentProject) return 0;
-            const rows = getLocalData();
-            rows.forEach(r => {
-                if (r.updated_at && r.updated_at > lastSyncTimestamp) {
-                    pendingCount++;
-                }
-            });
-            return pendingCount;
-        }
-
-        function showToast(message, isOnline = true) {
-            const toast = document.getElementById("toastNotification");
-            const content = document.getElementById("toastContent");
-            const icon = document.getElementById("toastIcon");
-            const msg = document.getElementById("toastMessage");
-
-            if (!toast || !content) return;
-
-            if (toastTimeout) clearTimeout(toastTimeout);
-
-            if (isOnline) {
-                content.className = "flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl text-xs md:text-sm font-semibold border bg-green-50 text-green-700 border-green-200";
-                icon.innerText = "🟢";
-            } else {
-                content.className = "flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl text-xs md:text-sm font-semibold border bg-amber-50 text-amber-700 border-amber-200";
-                icon.innerText = "🟠";
-            }
-
-            msg.innerText = message;
-            toast.classList.remove("translate-y-[-150%]", "opacity-0");
-
-            toastTimeout = setTimeout(() => {
-                toast.classList.add("translate-y-[-150%]", "opacity-0");
-            }, 3000);
-        }
-
-        function updateSyncStatusUI() {
-            const dot = document.getElementById("headerSyncDot");
-            const text = document.getElementById("headerSyncText");
-
-            if (!dot || !text) return;
-
-            const pendingCount = getPendingCount();
-
-            if (isSyncing) {
-                dot.innerText = "🔵";
-                text.innerText = "Syncing...";
-            } else if (navigator.onLine) {
-                dot.innerText = "🟢";
-                text.innerText = "Online · Synced";
-            } else {
-                dot.innerText = "🟠";
-                if (pendingCount > 0) {
-                    text.innerText = `Offline · ${pendingCount} pending`;
-                } else {
-                    text.innerText = "Offline · Saved locally";
-                }
-            }
-        }
-
-        async function triggerManualSync() {
-            if (!navigator.onLine) {
-                showToast("Cannot sync while offline.", false);
-                return;
-            }
-            toggleSyncModal(false);
-            isSyncing = true;
-            updateSyncStatusUI();
-            
-            await syncOfflineData();
-            await syncAllProjectsData();
-
-            isSyncing = false;
-            updateSyncStatusUI();
-            showToast("Synchronization completed successfully!", true);
         }
 
         function toggleTableCollapse() {
@@ -797,9 +735,13 @@
                 loadProjectsList();
                 await syncAllProjectsData();
             }
+            
             window.addEventListener('online', handleNetworkChange);
             window.addEventListener('offline', handleNetworkChange);
             updateOnlineStatus();
+
+            // Periodic update for Last sync time indicator display
+            setInterval(updateLastSyncLabel, 15000);
 
             // Render Lucide icons
             if (typeof lucide !== 'undefined') {
@@ -808,23 +750,24 @@
         };
 
         function handleNetworkChange() {
-            const isNowOnline = navigator.onLine;
-            if (wasOnline !== isNowOnline) {
-                if (isNowOnline) {
-                    showToast("You are back online. Syncing data...", true);
+            if (navigator.onLine !== previousOnlineState) {
+                if (navigator.onLine) {
+                    showToast("You are back online. Synchronizing data...");
                 } else {
-                    showToast("You are now offline. Data will be saved locally.", false);
+                    showToast("You are now offline. Data will be saved locally.", true);
                 }
-                wasOnline = isNowOnline;
+                previousOnlineState = navigator.onLine;
             }
+            updateOnlineStatus();
+        }
+
+        function updateLastSyncLabel() {
             updateOnlineStatus();
         }
 
         async function syncAllProjectsData() {
             let projects = getProjectsList();
             if (navigator.onLine && !isAdmin && projects.length > 0) {
-                isSyncing = true;
-                updateSyncStatusUI();
                 for (let proj of projects) {
                     try {
                         let res = await fetch(API_URL, {
@@ -835,11 +778,10 @@
                         if (json.status === "success" && json.rows) {
                             localStorage.setItem(`data_${currentUser}_${proj}`, JSON.stringify(json.rows));
                             lastSyncTimestamp = Date.now();
+                            updateOnlineStatus();
                         }
                     } catch (e) {}
                 }
-                isSyncing = false;
-                updateSyncStatusUI();
             }
             if (!isAdmin) {
                 renderAnalytics();
@@ -934,9 +876,35 @@
         }
 
         function updateOnlineStatus() {
-            updateSyncStatusUI();
-            if (navigator.onLine) {
-                syncOfflineData();
+            const headerBtn = document.getElementById("headerSyncStatusBtn");
+            const headerDot = document.getElementById("headerStatusDot");
+            const headerText = document.getElementById("headerStatusText");
+
+            if (!headerBtn || !headerDot || !headerText) return;
+
+            if (!currentUser) {
+                headerBtn.classList.add("hidden");
+                headerBtn.classList.remove("flex");
+                return;
+            }
+
+            headerBtn.classList.remove("hidden");
+            headerBtn.classList.add("flex");
+
+            if (isSyncing) {
+                headerDot.className = "w-2 h-2 rounded-full bg-blue-400 animate-ping";
+                headerText.innerText = "Syncing...";
+            } else if (navigator.onLine) {
+                headerDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+                headerText.innerText = "Online · Synced";
+            } else {
+                headerDot.className = "w-2 h-2 rounded-full bg-amber-400";
+                const localDataCount = getLocalData().length;
+                if (localDataCount > 0) {
+                    headerText.innerText = `Offline · ${localDataCount} pending`;
+                } else {
+                    headerText.innerText = "Offline · Saved locally";
+                }
             }
         }
 
@@ -961,7 +929,7 @@
             const rememberMe = document.getElementById("rememberMe").checked;
 
             if (!navigator.onLine) {
-                alert("Unable to Sign In while offline. Please check your network connection.");
+                showToast("Cannot Sign In while offline. Please check your network connection.", true);
                 return;
             }
 
@@ -1009,11 +977,8 @@
         function showDashboard() {
             document.getElementById("loginSection").classList.add("hidden");
             document.getElementById("dashboardSection").classList.remove("hidden");
-            
-            const userInfo = document.getElementById("userInfo");
-            userInfo.classList.remove("hidden");
-            userInfo.classList.add("flex");
-            
+            document.getElementById("userInfo").classList.remove("hidden");
+            document.getElementById("userInfo").classList.add("flex");
             document.getElementById("displayUser").innerText = (isAdmin ? "Admin: " : "User: ") + currentUser;
             
             if (isAdmin) {
@@ -1024,6 +989,7 @@
                 document.getElementById("navSurveyBtn").classList.remove("hidden");
             }
             
+            updateOnlineStatus();
             switchView('dashboard');
         }
 
@@ -1170,7 +1136,6 @@
                 updated_at: item.updated_at || Date.now()
             }));
             localStorage.setItem(`data_${currentUser}_${currentProject}`, JSON.stringify(stampedData));
-            updateSyncStatusUI();
         }
 
         async function loadData() {
@@ -1180,6 +1145,8 @@
             }
             if (navigator.onLine && !isAdmin) {
                 showLoading("Fetching survey data...");
+                isSyncing = true;
+                updateOnlineStatus();
                 try {
                     let res = await fetch(API_URL, {
                         method: "POST",
@@ -1209,6 +1176,8 @@
                     }
                 } catch (e) {
                 } finally {
+                    isSyncing = false;
+                    updateOnlineStatus();
                     hideLoading();
                 }
             }
@@ -1372,7 +1341,7 @@
             if (!navigator.onLine || !currentUser || isAdmin || !currentProject) return;
             const rows = getLocalData();
             isSyncing = true;
-            updateSyncStatusUI();
+            updateOnlineStatus();
             try {
                 let res = await fetch(API_URL, {
                     method: "POST",
@@ -1391,7 +1360,7 @@
             } catch (e) {
             } finally {
                 isSyncing = false;
-                updateSyncStatusUI();
+                updateOnlineStatus();
             }
         }
 
