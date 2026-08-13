@@ -18,46 +18,105 @@
     <style>
         /* System Light & Dark Mode Auto Theme Variables */
         :root {
-            --bg-body: #f9fafb;
+            --bg-body: #f8fafc;
             --bg-card: #ffffff;
-            --bg-card-sub: #f9fafb;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --border-color: #f3f4f6;
-            --border-strong: #e5e7eb;
-            --input-bg: rgba(249, 250, 251, 0.5);
+            --bg-card-sub: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --border-strong: #cbd5e1;
+            --input-bg: #ffffff;
             --dropdown-bg: #ffffff;
+            --dropdown-hover: #eff6ff;
+            --badge-bg: #eff6ff;
+            --badge-text: #0066FF;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
                 --bg-body: #0f172a;
                 --bg-card: #1e293b;
-                --bg-card-sub: #0f172a;
+                --bg-card-sub: #334155;
                 --text-main: #f8fafc;
-                --text-muted: #94a3b8;
+                --text-muted: #cbd5e1;
                 --border-color: #334155;
                 --border-strong: #475569;
                 --input-bg: #0f172a;
                 --dropdown-bg: #1e293b;
+                --dropdown-hover: #334155;
+                --badge-bg: #1e3a8a;
+                --badge-text: #93c5fd;
             }
 
-            /* Custom Tailwind Dark Mode Overwrites */
+            /* Custom Tailwind Dark Mode Overwrites & High Contrast Text Rules */
             body { background-color: var(--bg-body) !important; color: var(--text-main) !important; }
-            .bg-white { background-color: var(--bg-card) !important; color: var(--text-main) !important; }
-            .bg-gray-50, .bg-gray-50\/50, .bg-gray-50\/60, .bg-gray-50\/70, .bg-gray-50\/80 { background-color: var(--bg-card-sub) !important; color: var(--text-main) !important; }
-            .border-gray-100, .border-gray-200, .border-gray-200\/50, .border-gray-200\/60, .border-gray-200\/80 { border-color: var(--border-color) !important; }
-            .text-gray-800, .text-gray-700 { color: var(--text-main) !important; }
-            .text-gray-600, .text-gray-500, .text-gray-400 { color: var(--text-muted) !important; }
-            input, textarea, select { background-color: var(--input-bg) !important; color: var(--text-main) !important; border-color: var(--border-strong) !important; }
+            
+            /* Card Containers & Overlays */
+            .bg-white, #projectModal > div, #syncDetailModal > div, #loadingOverlay > div { 
+                background-color: var(--bg-card) !important; 
+                color: var(--text-main) !important; 
+                border-color: var(--border-color) !important;
+            }
+            
+            .bg-gray-50, .bg-gray-50\/50, .bg-gray-50\/60, .bg-gray-50\/70, .bg-gray-50\/80,
+            .bg-blue-50\/50, .bg-blue-50\/80, .bg-gradient-to-br { 
+                background-color: var(--bg-card-sub) !important; 
+                color: var(--text-main) !important; 
+                border-color: var(--border-color) !important;
+            }
+            
+            .border-gray-100, .border-gray-200, .border-gray-200\/50, .border-gray-200\/60, .border-gray-200\/80, .border-blue-100 { 
+                border-color: var(--border-color) !important; 
+            }
+            
+            /* Typography Accessibility Overwrites for Auto Night Mode */
+            .text-gray-800, .text-gray-700, .text-gray-600, .text-blue-600\/80, h1, h2, h3, h4, h5, h6 { 
+                color: var(--text-main) !important; 
+            }
+            .text-gray-500, .text-gray-400, #modalPendingText, label { 
+                color: var(--text-muted) !important; 
+            }
+            
+            /* Form Elements */
+            input, textarea, select { 
+                background-color: var(--input-bg) !important; 
+                color: var(--text-main) !important; 
+                border-color: var(--border-strong) !important; 
+            }
+            input::placeholder, textarea::placeholder {
+                color: var(--text-muted) !important;
+                opacity: 0.8;
+            }
+            
             footer { background-color: var(--bg-card) !important; border-color: var(--border-color) !important; }
+            
+            /* Custom Searchable Dropdown Styling in Dark Mode */
             .searchable-dropdown-list { background-color: var(--dropdown-bg) !important; border-color: var(--border-strong) !important; }
             .searchable-dropdown-item { color: var(--text-main) !important; }
+            .searchable-dropdown-item:hover,
+            .searchable-dropdown-item.active-item {
+                background-color: var(--dropdown-hover) !important;
+                color: #60a5fa !important;
+            }
+            
+            /* Active Project Badge Fix */
+            #activeProjectBadge {
+                background-color: var(--badge-bg) !important;
+                color: var(--badge-text) !important;
+            }
+            
+            /* Table Striping & Headers */
+            tr:hover { background-color: var(--bg-card-sub) !important; }
+            th { color: #60a5fa !important; }
         }
 
         .bg-iss-blue { background-color: #0066FF; }
         .text-iss-blue { color: #0066FF; }
         .border-iss-blue { border-color: #0066FF; }
+
+        @media (prefers-color-scheme: dark) {
+            .text-iss-blue { color: #60a5fa; }
+        }
 
         /* Custom Searchable Dropdown Styling */
         .searchable-dropdown-container {
@@ -76,7 +135,7 @@
             margin-top: 0.25rem;
             max-height: 220px;
             overflow-y: auto;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
             display: none;
         }
         .searchable-dropdown-item {
@@ -88,7 +147,7 @@
         }
         .searchable-dropdown-item:hover,
         .searchable-dropdown-item.active-item {
-            background-color: #eff6ff;
+            background-color: var(--dropdown-hover);
             color: #0066FF;
             font-weight: 600;
         }
@@ -119,7 +178,7 @@
     </div>
 
     <!-- Sync Detail Modal / Popover -->
-    <div id="syncDetailModal" class="fixed inset-0 bg-gray-900/30 backdrop-blur-xs z-50 flex items-center justify-center hidden">
+    <div id="syncDetailModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-xs z-50 flex items-center justify-center hidden">
         <div class="bg-white p-5 rounded-2xl shadow-xl max-w-xs w-full mx-4 border border-gray-100 space-y-4 text-center">
             <h4 class="font-bold text-gray-800 text-sm flex items-center justify-center gap-2">
                 <i data-lucide="refresh-cw" class="w-4 h-4 text-iss-blue"></i> Sync Status Details
@@ -129,14 +188,14 @@
                 <p id="modalPendingText" class="text-gray-400">All data synced</p>
             </div>
             <div class="flex gap-2">
-                <button onclick="manualSync()" class="flex-1 bg-iss-blue text-white py-2 rounded-xl text-xs font-semibold hover:opacity-90 transition">Sync Now</button>
-                <button onclick="toggleSyncModal(false)" class="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-200 transition">Close</button>
+                <button onclick="manualSync()" class="flex-1 bg-iss-blue text-white py-2 rounded-xl text-xs font-semibold hover:opacity-90 transition cursor-pointer">Sync Now</button>
+                <button onclick="toggleSyncModal(false)" class="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-200 transition cursor-pointer">Close</button>
             </div>
         </div>
     </div>
 
     <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-gray-900/40 backdrop-blur-xs z-50 flex flex-col items-center justify-center hidden transition-all duration-300">
+    <div id="loadingOverlay" class="fixed inset-0 bg-gray-900/60 backdrop-blur-xs z-50 flex flex-col items-center justify-center hidden transition-all duration-300">
         <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-3 border border-gray-100">
             <div class="spinner"></div>
             <p id="loadingText" class="text-sm font-semibold text-gray-700">Processing data...</p>
@@ -144,13 +203,13 @@
     </div>
 
     <!-- Select & Create Project Modal -->
-    <div id="projectModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-xs z-50 flex items-center justify-center hidden">
+    <div id="projectModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-xs z-50 flex items-center justify-center hidden">
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-lg w-full mx-4 space-y-4 relative transform transition-all">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="text-xl font-bold text-iss-blue flex items-center gap-2">
                     <i data-lucide="folder-kanban" class="w-5 h-5"></i> Select or Create Project
                 </h3>
-                <button onclick="toggleProjectModal(false)" class="text-gray-400 hover:text-gray-600 font-bold text-lg p-1 rounded-lg hover:bg-gray-100 transition">&times;</button>
+                <button onclick="toggleProjectModal(false)" class="text-gray-400 hover:text-gray-600 font-bold text-lg p-1 rounded-lg hover:bg-gray-100 transition cursor-pointer">&times;</button>
             </div>
             <div class="space-y-4">
                 <div>
@@ -166,27 +225,27 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Or Create New Project</label>
                     <div class="flex gap-2 mt-1">
                         <input type="text" id="newProjectInput" placeholder="New project name..." class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-iss-blue transition">
-                        <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-5 py-3 rounded-xl font-semibold hover:opacity-90 shadow-sm transition whitespace-nowrap flex items-center gap-2">
+                        <button type="button" onclick="createNewProject()" class="bg-iss-blue text-white px-5 py-3 rounded-xl font-semibold hover:opacity-90 shadow-sm transition whitespace-nowrap flex items-center gap-2 cursor-pointer">
                             <i data-lucide="plus" class="w-4 h-4"></i> Add Project
                         </button>
                     </div>
                 </div>
             </div>
             <div class="flex justify-end pt-3 border-t">
-                <button onclick="toggleProjectModal(false)" class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-5 py-2.5 rounded-xl text-sm font-semibold transition">Close</button>
+                <button onclick="toggleProjectModal(false)" class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- Floating Scroll-to-Top Button -->
-    <button id="scrollToTopBtn" class="fixed bottom-6 right-6 bg-iss-blue text-white p-3.5 rounded-full shadow-xl hover:bg-blue-700 transition-all duration-300 hidden opacity-0 z-40 focus:outline-none cursor-pointer hover:scale-105">
+    <!-- Floating Scroll-to-Top Button (Fixed: Attached onclick listener) -->
+    <button id="scrollToTopBtn" onclick="scrollToTop()" class="fixed bottom-6 right-6 bg-iss-blue text-white p-3.5 rounded-full shadow-xl hover:bg-blue-700 transition-all duration-300 hidden opacity-0 z-40 focus:outline-none cursor-pointer hover:scale-105">
         <i data-lucide="arrow-up" class="w-6 h-6 stroke-[2.5]"></i>
     </button>
 
     <!-- Navigation Bar (Optimized height & Layout updated) -->
     <header class="w-full bg-[#161B26] text-white px-6 py-2.5 shadow-md flex justify-between items-center z-40 relative">
         <div class="flex items-center gap-3">
-            <h1 class="font-bold text-base md:text-lg flex items-center gap-2.5">
+            <h1 class="font-bold text-base md:text-lg flex items-center gap-2.5 text-white">
                 <span class="bg-white/10 p-1.5 rounded-lg flex items-center justify-center"><i data-lucide="building-2" class="w-5 h-5"></i></span> OptiSpace
             </h1>
         </div>
@@ -200,46 +259,46 @@
             </button>
             <div class="h-4 w-[1px] bg-white/20 hidden md:block"></div>
             <div class="hidden md:flex items-center gap-2.5 text-xs md:text-sm font-medium">
-                <button onclick="switchView('dashboard')" id="navDashboardBtn" class="hover:opacity-80 transition py-1">Dashboard</button>
-                <button onclick="switchView('survey'); toggleProjectModal(true);" id="navSurveyBtn" class="hover:opacity-80 transition py-1 hidden">Project</button>
-                <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="hover:opacity-80 transition py-1 hidden">Export Excel</button>
-                <button onclick="downloadPpt()" id="navDownloadPptBtn" class="hover:opacity-80 transition py-1 hidden">Export PPT</button>
-                <button onclick="logout()" class="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition ml-1 font-semibold">Sign Out</button>
+                <button onclick="switchView('dashboard')" id="navDashboardBtn" class="hover:opacity-80 transition py-1 cursor-pointer">Dashboard</button>
+                <button onclick="switchView('survey'); toggleProjectModal(true);" id="navSurveyBtn" class="hover:opacity-80 transition py-1 hidden cursor-pointer">Project</button>
+                <button onclick="downloadExcel()" id="navDownloadExcelBtn" class="hover:opacity-80 transition py-1 hidden cursor-pointer">Export Excel</button>
+                <button onclick="downloadPpt()" id="navDownloadPptBtn" class="hover:opacity-80 transition py-1 hidden cursor-pointer">Export PPT</button>
+                <button onclick="logout()" class="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition ml-1 font-semibold cursor-pointer">Sign Out</button>
             </div>
         </div>
 
         <!-- Mobile Hamburger Toggle Button (Initially hidden on Login page) -->
-        <button id="mobileMenuBtn" onclick="toggleMobileDrawer(true)" class="md:hidden hidden bg-white/10 p-2 rounded-xl text-white hover:bg-white/20 transition focus:outline-none">
+        <button id="mobileMenuBtn" onclick="toggleMobileDrawer(true)" class="md:hidden hidden bg-white/10 p-2 rounded-xl text-white hover:bg-white/20 transition focus:outline-none cursor-pointer">
             <i data-lucide="menu" class="w-6 h-6"></i>
         </button>
     </header>
 
     <!-- Mobile Drawer Overlay & Drawer Container -->
-    <div id="mobileDrawerOverlay" onclick="toggleMobileDrawer(false)" class="fixed inset-0 bg-gray-900/50 backdrop-blur-xs z-50 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
+    <div id="mobileDrawerOverlay" onclick="toggleMobileDrawer(false)" class="fixed inset-0 bg-gray-900/60 backdrop-blur-xs z-50 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
     <div id="mobileDrawer" class="fixed top-0 right-0 h-full w-72 bg-[#161B26] text-white z-50 transform translate-x-full transition-transform duration-300 flex flex-col p-6 shadow-2xl md:hidden">
         <div class="flex justify-between items-center pb-4 border-b border-white/20 mb-6">
             <div class="flex items-center gap-2">
                 <span class="bg-white/10 p-1.5 rounded-lg"><i data-lucide="building-2" class="w-5 h-5"></i></span>
-                <span class="font-bold text-lg">OptiSpace</span>
+                <span class="font-bold text-lg text-white">OptiSpace</span>
             </div>
-            <button onclick="toggleMobileDrawer(false)" class="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition">
+            <button onclick="toggleMobileDrawer(false)" class="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
         </div>
 
         <!-- Mobile Menu: Only Dashboard, Project, Export, and Sign Out -->
         <div class="flex flex-col gap-3 font-medium text-sm">
-            <button onclick="switchView('dashboard'); toggleMobileDrawer(false);" id="mobileNavDashboardBtn" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition text-left">
+            <button onclick="switchView('dashboard'); toggleMobileDrawer(false);" id="mobileNavDashboardBtn" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition text-left cursor-pointer">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
             </button>
-            <button onclick="switchView('survey'); toggleProjectModal(true); toggleMobileDrawer(false);" id="mobileNavSurveyBtn" class="hidden items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition text-left">
+            <button onclick="switchView('survey'); toggleProjectModal(true); toggleMobileDrawer(false);" id="mobileNavSurveyBtn" class="hidden items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition text-left cursor-pointer">
                 <i data-lucide="folder-kanban" class="w-5 h-5"></i> Project
             </button>
-            <button onclick="downloadExcel(); toggleMobileDrawer(false);" id="mobileNavDownloadExcelBtn" class="hidden items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition text-left">
+            <button onclick="downloadExcel(); toggleMobileDrawer(false);" id="mobileNavDownloadExcelBtn" class="hidden items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition text-left cursor-pointer">
                 <i data-lucide="download" class="w-5 h-5"></i> Export
             </button>
             <div class="border-t border-white/20 my-2 pt-2"></div>
-            <button onclick="logout()" class="flex items-center gap-3 p-3 rounded-xl bg-white text-red-600 hover:bg-gray-100 transition text-left font-semibold">
+            <button onclick="logout()" class="flex items-center gap-3 p-3 rounded-xl bg-white text-red-600 hover:bg-gray-100 transition text-left font-semibold cursor-pointer">
                 <i data-lucide="log-out" class="w-5 h-5"></i> Sign Out
             </button>
         </div>
@@ -251,8 +310,8 @@
         <!-- AUTHENTICATION SECTION -->
         <section id="loginSection" class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 max-w-md mx-auto mt-12 transition-all">
             <div class="flex border-b border-gray-100 mb-6">
-                <button type="button" onclick="switchAuthTab('login')" id="tabLoginBtn" class="flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue transition">Sign In</button>
-                <button type="button" onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 pb-3 font-medium text-gray-400 transition">Sign Up</button>
+                <button type="button" onclick="switchAuthTab('login')" id="tabLoginBtn" class="flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue transition cursor-pointer">Sign In</button>
+                <button type="button" onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 pb-3 font-medium text-gray-400 transition cursor-pointer">Sign Up</button>
             </div>
 
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
@@ -274,7 +333,7 @@
                     <a href="#" onclick="handleForgotPassword(event)" class="text-xs text-iss-blue font-semibold hover:underline">Forgot Password?</a>
                 </div>
 
-                <button type="submit" class="w-full bg-iss-blue text-white py-3.5 rounded-xl font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition active:scale-[0.98] mt-2">Sign In</button>
+                <button type="submit" class="w-full bg-iss-blue text-white py-3.5 rounded-xl font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition active:scale-[0.98] mt-2 cursor-pointer">Sign In</button>
             </form>
 
             <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
@@ -287,7 +346,7 @@
                     <input type="password" id="regPin" inputmode="numeric" pattern="[0-9]*" required class="w-full p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-iss-blue outline-none transition bg-gray-50/50 focus:bg-white" placeholder="Create confidential PIN">
                 </div>
                 <p class="text-xs text-gray-500 bg-blue-50/50 p-2.5 rounded-lg border border-blue-100">Note: New accounts require administrator approval.</p>
-                <button type="submit" class="w-full bg-iss-blue text-white py-3.5 rounded-xl font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition active:scale-[0.98] mt-2">Sign Up</button>
+                <button type="submit" class="w-full bg-iss-blue text-white py-3.5 rounded-xl font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition active:scale-[0.98] mt-2 cursor-pointer">Sign Up</button>
             </form>
         </section>
 
@@ -321,7 +380,7 @@
                         </div>
 
                         <div class="border-t border-gray-100 pt-4">
-                            <button type="button" onclick="toggleExtraFields()" class="text-iss-blue text-sm font-semibold flex items-center gap-2 hover:opacity-80 transition py-1">
+                            <button type="button" onclick="toggleExtraFields()" class="text-iss-blue text-sm font-semibold flex items-center gap-2 hover:opacity-80 transition py-1 cursor-pointer">
                                 <i data-lucide="sliders-horizontal" class="w-4 h-4"></i> Additional Details (Building, Floor, Notes)
                             </button>
                             <div id="extraFields" class="hidden grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
@@ -341,8 +400,8 @@
                         </div>
 
                         <div class="flex gap-3 pt-2">
-                            <button type="submit" id="submitBtn" class="flex-1 bg-iss-blue text-white py-3.5 rounded-xl font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition">Save Entry</button>
-                            <button type="button" onclick="resetForm()" id="cancelBtn" class="hidden bg-gray-100 text-gray-600 px-6 py-3.5 rounded-xl font-semibold hover:bg-gray-200 transition">Cancel</button>
+                            <button type="submit" id="submitBtn" class="flex-1 bg-iss-blue text-white py-3.5 rounded-xl font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition cursor-pointer">Save Entry</button>
+                            <button type="button" onclick="resetForm()" id="cancelBtn" class="hidden bg-gray-100 text-gray-600 px-6 py-3.5 rounded-xl font-semibold hover:bg-gray-200 transition cursor-pointer">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -352,7 +411,7 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 id="tableTitle" class="text-xl font-bold text-iss-blue">Project: -</h3>
                         <div class="space-x-2">
-                            <button type="button" onclick="toggleTableCollapse()" id="collapseTableBtn" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition shadow-sm">Collapse / Expand Table</button>
+                            <button type="button" onclick="toggleTableCollapse()" id="collapseTableBtn" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition shadow-sm cursor-pointer">Collapse / Expand Table</button>
                         </div>
                     </div>
                     <div id="tableContainerWrapper" class="overflow-x-auto transition-all duration-300 hidden rounded-2xl border border-gray-100">
@@ -498,8 +557,8 @@
                                 <i data-lucide="shield-check" class="w-6 h-6"></i> Administrator Dashboard (User Survey Data)
                             </h3>
                             <div class="space-x-2">
-                                <button onclick="toggleAllAdminCards(true)" class="bg-iss-blue text-white px-4 py-2 rounded-xl text-xs font-semibold hover:opacity-90 shadow-sm transition">Expand All</button>
-                                <button onclick="toggleAllAdminCards(false)" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition">Collapse All</button>
+                                <button onclick="toggleAllAdminCards(true)" class="bg-iss-blue text-white px-4 py-2 rounded-xl text-xs font-semibold hover:opacity-90 shadow-sm transition cursor-pointer">Expand All</button>
+                                <button onclick="toggleAllAdminCards(false)" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition cursor-pointer">Collapse All</button>
                             </div>
                         </div>
                         <div id="adminContentContainer" class="space-y-6"></div>
@@ -917,13 +976,13 @@
             const registerForm = document.getElementById("registerForm");
 
             if (tab === 'login') {
-                loginBtn.className = "flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue transition";
-                registerBtn.className = "flex-1 pb-3 font-medium text-gray-400 transition";
+                loginBtn.className = "flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue transition cursor-pointer";
+                registerBtn.className = "flex-1 pb-3 font-medium text-gray-400 transition cursor-pointer";
                 loginForm.classList.remove("hidden");
                 registerForm.classList.add("hidden");
             } else {
-                registerBtn.className = "flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue transition";
-                loginBtn.className = "flex-1 pb-3 font-medium text-gray-400 transition";
+                registerBtn.className = "flex-1 pb-3 font-bold text-iss-blue border-b-2 border-iss-blue transition cursor-pointer";
+                loginBtn.className = "flex-1 pb-3 font-medium text-gray-400 transition cursor-pointer";
                 registerForm.classList.remove("hidden");
                 loginForm.classList.add("hidden");
             }
@@ -1343,9 +1402,9 @@
                         <td class="p-4 text-gray-700">${r.jenis_permukaan}</td>
                         <td class="p-4 text-gray-500">${r.catatan || '-'}</td>
                         <td class="p-4 text-center space-x-3 whitespace-nowrap">
-                            <button onclick="insertRowAfter(${index})" class="text-green-600 font-medium hover:underline">Insert</button>
-                            <button onclick="editRow(${index})" class="text-iss-blue font-medium hover:underline">Edit</button>
-                            <button onclick="deleteRow(${index})" class="text-red-500 font-medium hover:underline">Delete</button>
+                            <button onclick="insertRowAfter(${index})" class="text-green-600 font-medium hover:underline cursor-pointer">Insert</button>
+                            <button onclick="editRow(${index})" class="text-iss-blue font-medium hover:underline cursor-pointer">Edit</button>
+                            <button onclick="deleteRow(${index})" class="text-red-500 font-medium hover:underline cursor-pointer">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -1620,6 +1679,9 @@
         }
 
         function renderCharts(labelsGedung, dataChartGedung, globalLantaiLuas) {
+            const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const textColor = isDark ? '#cbd5e1' : '#64748b';
+
             const ctxGedung = document.getElementById('chartGedung').getContext('2d');
             if (chartInstanceGedung) chartInstanceGedung.destroy();
             chartInstanceGedung = new Chart(ctxGedung, {
@@ -1628,7 +1690,17 @@
                     labels: labelsGedung,
                     datasets: [{ label: 'Area per Building (sq m)', data: dataChartGedung, backgroundColor: '#0066FF', borderRadius: 6 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: textColor } }
+                    },
+                    scales: {
+                        x: { ticks: { color: textColor } },
+                        y: { ticks: { color: textColor } }
+                    }
+                }
             });
 
             const labelsLantai = Object.keys(globalLantaiLuas);
@@ -1641,7 +1713,13 @@
                     labels: labelsLantai,
                     datasets: [{ label: 'Flooring Type Area (sq m)', data: dataLantai, backgroundColor: ['#0066FF', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#1E40AF', '#1D4ED8'] }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: textColor } }
+                    }
+                }
             });
         }
 
@@ -1671,8 +1749,8 @@
                     let approvalHtml = "";
                     usersMeta.forEach(m => {
                         let statusBadge = m.status === "ACTIVE" ? `<span class="bg-green-50 text-green-700 border border-green-200 px-3 py-1 rounded-full text-xs font-semibold">ACTIVE</span>` : `<span class="bg-yellow-50 text-yellow-700 border border-yellow-200 px-3 py-1 rounded-full text-xs font-semibold">PENDING</span>`;
-                        let actionBtn = m.status === "PENDING" ? `<button onclick="approveUser('${m.user}')" class="bg-green-600 hover:bg-green-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-xs transition">Approve</button>` : `-`;
-                        let deleteBtn = `<button onclick="deleteUser('${m.user}')" class="bg-red-500 hover:bg-red-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold ml-2 shadow-xs transition">Delete User</button>`;
+                        let actionBtn = m.status === "PENDING" ? `<button onclick="approveUser('${m.user}')" class="bg-green-600 hover:bg-green-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-xs transition cursor-pointer">Approve</button>` : `-`;
+                        let deleteBtn = `<button onclick="deleteUser('${m.user}')" class="bg-red-500 hover:bg-red-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold ml-2 shadow-xs transition cursor-pointer">Delete User</button>`;
                         approvalHtml += `<tr class="border-b border-gray-100"><td class="p-4 font-semibold text-gray-800">${m.user}</td><td class="p-4">${statusBadge}</td><td class="p-4 text-center">${actionBtn} ${deleteBtn}</td></tr>`;
                     });
                     approvalBody.innerHTML = approvalHtml || "<tr><td colspan='3' class='p-4 text-center text-gray-400'>No registered users found.</td></tr>";
@@ -1696,7 +1774,7 @@
                         let analyticsData = processStructuredAnalytics(u.projectsMap);
 
                         let isUserExists = usersMeta.some(m => m.user === u.user);
-                        let orphanBtn = !isUserExists ? `<button onclick="event.stopPropagation(); adminDeleteAllUserData('${u.user}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold ml-2 transition shadow-xs">⚠️ Delete Orphaned Data</button>` : '';
+                        let orphanBtn = !isUserExists ? `<button onclick="event.stopPropagation(); adminDeleteAllUserData('${u.user}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold ml-2 transition shadow-xs cursor-pointer">⚠️ Delete Orphaned Data</button>` : '';
 
                         let grandTotalAdminGedung = 0;
                         for (let p in analyticsData.projectSummary) {
@@ -1711,7 +1789,7 @@
                                 <span class="text-gray-700">${p}</span>
                                 <div class="flex items-center gap-2">
                                     <span class="font-bold text-iss-blue">${gCount} Building(s) (${pct})</span>
-                                    <button onclick="adminDeleteProject('${u.user}', '${p}')" class="text-red-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition" title="Delete Project">✕</button>
+                                    <button onclick="adminDeleteProject('${u.user}', '${p}')" class="text-red-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition cursor-pointer" title="Delete Project">✕</button>
                                 </div>
                             </div>`;
                         }
@@ -1728,7 +1806,7 @@
                                     <span class="text-gray-600">Building: ${g}</span>
                                     <div class="flex items-center gap-2">
                                         <span class="text-gray-700">${formatLuas(gLuas)} sq m (${gPct})</span>
-                                        <button onclick="adminDeleteGedung('${u.user}', '${p}', '${g}')" class="text-red-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition" title="Delete Building">✕</button>
+                                        <button onclick="adminDeleteGedung('${u.user}', '${p}', '${g}')" class="text-red-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition cursor-pointer" title="Delete Building">✕</button>
                                     </div>
                                 </div>`;
                             }
